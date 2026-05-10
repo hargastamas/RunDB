@@ -212,6 +212,9 @@ canvas{display:block;width:100%!important}
 .cal-bubble-label{font-size:8px;color:var(--text3);text-align:center;line-height:1.3;max-width:72px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cal-empty{width:6px;height:6px;border-radius:50%;background:var(--border);margin:20px auto 0}
 
+/* stats sub-nav */
+.stats-sub-btn{font-size:11px;font-weight:700;letter-spacing:.3px;font-family:'Inter',sans-serif;border-radius:20px;padding:6px 16px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text3);transition:all .15s}
+.stats-sub-btn.active{background:var(--lime);color:var(--bg);border-color:var(--lime)}
 /* info button */
 .info-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;border:1.5px solid var(--text3);color:var(--text3);font-size:8px;font-weight:700;font-style:normal;cursor:pointer;background:none;padding:0;margin-left:7px;vertical-align:middle;transition:border-color .15s,color .15s;outline:none;font-family:'Inter',sans-serif;letter-spacing:0;text-transform:none;line-height:1;flex-shrink:0}
 .info-btn:hover,.info-btn:focus{border-color:var(--lime);color:var(--lime)}
@@ -292,9 +295,7 @@ canvas{display:block;width:100%!important}
   <button class="tab-btn active" onclick="showTab('overview',this)">Áttekintés</button>
   <button class="tab-btn" onclick="showTab('runs',this)">Futások</button>
   <button class="tab-btn" onclick="showTab('calendar',this)">Naptár</button>
-  <button class="tab-btn" onclick="showTab('monthly',this)">Havi</button>
-  <button class="tab-btn" onclick="showTab('yearly',this)">Éves</button>
-  <button class="tab-btn" onclick="showTab('compare',this)">Összehasonlítás</button>
+  <button class="tab-btn" onclick="showTab('stats',this)">Statisztikák</button>
   <button class="tab-btn" onclick="showTab('trends',this)">Trendek</button>
   <button class="tab-btn" onclick="showTab('health',this)">Egészség</button>
   <div style="margin-left:auto;flex-shrink:0">
@@ -320,6 +321,10 @@ canvas{display:block;width:100%!important}
   <div class="pr-grid" id="pr-grid"></div>
   <div class="slabel">Sorozatok &amp; konzisztencia</div>
   <div class="stat-row" id="streak-stats"></div>
+  <div class="slabel">Ezen a héten</div>
+  <div class="stat-row" id="thisweek-stats"></div>
+  <div class="slabel">Legjobb 28 napos időszak</div>
+  <div class="stat-row" id="best4w-stats"></div>
   <div class="slabel">Heti km — futási volumen (utolsó 52 hét)</div>
   <div class="chart-card"><canvas id="weeklyKmChart" height="160"></canvas></div>
   <div class="slabel">Havi km — teljes history</div>
@@ -406,72 +411,76 @@ canvas{display:block;width:100%!important}
   </div>
 </div>
 
-<!-- ═══ MONTHLY ═══ -->
-<div class="page" id="page-monthly">
-  <div class="slabel" style="border-top:none;padding-top:0;margin-top:0">Havi összesítők</div>
-  <div class="filter-bar">
-    <select class="filter-select" id="monthly-year-filter" onchange="renderMonthlyTable()"><option value="">Minden év</option></select>
-    <select class="filter-select" id="monthly-sort" onchange="renderMonthlyTable()">
-      <option value="ym-desc">Legújabb először</option>
-      <option value="ym-asc">Legrégebbi először</option>
-      <option value="km-desc">Legtöbb km</option>
-      <option value="best_pace-asc">Legjobb tempó</option>
-      <option value="avg_z1-desc">Legtöbb Z1</option>
-    </select>
-    <span class="result-count" id="monthly-count"></span>
+<!-- ═══ STATS ═══ -->
+<div class="page" id="page-stats">
+  <div style="display:flex;gap:8px;flex-wrap:wrap;padding-bottom:16px;border-bottom:1px solid var(--border);margin-bottom:18px">
+    <button class="stats-sub-btn active" data-sub="monthly" onclick="showStatsSub('monthly')">Havi</button>
+    <button class="stats-sub-btn" data-sub="yearly" onclick="showStatsSub('yearly')">Éves</button>
+    <button class="stats-sub-btn" data-sub="compare" onclick="showStatsSub('compare')">Összehasonlítás</button>
   </div>
-  <div class="table-wrap">
-    <table class="data-table">
-      <thead><tr>
-        <th>Hónap</th><th>Futások</th><th>Összes km</th><th>Átl. tempó</th>
-        <th>Legjobb tempó</th><th>Leghosszabb</th><th>Átl. HR</th>
-        <th>TRIMP</th><th>Z1%</th><th>AEI</th><th>Kalória</th>
-      </tr></thead>
-      <tbody id="monthly-tbody"></tbody>
-    </table>
-  </div>
-  <div class="slabel">Havi TRIMP — edzésterhelés</div>
-  <div class="chart-card"><canvas id="monthlyTRIMPChart" height="160"></canvas></div>
-</div>
-
-<!-- ═══ YEARLY ═══ -->
-<div class="page" id="page-yearly">
-  <div class="slabel" style="border-top:none;padding-top:0;margin-top:0">Éves összesítők</div>
-  <div class="table-wrap" style="margin-bottom:14px">
-    <table class="data-table">
-      <thead><tr>
-        <th>Év</th><th>Futások</th><th>Összes km</th><th>Átl. tempó</th>
-        <th>Legjobb tempó</th><th>Leghosszabb</th><th>Átl. HR</th>
-        <th>TRIMP</th><th>Z1%</th><th>AEI</th><th>Kalória</th>
-      </tr></thead>
-      <tbody id="yearly-tbody"></tbody>
-    </table>
-  </div>
-  <div class="g2">
-    <div class="chart-card"><div class="chart-title">Éves km</div><canvas id="yearlyKmChart" height="180"></canvas></div>
-    <div class="chart-card"><div class="chart-title">Éves AEI trend</div><canvas id="yearlyAEIChart" height="180"></canvas></div>
-  </div>
-</div>
-
-<!-- ═══ COMPARE ═══ -->
-<div class="page" id="page-compare">
-  <div class="slabel" style="border-top:none;padding-top:0;margin-top:0">Hónapok összehasonlítása</div>
-  <div class="chart-card" style="margin-bottom:14px">
-    <div class="compare-controls">
-      <select class="filter-select" id="month-a" onchange="renderMonthCompare()"></select>
-      <span style="color:var(--text3);font-size:12px">vs.</span>
-      <select class="filter-select" id="month-b" onchange="renderMonthCompare()"></select>
+  <!-- HAVI -->
+  <div id="stats-monthly">
+    <div class="filter-bar" style="margin-top:0">
+      <select class="filter-select" id="monthly-year-filter" onchange="renderMonthlyTable()"><option value="">Minden év</option></select>
+      <select class="filter-select" id="monthly-sort" onchange="renderMonthlyTable()">
+        <option value="ym-desc">Legújabb először</option>
+        <option value="ym-asc">Legrégebbi először</option>
+        <option value="km-desc">Legtöbb km</option>
+        <option value="best_pace-asc">Legjobb tempó</option>
+        <option value="avg_z1-desc">Legtöbb Z1</option>
+      </select>
+      <span class="result-count" id="monthly-count"></span>
     </div>
-    <table class="compare-table" id="month-compare-table"></table>
-  </div>
-  <div class="slabel">Évek összehasonlítása</div>
-  <div class="chart-card">
-    <div class="compare-controls">
-      <select class="filter-select" id="year-a" onchange="renderYearCompare()"></select>
-      <span style="color:var(--text3);font-size:12px">vs.</span>
-      <select class="filter-select" id="year-b" onchange="renderYearCompare()"></select>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr>
+          <th>Hónap</th><th>Futások</th><th>Összes km</th><th>Átl. tempó</th>
+          <th>Legjobb tempó</th><th>Leghosszabb</th><th>Átl. HR</th>
+          <th>TRIMP</th><th>Z1%</th><th>AEI</th><th>Kalória</th>
+        </tr></thead>
+        <tbody id="monthly-tbody"></tbody>
+      </table>
     </div>
-    <table class="compare-table" id="year-compare-table"></table>
+    <div class="slabel">Havi TRIMP — edzésterhelés</div>
+    <div class="chart-card"><canvas id="monthlyTRIMPChart" height="160"></canvas></div>
+  </div>
+  <!-- ÉVES -->
+  <div id="stats-yearly" style="display:none">
+    <div class="table-wrap" style="margin-bottom:14px">
+      <table class="data-table">
+        <thead><tr>
+          <th>Év</th><th>Futások</th><th>Összes km</th><th>Átl. tempó</th>
+          <th>Legjobb tempó</th><th>Leghosszabb</th><th>Átl. HR</th>
+          <th>TRIMP</th><th>Z1%</th><th>AEI</th><th>Kalória</th>
+        </tr></thead>
+        <tbody id="yearly-tbody"></tbody>
+      </table>
+    </div>
+    <div class="g2">
+      <div class="chart-card"><div class="chart-title">Éves km</div><canvas id="yearlyKmChart" height="180"></canvas></div>
+      <div class="chart-card"><div class="chart-title">Éves AEI trend</div><canvas id="yearlyAEIChart" height="180"></canvas></div>
+    </div>
+  </div>
+  <!-- ÖSSZEHASONLÍTÁS -->
+  <div id="stats-compare" style="display:none">
+    <div class="slabel" style="border-top:none;padding-top:0;margin-top:0">Hónapok összehasonlítása</div>
+    <div class="chart-card" style="margin-bottom:14px">
+      <div class="compare-controls">
+        <select class="filter-select" id="month-a" onchange="renderMonthCompare()"></select>
+        <span style="color:var(--text3);font-size:12px">vs.</span>
+        <select class="filter-select" id="month-b" onchange="renderMonthCompare()"></select>
+      </div>
+      <table class="compare-table" id="month-compare-table"></table>
+    </div>
+    <div class="slabel">Évek összehasonlítása</div>
+    <div class="chart-card">
+      <div class="compare-controls">
+        <select class="filter-select" id="year-a" onchange="renderYearCompare()"></select>
+        <span style="color:var(--text3);font-size:12px">vs.</span>
+        <select class="filter-select" id="year-b" onchange="renderYearCompare()"></select>
+      </div>
+      <table class="compare-table" id="year-compare-table"></table>
+    </div>
   </div>
 </div>
 
@@ -500,6 +509,16 @@ canvas{display:block;width:100%!important}
   <div class="chart-card">
     <div class="int-nav" id="int-nav"></div>
     <canvas id="intensityDonut" height="200"></canvas>
+  </div>
+  <div class="slabel">AEI trend — aerob hatékonyság fejlődése<button class="info-btn" tabindex="0">i<span class="info-tip">Aerob Hatékonysági Index: sebesség ÷ pulzus × 100. Ha ugyanolyan pulzuson gyorsabban futsz, az AEI nő — ez a legjobb jele a hosszú távú aerob fejlődésnek. Havi átlag.</span></button></div>
+  <div class="chart-card">
+    <div class="chart-sub">Havi átlagos AEI — magasabb = hatékonyabb aerob rendszer</div>
+    <canvas id="aeiTrendChart" height="160"></canvas>
+  </div>
+  <div class="slabel">Hőmérséklet vs. tempó<button class="info-btn" tabindex="0">i<span class="info-tip">Minden pont egy futást jelöl ahol volt hőmérsékleti adat. Vízszintes tengely: hőfok (°C), függőleges: tempó. A meleg általában rontja a teljesítményt — ha a pontok jobbra tolódva feljebb vannak, ez normális és várható.</span></button></div>
+  <div class="chart-card">
+    <div class="chart-sub">X = hőmérséklet (°C) · Y = tempó · <span style="color:#60a5fa">■</span> tél (0–10°C) · <span style="color:var(--lime)">■</span> tavasz/ősz · <span style="color:#f87171">■</span> nyár (24°C+)</span></div>
+    <canvas id="tempChart" height="220"></canvas>
   </div>
 </div>
 
@@ -744,7 +763,7 @@ function _render(runs){
   ({MONTHLY,YEARLY,WEEKLY,PRS,PR_DATES}=_compute(runs));
   RUNS=runs;filteredRuns=runs.slice();
   _clearDOM();
-  initOverview();initRunsTab();initCalendarTab();initMonthlyTab();initYearlyTab();initCompareTab();
+  initOverview();initRunsTab();initCalendarTab();initMonthlyTab();
 }
 
 async function _bootstrap(){
@@ -1052,6 +1071,20 @@ function drawScatterChart(id,points,opts={}){
 }
 
 // ── TAB ──
+let _statsSub='monthly';
+function showStatsSub(sub){
+  _statsSub=sub;
+  ['monthly','yearly','compare'].forEach(s=>{
+    document.getElementById('stats-'+s).style.display=s===sub?'block':'none';
+  });
+  document.querySelectorAll('.stats-sub-btn').forEach(b=>{
+    const active=b.dataset.sub===sub;
+    b.classList.toggle('active',active);
+  });
+  if(sub==='monthly'){renderMonthlyTable();drawBar('monthlyTRIMPChart',MONTHLY.map(m=>m.ym.slice(2)),[{data:MONTHLY.map(m=>m.total_trimp),color:MONTHLY.map(m=>m.total_trimp>1000?getLime():(document.documentElement.classList.contains('light')?'rgba(120,154,0,.3)':'rgba(200,241,53,.3)'))}],{rotateLabels:true,yFmt:v=>Math.round(v)});}
+  if(sub==='yearly'){initYearlyTab();}
+  if(sub==='compare'){initCompareTab();}
+}
 function showTab(id,btn){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
@@ -1061,8 +1094,7 @@ function showTab(id,btn){
 }
 function redrawTab(id){
   if(id==='overview'){drawOverviewCharts();}
-  if(id==='monthly'){drawBar('monthlyTRIMPChart',MONTHLY.map(m=>m.ym.slice(2)),[{data:MONTHLY.map(m=>m.total_trimp),color:MONTHLY.map(m=>m.total_trimp>1000?getLime():(document.documentElement.classList.contains('light')?'rgba(120,154,0,.3)':'rgba(200,241,53,.3)'))}],{rotateLabels:true,yFmt:v=>Math.round(v)});}
-  if(id==='yearly'){drawYearlyCharts();}
+  if(id==='stats'){showStatsSub(_statsSub);}
   if(id==='trends'){drawTrendCharts();}
   if(id==='health'){drawHealthCharts();}
 }
@@ -1370,6 +1402,33 @@ function initOverview(){
     <div class="stat-box"><div class="stat-lbl">Jelenlegi sorozat</div><div class="stat-num lime">${current}</div><div class="stat-unit">egymást követő hét</div></div>
     <div class="stat-box"><div class="stat-lbl">Leghosszabb sorozat</div><div class="stat-num">${longest}</div><div class="stat-unit">egymást követő hét</div></div>`;
 
+  // Ezen a héten
+  const today=new Date().toISOString().slice(0,10);
+  const thisW=WEEKLY.find(w=>{const[s,e]=w.w.split('/');return today>=s&&today<=e;});
+  const prevW=thisW?WEEKLY[WEEKLY.indexOf(thisW)-1]:null;
+  const twKm=thisW?thisW.km:0,twRuns=thisW?thisW.runs:0,twTrimp=thisW?Math.round(thisW.trimp):0;
+  const kmDelta=thisW&&prevW?+(twKm-prevW.km).toFixed(1):null;
+  const kmDeltaStr=kmDelta===null?'':`<div class="stat-unit" style="color:${kmDelta>=0?'var(--lime)':'var(--orange)'}">${kmDelta>=0?'+':''}${kmDelta} km az előző héthez képest</div>`;
+  document.getElementById('thisweek-stats').innerHTML=`
+    <div class="stat-box"><div class="stat-lbl">Km ezen a héten</div><div class="stat-num lime">${twKm.toFixed(1)}</div>${kmDeltaStr}</div>
+    <div class="stat-box"><div class="stat-lbl">Futások</div><div class="stat-num">${twRuns}</div><div class="stat-unit">ezen a héten</div></div>
+    <div class="stat-box"><div class="stat-lbl">TRIMP</div><div class="stat-num">${twTrimp}</div><div class="stat-unit">terhelési pont</div></div>`;
+
+  // Legjobb 28 napos időszak
+  let best28={km:0,trimp:0,runs:0,start:'',end:''};
+  for(let i=0;i<WEEKLY.length;i++){
+    const wStart=WEEKLY[i].w.split('/')[0];
+    const wEnd28=new Date(wStart);wEnd28.setDate(wEnd28.getDate()+27);
+    const wEnd28Str=wEnd28.toISOString().slice(0,10);
+    const inW=WEEKLY.filter(w=>w.w.split('/')[0]>=wStart&&w.w.split('/')[0]<=wEnd28Str);
+    const km=+inW.reduce((s,w)=>s+w.km,0).toFixed(1);
+    if(km>best28.km)best28={km,trimp:Math.round(inW.reduce((s,w)=>s+(w.trimp||0),0)),runs:inW.reduce((s,w)=>s+(w.runs||0),0),start:wStart,end:wEnd28Str};
+  }
+  document.getElementById('best4w-stats').innerHTML=`
+    <div class="stat-box"><div class="stat-lbl">Legjobb 28 nap km</div><div class="stat-num lime">${best28.km}</div><div class="stat-unit">${best28.start} – ${best28.end}</div></div>
+    <div class="stat-box"><div class="stat-lbl">Futások</div><div class="stat-num">${best28.runs}</div><div class="stat-unit">ebben az időszakban</div></div>
+    <div class="stat-box"><div class="stat-lbl">TRIMP</div><div class="stat-num">${best28.trimp}</div><div class="stat-unit">összes terhelési pont</div></div>`;
+
   const p=PRS;
   function prCard(label,numHtml,meta,run){
     return`<div class="pr-card" onclick='${run?`showRunDetail(${JSON.stringify(run)})`:""}'>
@@ -1671,6 +1730,23 @@ function drawTrendCharts(){
     });
   }
   _drawIntensity(_intPeriod);
+
+  // AEI trend (all time monthly)
+  const aeiD=MONTHLY.filter(m=>m.avg_aei);
+  if(aeiD.length)drawLine('aeiTrendChart',aeiD.map(m=>m.ym.slice(2)),
+    [{data:aeiD.map(m=>m.avg_aei),color:getLime(),fill:true,fillColor:getLimeDim(),label:'AEI'}],
+    {rotateLabels:true,yFmt:v=>v.toFixed(2)});
+
+  // Temperature vs pace scatter
+  const tempPts=RUNS.filter(r=>r.temp!=null&&r.pace>0&&r.pace<9.5).map(r=>{
+    const t=r.temp;
+    const color=t<=10?'rgba(96,165,250,.8)':t>=24?'rgba(248,113,113,.8)':(isLight?'rgba(100,130,0,.75)':'rgba(200,241,53,.7)');
+    return{x:t,y:r.pace,r:4,color,run:r};
+  });
+  if(tempPts.length){
+    const minT=Math.min(...tempPts.map(p=>p.x))-2,maxT=Math.max(...tempPts.map(p=>p.x))+2;
+    drawScatterChart('tempChart',tempPts,{minX:minT,maxX:maxT,minY:4,maxY:9,xLabel:'°C'});
+  }
 }
 
 // ── EGÉSZSÉG ──
