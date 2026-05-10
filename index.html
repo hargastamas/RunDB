@@ -1883,7 +1883,7 @@ function _drawRacePredictions(){
   const vsel=document.getElementById('vo2-current-stats');
   if(vsel){
     const vsDiff=+(vo2-bestVo2).toFixed(1);
-    const vsStr=vsDiff===0?'Ez a személyes csúcs':`${vsDiff} a csúcshoz képest (${bestVo2} ml/kg/min)`;
+    const vsStr=vsDiff===0?'Ez a személyes csúcs':`Csúcs: ${bestVo2} ml/kg/min`;
     const cat=vo2>=60?'Elit':vo2>=50?'Sportoló szint':vo2>=45?'Aktív felnőtt':'Átlag alatti';
     vsel.innerHTML=`<div class="stat-box"><div class="stat-lbl">Jelenlegi VO₂ Max</div><div class="stat-num lime">${vo2.toFixed(1)}<span class="stat-unit" style="font-size:14px;margin-left:4px">ml/kg/min</span></div><div class="stat-unit">${cat} · ${vsStr}</div></div>`;
   }
