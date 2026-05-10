@@ -74,6 +74,7 @@ nav{background:var(--bg);border-bottom:1px solid var(--border);transition:backgr
 
 /* STAT ROW */
 .stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:0}
+.race-pred-grid{grid-template-columns:repeat(4,1fr)}
 .stat-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;transition:background .25s,border-color .25s}
 .stat-lbl{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
 .stat-num{font-size:32px;font-weight:900;color:var(--text);line-height:1;letter-spacing:-1px}
@@ -245,6 +246,7 @@ canvas{display:block;width:100%!important}
 
   /* Stats: 2 oszlop */
   .stat-row{grid-template-columns:repeat(2,1fr)}
+  .race-pred-grid{grid-template-columns:repeat(2,1fr)}
   .stat-num{font-size:26px}
 
   /* PR grid: 2 oszlop */
@@ -326,7 +328,7 @@ canvas{display:block;width:100%!important}
   <div class="slabel">Personal Records — kattints a futáshoz</div>
   <div class="pr-grid" id="pr-grid"></div>
   <div class="slabel">Becsült versenyidők<button class="info-btn" tabindex="0">i<span class="info-tip">A VO₂ Max alapján számított elméleti versenytempók Jack Daniels futóedzési modellje szerint. Tájékoztató jellegű becslés.</span></button></div>
-  <div class="stat-row" id="race-pred-stats" style="grid-template-columns:repeat(4,1fr)"></div>
+  <div class="stat-row race-pred-grid" id="race-pred-stats"></div>
   <div class="slabel">Sorozatok &amp; konzisztencia</div>
   <div class="stat-row" id="streak-stats"></div>
   <div class="slabel">Ezen a héten</div>
