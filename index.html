@@ -325,6 +325,7 @@ canvas{display:block;width:100%!important}
   <div class="stat-row" id="streak-stats"></div>
   <div class="slabel">Ezen a héten</div>
   <div class="stat-row" id="thisweek-stats"></div>
+  <div class="slabel">Mai edzéskészség</div>
   <div id="recovery-widget"></div>
   <div class="slabel">Ez a hónap vs. tavaly ilyenkor</div>
   <div class="stat-row" id="vsly-stats"></div>
@@ -1927,8 +1928,7 @@ function _drawRecovery(){
   if(forma>=70){status='Jó forma';col='var(--lime)';advice='Kemény edzés mehet';}
   else if(forma>=45){status='Átlagos forma';col='var(--orange)';advice='Könnyű edzés javasolt';}
   else{status='Fáradt';col='var(--red)';advice='Pihenj ma';}
-  el.innerHTML=`<div class="slabel">Mai edzéskészség</div>
-  <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid ${col};border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:0">
+  el.innerHTML=`<div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid ${col};border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:0">
     <div style="font-size:42px;font-weight:900;color:${col};letter-spacing:-2px;line-height:1">${forma}</div>
     <div>
       <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px">${status} — ${advice}</div>
