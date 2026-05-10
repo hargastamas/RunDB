@@ -466,10 +466,19 @@ function _parseCSV(text){
   return runs;
 }
 
+function _dedup(runs){
+  // Eltávolítja a duplikált sorokat (azonos dátum + közel azonos távolság)
+  const seen=new Map();
+  runs.forEach(r=>{
+    const key=r.date+'|'+Math.round(r.dist);
+    if(!seen.has(key)||r.avg_hr)seen.set(key,r); // jobb adatot preferálja
+  });
+  return[...seen.values()];
+}
 function _merge(base,sheet){
-  // Ha a Sheet-nek van adata egy adott dátumra, az a mérvadó (GPS eltérések miatt)
-  const sheetDates=new Set(sheet.map(r=>r.date));
-  return[...base.filter(r=>!sheetDates.has(r.date)),...sheet]
+  const deduped=_dedup(sheet);
+  const sheetDates=new Set(deduped.map(r=>r.date));
+  return[...base.filter(r=>!sheetDates.has(r.date)),...deduped]
     .sort((a,b)=>a.date.localeCompare(b.date));
 }
 
