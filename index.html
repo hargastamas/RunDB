@@ -329,6 +329,7 @@ canvas{display:block;width:100%!important}
   <div class="stat-row" id="today-stats">
     <div id="today-forma"></div>
     <div id="today-vo2"></div>
+    <div id="today-lastrun"></div>
   </div>
   <!-- EZEN A HÉTEN -->
   <div class="slabel">Ezen a héten</div>
@@ -1355,6 +1356,21 @@ function initOverview(){
     <div class="stat-box"><div class="stat-lbl">Átl. tempó</div><div class="stat-num">${fmtPace(avgPace)}</div><div class="stat-unit">min/km</div></div>
     <div class="stat-box"><div class="stat-lbl">Összes TRIMP</div><div class="stat-num">${Math.round(totTrimp).toLocaleString()}</div><div class="stat-unit">terhelési pont</div></div>
     <div class="stat-box"><div class="stat-lbl">Szintemelkedés ${curYear}</div><div class="stat-num">${Math.round(elevYear).toLocaleString()}</div><div class="stat-unit">méter · össz: ${Math.round(totElev/1000).toFixed(1)}k m</div></div>`;
+
+  // Utolsó futás
+  const lastRun=RUNS[RUNS.length-1];
+  if(lastRun){
+    const today=new Date().toISOString().slice(0,10);
+    const diffDays=Math.round((new Date(today)-new Date(lastRun.date))/(1000*60*60*24));
+    const whenStr=diffDays===0?'Ma':diffDays===1?'Tegnap':`${diffDays} napja`;
+    const elr=document.getElementById('today-lastrun');
+    if(elr)elr.innerHTML=`<div class="stat-box" style="cursor:pointer" onclick='showRunDetail(${JSON.stringify(lastRun)})'>
+      <div class="stat-lbl">Utolsó futás</div>
+      <div class="stat-num">${lastRun.dist.toFixed(1)}<span style="font-size:14px;font-weight:500;color:var(--text3);margin-left:3px">km</span></div>
+      <div class="stat-unit">${whenStr} · ${fmtPace(lastRun.pace)}/km</div>
+      <div class="stat-unit" style="margin-top:3px">${lastRun.date}</div>
+    </div>`;
+  }
 
   // Ezen a héten
   const today=new Date().toISOString().slice(0,10);
