@@ -13,8 +13,8 @@
 
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --lime:#C8F135;
-  --lime-dim:rgba(200,241,53,.15);
+  --lime:#00C853;
+  --lime-dim:rgba(0,200,83,.15);
   --on-lime:#111111;
   --bg:#0a0a0a;
   --surface:#111111;
@@ -33,8 +33,6 @@
   --tip-text:#ffffff;
 }
 :root.light{
-  --lime:#00C853;
-  --lime-dim:rgba(0,200,83,.15);
   --bg:#f4f4f4;
   --surface:#ffffff;
   --surface2:#efefef;
@@ -796,9 +794,9 @@ async function _bootstrap(){
 }
 // ─────────────────────────────────────────────────────────────────────────────
 const MONTHS_HU=['jan','feb','már','ápr','máj','jún','júl','aug','szep','okt','nov','dec'];
-const LIME='#C8F135';
-function getLime(){return document.documentElement.classList.contains('light')?'#7a9a00':'#C8F135';}
-function getLimeDim(){return document.documentElement.classList.contains('light')?'rgba(120,154,0,.15)':'rgba(200,241,53,.08)';}
+const LIME='#00C853';
+function getLime(){return gv('--lime');}
+function getLimeDim(){return gv('--lime-dim');}
 function gv(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
 function gridColor(){return gv('--grid-line');}
 function axisColor(){return gv('--axis-text');}
@@ -1210,7 +1208,7 @@ function renderCalendar(){
           const size=Math.round(34+(r.dist/maxDist)*36);
           // color by zone
           let bg,textCol;
-          if(r.z1>=50){bg=isLight?'#8ab000':'#C8F135';textCol=isLight?'#fff':'#0a0a0a';}
+          if(r.z1>=50){bg='#00C853';textCol='#111111';}
           else if((r.z3+r.z4)>=50){bg='#ff6622';textCol='#fff';}
           else{bg='#6dbf6d';textCol='#fff';}
 
@@ -1398,7 +1396,7 @@ function _drawIntensity(days){
   const mixed=runs.length-easy-hard;
   const isLight=document.documentElement.classList.contains('light');
   drawDonut('intensityDonut',[
-    {label:'Könnyű (Z1)',value:easy,color:isLight?'#8ab000':'#C8F135'},
+    {label:'Könnyű (Z1)',value:easy,color:'#00C853'},
     {label:'Vegyes',value:mixed,color:'#6dbf6d'},
     {label:'Kemény (Z3–4)',value:hard,color:'#ff6622'},
   ]);
