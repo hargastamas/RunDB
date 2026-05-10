@@ -1101,7 +1101,7 @@ function showStatsSub(sub){
     const active=b.dataset.sub===sub;
     b.classList.toggle('active',active);
   });
-  if(sub==='monthly'){renderMonthlyTable();drawBar('monthlyTRIMPChart',MONTHLY.map(m=>m.ym.slice(2)),[{data:MONTHLY.map(m=>m.total_trimp),color:MONTHLY.map(m=>m.total_trimp>1000?getLime():(document.documentElement.classList.contains('light')?'rgba(120,154,0,.3)':'rgba(200,241,53,.3)'))}],{rotateLabels:true,yFmt:v=>Math.round(v)});}
+  if(sub==='monthly'){renderMonthlyTable();drawBar('monthlyTRIMPChart',MONTHLY.map(m=>m.ym.slice(2)),[{data:MONTHLY.map(m=>m.total_trimp),color:MONTHLY.map(m=>m.total_trimp>1000?getLime():(document.documentElement.classList.contains('light')?'rgba(0,200,83,.3)':'rgba(200,241,53,.3)'))}],{rotateLabels:true,yFmt:v=>Math.round(v)});}
   if(sub==='yearly'){initYearlyTab();}
   if(sub==='compare'){initCompareTab();}
 }
@@ -1650,7 +1650,7 @@ function filterAndShowRuns(ym){
 
 // ── YEARLY ──
 function drawYearlyCharts(){
-  drawBar('yearlyKmChart',YEARLY.map(y=>y.year+''),[{data:YEARLY.map(y=>y.km),color:YEARLY.map(y=>y.km===Math.max(...YEARLY.map(y=>y.km))?getLime():(document.documentElement.classList.contains('light')?'rgba(120,154,0,.3)':'rgba(200,241,53,.3)'))}],{yFmt:v=>Math.round(v)+'km'});
+  drawBar('yearlyKmChart',YEARLY.map(y=>y.year+''),[{data:YEARLY.map(y=>y.km),color:YEARLY.map(y=>y.km===Math.max(...YEARLY.map(y=>y.km))?getLime():(document.documentElement.classList.contains('light')?'rgba(0,200,83,.3)':'rgba(200,241,53,.3)'))}],{yFmt:v=>Math.round(v)+'km'});
   const a=YEARLY.filter(y=>y.avg_aei);
   drawLine('yearlyAEIChart',a.map(y=>y.year+''),[{data:a.map(y=>y.avg_aei),color:getLime(),fill:true,fillColor:getLimeDim()}],{yFmt:v=>v.toFixed(2)});
 }
