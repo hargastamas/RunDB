@@ -323,6 +323,8 @@ canvas{display:block;width:100%!important}
   <div class="stat-row" id="overview-stats"></div>
   <div class="slabel">Personal Records — kattints a futáshoz</div>
   <div class="pr-grid" id="pr-grid"></div>
+  <div class="slabel">Becsült versenyidők<button class="info-btn" tabindex="0">i<span class="info-tip">A VO₂ Max alapján számított elméleti versenytempók Jack Daniels futóedzési modellje szerint. Tájékoztató jellegű becslés.</span></button></div>
+  <div class="stat-row" id="race-pred-stats" style="grid-template-columns:repeat(4,1fr)"></div>
   <div class="slabel">Sorozatok &amp; konzisztencia</div>
   <div class="stat-row" id="streak-stats"></div>
   <div class="slabel">Ezen a héten</div>
@@ -331,19 +333,12 @@ canvas{display:block;width:100%!important}
   <div id="recovery-widget"></div>
   <div class="slabel">Ez a hónap vs. tavaly ilyenkor</div>
   <div class="stat-row" id="vsly-stats"></div>
-  <div class="slabel">Legjobb 28 napos időszak</div>
-  <div class="stat-row" id="best4w-stats"></div>
   <div class="slabel">Heti km — futási volumen (utolsó 52 hét)</div>
   <div class="chart-card"><canvas id="weeklyKmChart" height="160"></canvas></div>
   <div class="slabel">Havi km heatmap</div>
   <div class="chart-card">
     <div class="month-names" id="month-names"></div>
     <div id="heatmap"></div>
-  </div>
-  <div class="slabel">PR fejlődés</div>
-  <div class="chart-card">
-    <div id="pr-prog-nav" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"></div>
-    <canvas id="prProgChart" height="160"></canvas>
   </div>
 </div>
 
@@ -524,6 +519,11 @@ canvas{display:block;width:100%!important}
     <div id="pace-hist-nav" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"></div>
     <canvas id="paceHistChart" height="160"></canvas>
   </div>
+  <div class="slabel">PR fejlődés</div>
+  <div class="chart-card">
+    <div id="pr-prog-nav" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"></div>
+    <canvas id="prProgChart" height="160"></canvas>
+  </div>
 </div>
 
 <!-- ═══ EGÉSZSÉG ═══ -->
@@ -546,8 +546,6 @@ canvas{display:block;width:100%!important}
     <div class="chart-sub">HRV + nyugalmi HR kombinációja a személyes átlaghoz képest · 50 = átlagos · &gt;70 = jó forma</div>
     <canvas id="formaChart" height="150"></canvas>
   </div>
-  <div class="slabel">Becsült versenyidők<button class="info-btn" tabindex="0">i<span class="info-tip">A VO₂ Max alapján számított elméleti versenytempók Jack Daniels futóedzési modellje szerint. Nem figyelembe veszi a specifikus edzettséget, taktikát vagy terepet — tájékoztató jellegű becslés.</span></button></div>
-  <div class="stat-row" id="race-pred-stats" style="grid-template-columns:repeat(4,1fr)"></div>
   <div class="slabel">VO₂ Max trend<button class="info-btn" tabindex="0">i<span class="info-tip">Az Apple Watch becslése az aerob kapacitásodról ml/kg/min-ben. 35 alatt: átlag alatti. 40–45: átlagos aktív felnőtt. 50+: sportoló szint. 60+: elit. Futóedzéssel évek alatt jelentősen javítható. A növekvő trend a legfontosabb hosszú távú fitnesz mutató.</span></button></div>
   <div class="chart-card">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:8px">
@@ -1291,7 +1289,7 @@ function drawOverviewCharts(){
   drawBar('weeklyKmChart',wk52.map(w=>w.date.slice(5)),
     [{data:wk52.map(w=>w.km),color:wk52.map(w=>w.km>=50?getLime():w.km>=25?(isLight?'rgba(0,200,83,.45)':'rgba(200,241,53,.45)'):(isLight?'rgba(0,200,83,.2)':'rgba(200,241,53,.2)')),label:'km'}],
     {rotateLabels:true,yFmt:v=>Math.round(v)+'km',extraTip:i=>(wk52[i].runs||'?')+' futás'});
-  _drawPRProgression();
+  _drawRacePredictions();
   _drawVsLastYear();
 }
 
@@ -1364,21 +1362,6 @@ function initOverview(){
     <div class="stat-box"><div class="stat-lbl">Km ezen a héten</div><div class="stat-num lime">${twKm.toFixed(1)}</div>${kmDeltaStr}</div>
     <div class="stat-box"><div class="stat-lbl">Futások</div><div class="stat-num">${twRuns}</div><div class="stat-unit">ezen a héten</div></div>
     <div class="stat-box"><div class="stat-lbl">TRIMP</div><div class="stat-num">${twTrimp}</div><div class="stat-unit">terhelési pont</div></div>`;
-
-  // Legjobb 28 napos időszak
-  let best28={km:0,trimp:0,runs:0,start:'',end:''};
-  for(let i=0;i<WEEKLY.length;i++){
-    const wStart=WEEKLY[i].w.split('/')[0];
-    const wEnd28=new Date(wStart);wEnd28.setDate(wEnd28.getDate()+27);
-    const wEnd28Str=wEnd28.toISOString().slice(0,10);
-    const inW=WEEKLY.filter(w=>w.w.split('/')[0]>=wStart&&w.w.split('/')[0]<=wEnd28Str);
-    const km=+inW.reduce((s,w)=>s+w.km,0).toFixed(1);
-    if(km>best28.km)best28={km,trimp:Math.round(inW.reduce((s,w)=>s+(w.trimp||0),0)),runs:inW.reduce((s,w)=>s+(w.runs||0),0),start:wStart,end:wEnd28Str};
-  }
-  document.getElementById('best4w-stats').innerHTML=`
-    <div class="stat-box"><div class="stat-lbl">Legjobb 28 nap km</div><div class="stat-num lime">${best28.km}</div><div class="stat-unit">${best28.start} – ${best28.end}</div></div>
-    <div class="stat-box"><div class="stat-lbl">Futások</div><div class="stat-num">${best28.runs}</div><div class="stat-unit">ebben az időszakban</div></div>
-    <div class="stat-box"><div class="stat-lbl">TRIMP</div><div class="stat-num">${best28.trimp}</div><div class="stat-unit">összes terhelési pont</div></div>`;
 
   const p=PRS;
   function prCard(label,numHtml,meta,run){
@@ -1739,6 +1722,7 @@ function drawTrendCharts(){
     });
   }
   _drawPaceHist(_paceHistPeriod);
+  _drawPRProgression();
 
   // AEI trend (all time monthly)
   const aeiD=MONTHLY.filter(m=>m.avg_aei);
@@ -1792,8 +1776,6 @@ function drawHealthCharts(){
        refLines:[{value:70,color:getLime(),label:'70 — jó forma'},{value:30,color:'#ff4444',label:'30 — fáradt'}]});
   }
 
-  // Race predictions
-  _drawRacePredictions();
   // VO2 Max
   _buildVo2Nav();
   drawVo2Chart();
