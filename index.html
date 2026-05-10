@@ -467,8 +467,9 @@ function _parseCSV(text){
 }
 
 function _merge(base,sheet){
-  const sk=new Set(sheet.map(r=>r.date+'|'+Math.round(r.dist*10)));
-  return[...base.filter(r=>!sk.has(r.date+'|'+Math.round(r.dist*10))),...sheet]
+  // Ha a Sheet-nek van adata egy adott dátumra, az a mérvadó (GPS eltérések miatt)
+  const sheetDates=new Set(sheet.map(r=>r.date));
+  return[...base.filter(r=>!sheetDates.has(r.date)),...sheet]
     .sort((a,b)=>a.date.localeCompare(b.date));
 }
 
@@ -570,7 +571,7 @@ function _clearDOM(){
   const calBody=document.getElementById('cal-body');if(calBody)calBody.innerHTML='';
 }
 
-const CACHE_KEY='rundb_runs_v2';
+const CACHE_KEY='rundb_runs_v3';
 
 function _saveCache(runs){
   try{localStorage.setItem(CACHE_KEY,JSON.stringify(runs));}catch(e){}
