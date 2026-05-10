@@ -492,12 +492,7 @@ canvas{display:block;width:100%!important}
 
 <!-- ═══ TRENDS ═══ -->
 <div class="page" id="page-trends">
-  <div class="slabel" style="border-top:none;padding-top:0;margin-top:0">Pulzus vs. tempó<button class="info-btn" tabindex="0">i<span class="info-tip">Minden pont egy futást jelöl. Vízszintes tengely: átlagos pulzus, függőleges: tempó. Minél balra és lejjebb van egy pont, annál hatékonyabb volt a futás — alacsonyabb pulzusnál gyorsabb tempó. A cél, hogy az évek során a pontok balra és lefelé tolódjanak.</span></button></div>
-  <div class="chart-card">
-    <div class="chart-sub" id="scatter-legend">kattints a pontra a futás részleteihez</div>
-    <canvas id="scatterChart" height="280"></canvas>
-  </div>
-  <div class="slabel">Havi edzésmegoszlás<button class="info-btn" tabindex="0">i<span class="info-tip">Az edzések mekkora hányada zajlott könnyű, aerob (Z1) zónában. A polarizált edzéselmélet szerint az edzések 70–80%-ának Z1-ben kellene lennie. A Z4% a kemény edzések arányát mutatja — ideálisan 10–15% körül.</span></button></div>
+  <div class="slabel" style="border-top:none;padding-top:0;margin-top:0">Havi edzésmegoszlás<button class="info-btn" tabindex="0">i<span class="info-tip">Az edzések mekkora hányada zajlott könnyű, aerob (Z1) zónában. A polarizált edzéselmélet szerint az edzések 70–80%-ának Z1-ben kellene lennie. A Z4% a kemény edzések arányát mutatja — ideálisan 10–15% körül.</span></button></div>
   <div class="chart-card">
     <div id="zone-nav" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px"></div>
     <canvas id="zoneTimeChart" height="160"></canvas>
@@ -1746,13 +1741,13 @@ function _buildYearNav(navId,getCurrent,setCurrent,onDraw,source){
 function _buildZoneNav(){_buildYearNav('zone-nav',()=>_zoneYear,v=>{_zoneYear=v;},_drawZoneChart,()=>MONTHLY);}
 function _drawZoneChart(){
   const data=_zoneYear?MONTHLY.filter(m=>m.year==_zoneYear):MONTHLY;
-  drawBar('zoneTimeChart',data.map(m=>_zoneYear?m.ym.slice(5):m.ym.slice(2)),[
+  drawBar('zoneTimeChart',data.map(m=>_zoneYear?MONTHS_HU[+m.ym.slice(5)-1]:m.ym.slice(2)),[
     {data:data.map(m=>m.avg_z1),color:getLime(),label:'Z1%'},
     {data:data.map(m=>m.avg_z4),color:'rgba(255,140,0,.7)',label:'Z4%'}
   ],{rotateLabels:true,yFmt:v=>Math.round(v)+'%',maxVal:100});
 }
 let _trimpYear=String(new Date().getFullYear());
-function _buildTrimpNav(){_buildYearNav('trimp-nav',()=>_trimpYear,v=>{_trimpYear=v;},_drawTrimpChart,()=>WEEKLY);}
+function _buildTrimpNav(){_buildYearNav('trimp-nav',()=>_trimpYear,v=>{_trimpYear=v;},_drawTrimpChart,()=>WEEKLY.map(w=>({year:+w.date.slice(0,4)})));}
 function _drawTrimpChart(){
   const isLight=document.documentElement.classList.contains('light');
   const wk=_trimpYear?WEEKLY.filter(w=>w.date.startsWith(_trimpYear)):WEEKLY.slice(-60);
@@ -1762,21 +1757,6 @@ function _drawTrimpChart(){
 // ── TRENDS ──
 function drawTrendCharts(){
   const isLight=document.documentElement.classList.contains('light');
-  const scatterYears=[...new Set(RUNS.map(r=>r.year))].sort();
-  const minYr=scatterYears[0],maxYr=scatterYears[scatterYears.length-1];
-  const yearColor=yr=>{
-    const t=scatterYears.length>1?(yr-minYr)/(maxYr-minYr):1;
-    const a=(0.25+0.7*t).toFixed(2);
-    if(isLight)return`rgba(${Math.round(96-96*t)},${Math.round(165+35*t)},${Math.round(250-167*t)},${a})`;
-    return`rgba(${Math.round(96+104*t)},${Math.round(165+76*t)},${Math.round(250-197*t)},${a})`;
-  };
-  const pts=RUNS.map(r=>{
-    if(!r.avg_hr||!r.pace||r.avg_hr<80||r.pace>9.5)return null;
-    return{x:r.avg_hr,y:r.pace,r:Math.max(3,Math.min(8,r.dist*0.35)),color:yearColor(r.year),run:r};
-  }).filter(Boolean);
-  drawScatterChart('scatterChart',pts,{minX:110,maxX:190,minY:4,maxY:9});
-  const legendEl=document.getElementById('scatter-legend');
-  if(legendEl)legendEl.innerHTML='X = átl. HR · Y = tempó · '+scatterYears.map(yr=>`<span style="color:${yearColor(yr)}">■</span> ${yr}`).join(' · ')+' · kattints a pontra';
   _buildZoneNav();
   _drawZoneChart();
   _buildTrimpNav();
