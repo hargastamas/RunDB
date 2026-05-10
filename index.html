@@ -331,6 +331,8 @@ canvas{display:block;width:100%!important}
   <div class="slabel">Ez a hónap vs. tavaly ilyenkor</div>
   <div class="stat-row" id="vsly-stats"></div>
   <!-- JELENLEGI FITNESZ -->
+  <div class="slabel">Jelenlegi fitnesz</div>
+  <div class="stat-row" id="vo2-current-stats"></div>
   <div class="slabel">Becsült versenyidők<button class="info-btn" tabindex="0">i<span class="info-tip">A VO₂ Max alapján számított elméleti versenytempók Jack Daniels futóedzési modellje szerint. Tájékoztató jellegű becslés.</span></button></div>
   <div class="stat-row race-pred-grid" id="race-pred-stats"></div>
   <div class="slabel">Heti km — futási volumen (utolsó 52 hét)</div>
@@ -1876,6 +1878,15 @@ function _drawRacePredictions(){
   const vo2vals=HEALTH.filter(h=>h.vo2max>0);
   if(!vo2vals.length){el.innerHTML='<div class="stat-box"><div class="stat-lbl" style="color:var(--text3)">Nincs VO₂ Max adat</div></div>';return;}
   const vo2=vo2vals[vo2vals.length-1].vo2max;
+  const vo2date=vo2vals[vo2vals.length-1].date;
+  const bestVo2=Math.max(...vo2vals.map(h=>h.vo2max));
+  const vsel=document.getElementById('vo2-current-stats');
+  if(vsel){
+    const vsDiff=+(vo2-bestVo2).toFixed(1);
+    const vsStr=vsDiff===0?'Ez a személyes csúcs':`${vsDiff} a csúcshoz képest (${bestVo2} ml/kg/min)`;
+    const cat=vo2>=60?'Elit':vo2>=50?'Sportoló szint':vo2>=45?'Aktív felnőtt':'Átlag alatti';
+    vsel.innerHTML=`<div class="stat-box"><div class="stat-lbl">Jelenlegi VO₂ Max</div><div class="stat-num lime">${vo2.toFixed(1)}<span class="stat-unit" style="font-size:14px;margin-left:4px">ml/kg/min</span></div><div class="stat-unit">${cat} · ${vsStr}</div></div>`;
+  }
   function raceTime(pct,distKm){
     const target=pct*vo2;
     const c=-4.60-target;
