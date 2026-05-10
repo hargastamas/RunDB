@@ -76,6 +76,7 @@ nav{background:var(--bg);border-bottom:1px solid var(--border);transition:backgr
 .stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:0}
 .race-pred-grid{grid-template-columns:repeat(4,1fr)}
 .stat-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;transition:background .25s,border-color .25s}
+#today-stats>div{display:flex}#today-stats .stat-box{flex:1}
 .stat-lbl{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
 .stat-num{font-size:32px;font-weight:900;color:var(--text);line-height:1;letter-spacing:-1px}
 .stat-num.lime{color:var(--lime)}
@@ -346,8 +347,6 @@ canvas{display:block;width:100%!important}
   <div class="stat-row" id="overview-stats"></div>
   <div class="slabel">Personal Records — kattints a futáshoz</div>
   <div class="pr-grid" id="pr-grid"></div>
-  <div class="slabel">Sorozatok &amp; konzisztencia</div>
-  <div class="stat-row" id="streak-stats"></div>
   <div class="slabel">Havi km heatmap</div>
   <div class="chart-card">
     <div class="month-names" id="month-names"></div>
@@ -1359,10 +1358,7 @@ function initOverview(){
     <div class="stat-box"><div class="stat-lbl">Szintemelkedés ${curYear}</div><div class="stat-num">${Math.round(elevYear).toLocaleString()}</div><div class="stat-unit">méter · össz: ${Math.round(totElev/1000).toFixed(1)}k m</div></div>`;
   const{current,longest}=_computeStreaks();
   const todayStreak=document.getElementById('today-streak');
-  if(todayStreak)todayStreak.innerHTML=`<div class="stat-box"><div class="stat-lbl">Jelenlegi sorozat</div><div class="stat-num lime">${current}</div><div class="stat-unit">egymást követő hét</div></div>`;
-  document.getElementById('streak-stats').innerHTML=`
-    <div class="stat-box"><div class="stat-lbl">Jelenlegi sorozat</div><div class="stat-num lime">${current}</div><div class="stat-unit">egymást követő hét</div></div>
-    <div class="stat-box"><div class="stat-lbl">Leghosszabb sorozat</div><div class="stat-num">${longest}</div><div class="stat-unit">egymást követő hét</div></div>`;
+  if(todayStreak)todayStreak.innerHTML=`<div class="stat-box"><div class="stat-lbl">Heti sorozat</div><div class="stat-num lime">${current}</div><div class="stat-unit">egymást követő hét</div><div class="stat-unit" style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border)">Leghosszabb: <strong style="color:var(--text)">${longest} hét</strong></div></div>`;
 
   // Ezen a héten
   const today=new Date().toISOString().slice(0,10);
