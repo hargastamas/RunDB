@@ -699,9 +699,13 @@ function zonePill(r){return`<div class="zone-pill"><div class="zp1" style="width
 function drawBar(id,labels,datasets,opts={}){
   const canvas=document.getElementById(id);
   if(!canvas)return;
-  const W=canvas.offsetWidth||canvas.parentElement.offsetWidth||700,H=canvas.height||180;
-  canvas.width=W;
+  const dpr=window.devicePixelRatio||1;
+  const W=canvas.offsetWidth||canvas.parentElement.offsetWidth||700;
+  const H=parseInt(canvas.getAttribute('height'))||180;
+  canvas.width=W*dpr; canvas.height=H*dpr;
+  canvas.style.width=W+'px'; canvas.style.height=H+'px';
   const ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
   ctx.clearRect(0,0,W,H);
   const pad={top:12,right:12,bottom:opts.rotateLabels?48:24,left:44};
   const cW=W-pad.left-pad.right,cH=H-pad.top-pad.bottom;
@@ -753,7 +757,7 @@ function drawBar(id,labels,datasets,opts={}){
       const anyVal=vals.some(v=>v!=null&&!isNaN(v));
       if(anyVal){
         _bTip.style.background=tipBg();_bTip.style.color=gv('--tip-text');_bTip.style.border='1px solid '+tipBorder();
-        _bTip.innerHTML='<b>'+labels[i]+'</b><br>'+datasets.map((ds,di)=>((ds.label?ds.label+': ':'')+(opts.yFmt?opts.yFmt(vals[di]):vals[di]))).join('<br>');
+        _bTip.innerHTML='<b>'+labels[i]+'</b><br>'+datasets.map((ds,di)=>((ds.label?ds.label+': ':'')+(opts.yFmt?opts.yFmt(vals[di]):vals[di]))).join('<br>')+(opts.extraTip?'<br>'+opts.extraTip(i):'');
         _bTip.style.display='block';_bTip.style.left=(e.clientX+14)+'px';_bTip.style.top=(e.clientY-8)+'px';
         canvas.style.cursor=opts.onClick?'pointer':'default';
         return;
@@ -773,9 +777,13 @@ function drawBar(id,labels,datasets,opts={}){
 function drawLine(id,labels,datasets,opts={}){
   const canvas=document.getElementById(id);
   if(!canvas)return;
-  const W=canvas.offsetWidth||canvas.parentElement.offsetWidth||700,H=canvas.height||150;
-  canvas.width=W;
+  const dpr=window.devicePixelRatio||1;
+  const W=canvas.offsetWidth||canvas.parentElement.offsetWidth||700;
+  const H=parseInt(canvas.getAttribute('height'))||150;
+  canvas.width=W*dpr; canvas.height=H*dpr;
+  canvas.style.width=W+'px'; canvas.style.height=H+'px';
   const ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
   ctx.clearRect(0,0,W,H);
   const pad={top:12,right:12,bottom:opts.rotateLabels?48:24,left:44};
   const cW=W-pad.left-pad.right,cH=H-pad.top-pad.bottom;
@@ -834,9 +842,13 @@ function drawLine(id,labels,datasets,opts={}){
 function drawScatterChart(id,points,opts={}){
   const canvas=document.getElementById(id);
   if(!canvas)return;
-  const W=canvas.offsetWidth||canvas.parentElement.offsetWidth||700,H=canvas.height||280;
-  canvas.width=W;
+  const dpr=window.devicePixelRatio||1;
+  const W=canvas.offsetWidth||canvas.parentElement.offsetWidth||700;
+  const H=parseInt(canvas.getAttribute('height'))||280;
+  canvas.width=W*dpr; canvas.height=H*dpr;
+  canvas.style.width=W+'px'; canvas.style.height=H+'px';
   const ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
   const pad={top:12,right:12,bottom:36,left:52};
   const cW=W-pad.left-pad.right,cH=H-pad.top-pad.bottom;
   const minX=opts.minX||110,maxX=opts.maxX||190,minY=opts.minY||4,maxY=opts.maxY||9;
@@ -1056,6 +1068,7 @@ function drawOverviewKmChart(){
       color:data.map(m=>m.km>=150?getLime():m.ym.startsWith('2026')?'rgba(96,165,250,.6)':isLight?'rgba(120,154,0,.18)':'rgba(200,241,53,.22)'),
       label:'km'}],
     {rotateLabels:!_overviewKmYear,yFmt:v=>Math.round(v)+'km',
+     extraTip:i=>data[i].runs+' futás',
      onClick:(_,i)=>filterAndShowRuns(data[i].ym)});
 }
 
