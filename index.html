@@ -206,6 +206,11 @@ canvas{display:block;width:100%!important}
 .cal-bubble:hover{transform:scale(1.12);box-shadow:0 4px 20px rgba(0,0,0,.35)}
 .cal-bubble-label{font-size:8px;color:var(--text3);text-align:center;line-height:1.3;max-width:72px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cal-empty{width:6px;height:6px;border-radius:50%;background:var(--border);margin:20px auto 0}
+/* gap badge */
+.cal-gap-badge{font-size:7px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--orange);background:rgba(255,140,0,.12);border:1px solid rgba(255,140,0,.25);border-radius:4px;padding:1px 5px;margin-top:3px;line-height:1.4;text-align:center}
+/* intensity donut period pills */
+.int-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.int-pill{font-size:10px;font-weight:700;letter-spacing:.5px;font-family:'Inter',sans-serif;border-radius:20px;padding:4px 12px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text3);transition:all .15s}
 
 /* ── MOBILE ── */
 @media(max-width:640px){
@@ -300,6 +305,10 @@ canvas{display:block;width:100%!important}
   <div class="stat-row" id="overview-stats"></div>
   <div class="slabel">Personal Records — kattints a futáshoz</div>
   <div class="pr-grid" id="pr-grid"></div>
+  <div class="slabel">Sorozatok &amp; konzisztencia</div>
+  <div class="stat-row" id="streak-stats"></div>
+  <div class="slabel">Heti km — futási volumen (utolsó 52 hét)</div>
+  <div class="chart-card"><canvas id="weeklyKmChart" height="160"></canvas></div>
   <div class="slabel">Havi km — teljes history</div>
   <div class="chart-card">
     <div id="overview-km-nav" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"></div>
@@ -464,6 +473,21 @@ canvas{display:block;width:100%!important}
   <div class="chart-card"><canvas id="zoneTimeChart" height="160"></canvas></div>
   <div class="slabel">Heti TRIMP</div>
   <div class="chart-card"><canvas id="weeklyTRIMPChart" height="160"></canvas></div>
+  <div class="slabel">ACWR — Akut:Krónikus terhelésmutató</div>
+  <div class="chart-card">
+    <div class="chart-sub">7 napos átlag TRIMP / 28 napos átlag TRIMP · optimális zóna: 0.8–1.5</div>
+    <canvas id="acwrChart" height="160"></canvas>
+  </div>
+  <div class="slabel">Kadencia trend</div>
+  <div class="chart-card">
+    <div class="chart-sub">Havi átlag lépésszám/perc — magasabb általában hatékonyabb futóformát jelent</div>
+    <canvas id="cadenceChart" height="160"></canvas>
+  </div>
+  <div class="slabel">Futás intenzitás megoszlás</div>
+  <div class="chart-card">
+    <div class="int-nav" id="int-nav"></div>
+    <canvas id="intensityDonut" height="200"></canvas>
+  </div>
 </div>
 
 <script>
@@ -696,6 +720,48 @@ function zonePill(r){return`<div class="zone-pill"><div class="zp1" style="width
 // Check if a run is a PR
 
 // ── NATIVE CANVAS ──
+function drawDonut(id,segments){
+  const canvas=document.getElementById(id);
+  if(!canvas)return;
+  const dpr=window.devicePixelRatio||1;
+  const W=canvas.offsetWidth||400;
+  if(!canvas.dataset.logicalH)canvas.dataset.logicalH=canvas.getAttribute('height')||'200';
+  const H=parseInt(canvas.dataset.logicalH);
+  canvas.width=W*dpr;canvas.height=H*dpr;
+  canvas.style.width=W+'px';canvas.style.height=H+'px';
+  const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);ctx.clearRect(0,0,W,H);
+  const total=segments.reduce((s,sg)=>s+sg.value,0);
+  if(!total)return;
+  const R=Math.min(H,W*0.4)*0.46,cx=R+28,cy=H/2,inner=R*0.56;
+  let ang=-Math.PI/2;
+  segments.forEach(sg=>{
+    const sweep=(sg.value/total)*Math.PI*2;
+    ctx.beginPath();ctx.arc(cx,cy,R,ang,ang+sweep);ctx.arc(cx,cy,inner,ang+sweep,ang,true);
+    ctx.closePath();ctx.fillStyle=sg.color;ctx.fill();
+    ang+=sweep;
+  });
+  // donut hole bg
+  ctx.beginPath();ctx.arc(cx,cy,inner-1,0,Math.PI*2);
+  ctx.fillStyle=gv('--surface');ctx.fill();
+  // center label
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillStyle=gv('--text');ctx.font=`bold ${Math.round(R*0.44)}px Inter,sans-serif`;
+  ctx.fillText(total,cx,cy-R*0.12);
+  ctx.fillStyle=gv('--text3');ctx.font=`${Math.round(R*0.28)}px DM Mono,monospace`;
+  ctx.fillText('futás',cx,cy+R*0.26);
+  // legend
+  let ly=cy-segments.length*22;
+  const lx=cx+R+24;
+  segments.forEach(sg=>{
+    ctx.fillStyle=sg.color;ctx.beginPath();ctx.arc(lx+7,ly+7,7,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=gv('--text');ctx.font='bold 13px Inter,sans-serif';ctx.textAlign='left';ctx.textBaseline='top';
+    ctx.fillText(sg.label,lx+20,ly);
+    ctx.fillStyle=gv('--text3');ctx.font='10px DM Mono,monospace';
+    ctx.fillText(`${Math.round(sg.value/total*100)}%  ·  ${sg.value} futás`,lx+20,ly+17);
+    ly+=44;
+  });
+}
+
 function drawBar(id,labels,datasets,opts={}){
   const canvas=document.getElementById(id);
   if(!canvas)return;
@@ -814,6 +880,15 @@ function drawLine(id,labels,datasets,opts={}){
     ctx.stroke();
     pts.forEach(p=>{if(!p)return;ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fillStyle=ds.color||LIME;ctx.fill()});
   });
+  // reference lines
+  if(opts.refLines){opts.refLines.forEach(rl=>{
+    const ry=pad.top+cH-((rl.value-minV)/range)*cH;
+    if(ry<pad.top||ry>pad.top+cH)return;
+    ctx.save();ctx.strokeStyle=rl.color||'#888';ctx.lineWidth=1;ctx.setLineDash([5,4]);
+    ctx.beginPath();ctx.moveTo(pad.left,ry);ctx.lineTo(pad.left+cW,ry);ctx.stroke();
+    ctx.setLineDash([]);ctx.fillStyle=rl.color||'#888';ctx.font='8px DM Mono,monospace';ctx.textAlign='left';
+    ctx.fillText(rl.label||rl.value,pad.left+4,ry-3);ctx.restore();
+  });}
   ctx.fillStyle=axisColor();ctx.font='8px DM Mono,monospace';ctx.textAlign='center';
   const step=Math.ceil(n/30);
   labels.forEach((lbl,i)=>{
@@ -951,6 +1026,13 @@ function renderCalendar(){
   // week start (Monday) of a date string
   function monOf(d){const dt=new Date(d),day=dt.getDay(),diff=day===0?-6:1-day;dt.setDate(dt.getDate()+diff);return dt.toISOString().slice(0,10);}
 
+  // gap detector: map week-start → gap (days) before first run in that week
+  const gapBeforeWeek={};
+  for(let i=1;i<dates.length;i++){
+    const gap=(new Date(dates[i])-new Date(dates[i-1]))/(864e5);
+    if(gap>5)gapBeforeWeek[monOf(dates[i])]=Math.round(gap);
+  }
+
   // collect all weeks that have at least one run
   const weekSet=new Set(dates.map(monOf));
   const weeks=[...weekSet].sort().reverse();
@@ -983,8 +1065,10 @@ function renderCalendar(){
     const rangeLabel=sameMonth
       ?MONTHS[monDt.getMonth()]+' '+monDt.getDate()+'–'+sunDt.getDate()+'.'
       :shortDate(mon)+' – '+shortDate(sunStr);
+    const gapDays=gapBeforeWeek[mon];
     info.innerHTML='<div class="cal-week-range">'+rangeLabel+'</div>'
-      +(weekKm>0?'<div class="cal-week-km'+(isLight?' light-lime':'')+'">'+weekKm.toFixed(1)+' km</div>':'');
+      +(weekKm>0?'<div class="cal-week-km'+(isLight?' light-lime':'')+'">'+weekKm.toFixed(1)+' km</div>':'')
+      +(gapDays?'<div class="cal-gap-badge">'+gapDays+' nap szünet</div>':'');
     row.appendChild(info);
 
     // day cells
@@ -1078,8 +1162,70 @@ function drawOverviewKmChart(){
 function drawOverviewCharts(){
   _buildOverviewKmNav();
   drawOverviewKmChart();
+  // weekly km (last 52 weeks)
+  const wk52=WEEKLY.slice(-52);
+  const isLight=document.documentElement.classList.contains('light');
+  drawBar('weeklyKmChart',wk52.map(w=>w.date.slice(5)),
+    [{data:wk52.map(w=>w.km),color:wk52.map(w=>w.km>=50?getLime():w.km>=25?(isLight?'rgba(120,154,0,.45)':'rgba(200,241,53,.45)'):(isLight?'rgba(120,154,0,.2)':'rgba(200,241,53,.2)')),label:'km'}],
+    {rotateLabels:true,yFmt:v=>Math.round(v)+'km',
+     extraTip:i=>(wk52[i].runs||'?')+' futás'});
   const aD=MONTHLY.filter(m=>m.avg_aei);
   drawLine('aeiChart',aD.map(m=>m.ym.slice(2)),[{data:aD.map(m=>m.avg_aei),color:getLime(),fill:true,fillColor:getLimeDim(),label:'AEI'}],{rotateLabels:true,yFmt:v=>v.toFixed(2)});
+}
+
+function _computeStreaks(){
+  const weekSet=new Set(RUNS.map(r=>_wStart(r.date)));
+  const weeks=[...weekSet].sort();
+  let longest=0,cur=0,prev=null;
+  weeks.forEach(w=>{
+    if(prev){const nxt=new Date(prev);nxt.setDate(nxt.getDate()+7);cur=w===nxt.toISOString().slice(0,10)?cur+1:1;}
+    else cur=1;
+    if(cur>longest)longest=cur;
+    prev=w;
+  });
+  const today=new Date().toISOString().slice(0,10);
+  let wk=_wStart(today),current=0;
+  while(weekSet.has(wk)){current++;const d=new Date(wk);d.setDate(d.getDate()-7);wk=d.toISOString().slice(0,10);}
+  return{current,longest};
+}
+
+function _computeACWR(){
+  const td={};RUNS.forEach(r=>{td[r.date]=(td[r.date]||0)+r.trimp;});
+  const dates=Object.keys(td).sort();if(!dates.length)return[];
+  const all=[];
+  for(let d=new Date(dates[0]),end=new Date();d<=end;d.setDate(d.getDate()+1)){
+    all.push({date:d.toISOString().slice(0,10),t:td[d.toISOString().slice(0,10)]||0});
+  }
+  // weekly points only (every 7th day), need ≥28 days of history
+  const result=[];
+  for(let i=27;i<all.length;i+=7){
+    const atl=all.slice(i-6,i+1).reduce((s,x)=>s+x.t,0)/7;
+    const ctl=all.slice(i-27,i+1).reduce((s,x)=>s+x.t,0)/28;
+    if(ctl>0)result.push({date:all[i].date,value:+(atl/ctl).toFixed(2)});
+  }
+  return result;
+}
+
+let _intPeriod=90;
+function _drawIntensity(days){
+  _intPeriod=days;
+  document.querySelectorAll('.int-pill').forEach(b=>{
+    const active=+b.dataset.d===days;
+    b.style.background=active?'var(--lime)':'var(--surface)';
+    b.style.color=active?'var(--bg)':'var(--text3)';
+    b.style.borderColor=active?'var(--lime)':'var(--border)';
+  });
+  const cutoff=days===0?null:new Date(new Date().setDate(new Date().getDate()-days)).toISOString().slice(0,10);
+  const runs=cutoff?RUNS.filter(r=>r.date>=cutoff):RUNS;
+  const easy=runs.filter(r=>r.z1>=50).length;
+  const hard=runs.filter(r=>(r.z3+r.z4)>=50).length;
+  const mixed=runs.length-easy-hard;
+  const isLight=document.documentElement.classList.contains('light');
+  drawDonut('intensityDonut',[
+    {label:'Könnyű (Z1)',value:easy,color:isLight?'#8ab000':'#C8F135'},
+    {label:'Vegyes',value:mixed,color:'#6dbf6d'},
+    {label:'Kemény (Z3–4)',value:hard,color:'#ff6622'},
+  ]);
 }
 
 function initOverview(){
@@ -1093,6 +1239,10 @@ function initOverview(){
     <div class="stat-box"><div class="stat-lbl">Átl. tempó</div><div class="stat-num">${fmtPace(avgPace)}</div><div class="stat-unit">min/km</div></div>
     <div class="stat-box"><div class="stat-lbl">Összes TRIMP</div><div class="stat-num">${Math.round(totTrimp).toLocaleString()}</div><div class="stat-unit">terhelési pont</div></div>
     <div class="stat-box"><div class="stat-lbl">Kalória</div><div class="stat-num">${Math.round(totCal/1000)}k</div><div class="stat-unit">aktív kcal</div></div>`;
+  const{current,longest}=_computeStreaks();
+  document.getElementById('streak-stats').innerHTML=`
+    <div class="stat-box"><div class="stat-lbl">Jelenlegi sorozat</div><div class="stat-num lime">${current}</div><div class="stat-unit">egymást követő hét</div></div>
+    <div class="stat-box"><div class="stat-lbl">Leghosszabb sorozat</div><div class="stat-num">${longest}</div><div class="stat-unit">egymást követő hét</div></div>`;
 
   const p=PRS;
   function prCard(label,numHtml,meta,run){
@@ -1262,7 +1412,7 @@ function renderMonthlyTable(){
   let data=MONTHLY.filter(m=>!yr||m.year==yr);
   data.sort((a,b)=>{const av=a[sk]??-Infinity,bv=b[sk]??-Infinity;return(av>bv?1:-1)*(sd==='desc'?-1:1)});
   document.getElementById('monthly-count').textContent=`${data.length} hónap`;
-  const bKm=Math.max(...data.map(m=>m.km)),bPace=Math.min(...data.map(m=>m.best_pace));
+  const bKm=Math.max(...data.map(m=>m.km)),bPace=Math.min(...data.map(m=>m.best_pace)),bTrimp=Math.max(...data.map(m=>m.total_trimp));
   document.getElementById('monthly-tbody').innerHTML=data.map(m=>`
     <tr onclick="filterAndShowRuns('${m.ym}')" style="cursor:pointer">
       <td class="primary">${m.ym}</td>
@@ -1272,7 +1422,7 @@ function renderMonthlyTable(){
       <td class="${m.best_pace===bPace?'best':''}">${fmtPace(m.best_pace)}</td>
       <td>${m.max_dist.toFixed(1)}km</td>
       <td>${m.avg_hr!=null?m.avg_hr.toFixed(0)+' bpm':'—'}</td>
-      <td>${m.total_trimp.toFixed(0)}</td>
+      <td class="${m.total_trimp===bTrimp?'best':''}">${m.total_trimp.toFixed(0)}</td>
       <td>${m.avg_z1.toFixed(0)}%</td>
       <td>${m.avg_aei!=null?m.avg_aei.toFixed(2):'—'}</td>
       <td>${m.total_cal!=null?Math.round(m.total_cal).toLocaleString()+' kcal':'—'}</td>
@@ -1348,11 +1498,12 @@ function renderYearCompare(){
 
 // ── TRENDS ──
 function drawTrendCharts(){
+  const isLight=document.documentElement.classList.contains('light');
   const pts=RUNS.map(r=>{
     if(!r.avg_hr||!r.pace||r.avg_hr<80||r.pace>9.5)return null;
     const isZ1=r.z1>=50;
     return{x:r.avg_hr,y:r.pace,r:Math.max(3,Math.min(8,r.dist*0.35)),
-      color:r.year>=2026?'rgba(96,165,250,.85)':isZ1?(document.documentElement.classList.contains('light')?'rgba(100,130,0,.8)':'rgba(200,241,53,.75)'):'rgba(255,140,0,.5)',run:r};
+      color:r.year>=2026?'rgba(96,165,250,.85)':isZ1?(isLight?'rgba(100,130,0,.8)':'rgba(200,241,53,.75)'):'rgba(255,140,0,.5)',run:r};
   }).filter(Boolean);
   drawScatterChart('scatterChart',pts,{minX:110,maxX:190,minY:4,maxY:9});
   drawBar('zoneTimeChart',MONTHLY.map(m=>m.ym.slice(2)),[
@@ -1360,7 +1511,36 @@ function drawTrendCharts(){
     {data:MONTHLY.map(m=>m.avg_z4),color:'rgba(255,140,0,.7)',label:'Z4%'}
   ],{rotateLabels:true,yFmt:v=>Math.round(v)+'%',maxVal:100});
   const wk=WEEKLY.slice(-60);
-  drawBar('weeklyTRIMPChart',wk.map(w=>w.date.slice(5)),[{data:wk.map(w=>w.trimp),color:wk.map(w=>w.trimp>300?getLime():w.trimp>150?(document.documentElement.classList.contains('light')?'rgba(100,140,0,.45)':'rgba(200,241,53,.5)'):(document.documentElement.classList.contains('light')?'rgba(100,140,0,.2)':'rgba(200,241,53,.2)'))}],{rotateLabels:true,yFmt:v=>Math.round(v)});
+  drawBar('weeklyTRIMPChart',wk.map(w=>w.date.slice(5)),[{data:wk.map(w=>w.trimp),color:wk.map(w=>w.trimp>300?getLime():w.trimp>150?(isLight?'rgba(100,140,0,.45)':'rgba(200,241,53,.5)'):(isLight?'rgba(100,140,0,.2)':'rgba(200,241,53,.2)'))}],{rotateLabels:true,yFmt:v=>Math.round(v)});
+  // ACWR
+  const acwr=_computeACWR();
+  if(acwr.length){
+    drawLine('acwrChart',acwr.map(a=>a.date.slice(5)),
+      [{data:acwr.map(a=>a.value),color:'#60a5fa',fill:false,label:'ACWR'}],
+      {rotateLabels:true,yFmt:v=>v.toFixed(2),minVal:0,maxVal:Math.max(2,Math.max(...acwr.map(a=>a.value))*1.1),
+       refLines:[
+         {value:1.5,color:'#ff4444',label:'1.5 — túlterhelés kockázata'},
+         {value:0.8,color:'#ff8c00',label:'0.8 — alulterhelés'}
+       ]});
+  }
+  // Cadence trend
+  const cadM=MONTHLY.map(m=>{const rs=RUNS.filter(r=>r.ym===m.ym&&r.cadence>0);return rs.length?+(rs.reduce((s,r)=>s+r.cadence,0)/rs.length).toFixed(1):null;});
+  const cadLabels=MONTHLY.map(m=>m.ym.slice(2));
+  if(cadM.some(v=>v)){
+    drawLine('cadenceChart',cadLabels,[{data:cadM,color:getLime(),fill:true,fillColor:getLimeDim(),label:'lépés/perc'}],{rotateLabels:true,yFmt:v=>Math.round(v)});
+  }
+  // Intensity donut — build period pills once
+  const nav=document.getElementById('int-nav');
+  if(!nav.dataset.built){
+    nav.dataset.built='1';
+    [[30,'30 nap'],[90,'90 nap'],[365,'1 év'],[0,'Összes']].forEach(([d,lbl])=>{
+      const btn=document.createElement('button');
+      btn.className='int-pill';btn.dataset.d=d;btn.textContent=lbl;
+      btn.onclick=()=>_drawIntensity(d);
+      nav.appendChild(btn);
+    });
+  }
+  _drawIntensity(_intPeriod);
 }
 
 // ── INIT ──
