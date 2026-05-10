@@ -816,8 +816,8 @@ function drawBar(id,labels,datasets,opts={}){
   let _bTip=document.getElementById('bar-tip');
   if(!_bTip){_bTip=document.createElement('div');_bTip.id='bar-tip';_bTip.style.cssText='position:fixed;font-family:DM Mono,monospace;font-size:10px;padding:6px 10px;border-radius:6px;pointer-events:none;display:none;z-index:300;line-height:1.6;white-space:nowrap';document.body.appendChild(_bTip);}
   canvas.onmousemove=function(e){
-    const rect=canvas.getBoundingClientRect(),sc=canvas.width/rect.width;
-    const mx=(e.clientX-rect.left)*sc;
+    const rect=canvas.getBoundingClientRect();
+    const mx=(e.clientX-rect.left);
     const i=Math.floor((mx-pad.left)/gW);
     if(i>=0&&i<n){
       const vals=datasets.map(ds=>ds.data[i]);
@@ -835,8 +835,8 @@ function drawBar(id,labels,datasets,opts={}){
   canvas.onmouseleave=()=>{_bTip.style.display='none';};
   canvas.onclick=function(e){
     if(!opts.onClick)return;
-    const rect=canvas.getBoundingClientRect(),sc=canvas.width/rect.width;
-    const i=Math.floor(((e.clientX-rect.left)*sc-pad.left)/gW);
+    const rect=canvas.getBoundingClientRect();
+    const i=Math.floor(((e.clientX-rect.left)-pad.left)/gW);
     if(i>=0&&i<n)opts.onClick(labels[i],i);
   };
 }
@@ -903,8 +903,8 @@ function drawLine(id,labels,datasets,opts={}){
   // Store data for hover
   canvas._lineLabels=labels;canvas._lineDatasets=datasets;canvas._linePad=pad;canvas._lineCW=cW;canvas._lineCH=cH;canvas._lineN=n;canvas._lineMinV=minV;canvas._lineRange=range;canvas._lineOpts=opts;
   canvas.onmousemove=function(e){
-    const rect=canvas.getBoundingClientRect(),sc=canvas.width/rect.width;
-    const mx=(e.clientX-rect.left)*sc;
+    const rect=canvas.getBoundingClientRect();
+    const mx=(e.clientX-rect.left);
     const i=Math.round((mx-pad.left)/cW*(n-1));
     if(i>=0&&i<n){
       const vals=datasets.map(ds=>ds.data[i]);
@@ -959,8 +959,8 @@ function drawScatterChart(id,points,opts={}){
   if(!tip){tip=document.createElement('div');tip.id='scatter-tip';tip.style.cssText='position:fixed;font-family:DM Mono,monospace;font-size:10px;padding:7px 11px;border-radius:7px;pointer-events:none;display:none;z-index:300;line-height:1.7;white-space:nowrap';document.body.appendChild(tip);}
   function findHit(mx,my){return pixelPts.findIndex(p=>Math.hypot(mx-p.px,my-p.py)<=p.r+6);}
   canvas.onmousemove=function(e){
-    const rect=canvas.getBoundingClientRect(),sc=canvas.width/rect.width;
-    const mx=(e.clientX-rect.left)*sc,my=(e.clientY-rect.top)*sc;
+    const rect=canvas.getBoundingClientRect();
+    const mx=(e.clientX-rect.left),my=(e.clientY-rect.top);
     const i=findHit(mx,my);
     if(i>=0&&pixelPts[i].run){
       canvas.style.cursor='pointer';doRedraw(i);
