@@ -723,7 +723,7 @@ function zonePill(r){return`<div class="zone-pill"><div class="zp1" style="width
 function drawDonut(id,segments){
   const canvas=document.getElementById(id);
   if(!canvas)return;
-  const dpr=window.devicePixelRatio||1;
+  const dpr=Math.max(window.devicePixelRatio||1,2);
   const W=canvas.offsetWidth||400;
   if(!canvas.dataset.logicalH)canvas.dataset.logicalH=canvas.getAttribute('height')||'200';
   const H=parseInt(canvas.dataset.logicalH);
@@ -765,7 +765,7 @@ function drawDonut(id,segments){
 function drawBar(id,labels,datasets,opts={}){
   const canvas=document.getElementById(id);
   if(!canvas)return;
-  const dpr=window.devicePixelRatio||1;
+  const dpr=Math.max(window.devicePixelRatio||1,2);
   const W=canvas.offsetWidth||canvas.parentElement.offsetWidth||700;
   if(!canvas.dataset.logicalH)canvas.dataset.logicalH=canvas.getAttribute('height')||'180';
   const H=parseInt(canvas.dataset.logicalH);
@@ -844,7 +844,7 @@ function drawBar(id,labels,datasets,opts={}){
 function drawLine(id,labels,datasets,opts={}){
   const canvas=document.getElementById(id);
   if(!canvas)return;
-  const dpr=window.devicePixelRatio||1;
+  const dpr=Math.max(window.devicePixelRatio||1,2);
   const W=canvas.offsetWidth||canvas.parentElement.offsetWidth||700;
   if(!canvas.dataset.logicalH)canvas.dataset.logicalH=canvas.getAttribute('height')||'150';
   const H=parseInt(canvas.dataset.logicalH);
@@ -919,7 +919,7 @@ function drawLine(id,labels,datasets,opts={}){
 function drawScatterChart(id,points,opts={}){
   const canvas=document.getElementById(id);
   if(!canvas)return;
-  const dpr=window.devicePixelRatio||1;
+  const dpr=Math.max(window.devicePixelRatio||1,2);
   const W=canvas.offsetWidth||canvas.parentElement.offsetWidth||700;
   if(!canvas.dataset.logicalH)canvas.dataset.logicalH=canvas.getAttribute('height')||'280';
   const H=parseInt(canvas.dataset.logicalH);
@@ -1026,11 +1026,12 @@ function renderCalendar(){
   // week start (Monday) of a date string
   function monOf(d){const dt=new Date(d),day=dt.getDay(),diff=day===0?-6:1-day;dt.setDate(dt.getDate()+diff);return dt.toISOString().slice(0,10);}
 
-  // gap detector: map week-start → gap (days) before first run in that week
+  // gap detector: only flag when an entire week is skipped (gap between run-weeks > 7 days)
   const gapBeforeWeek={};
-  for(let i=1;i<dates.length;i++){
-    const gap=(new Date(dates[i])-new Date(dates[i-1]))/(864e5);
-    if(gap>5)gapBeforeWeek[monOf(dates[i])]=Math.round(gap);
+  const sortedRunWeeks=[...weekSet].sort();
+  for(let i=1;i<sortedRunWeeks.length;i++){
+    const daysBetween=Math.round((new Date(sortedRunWeeks[i])-new Date(sortedRunWeeks[i-1]))/(864e5));
+    if(daysBetween>7)gapBeforeWeek[sortedRunWeeks[i]]=daysBetween-7;
   }
 
   // collect all weeks that have at least one run
