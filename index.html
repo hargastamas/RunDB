@@ -1230,13 +1230,31 @@ function _buildVo2Nav(){
   const nav=document.getElementById('vo2-nav');
   if(!nav||nav.dataset.built)return;
   nav.dataset.built='1';
-  const years=[...new Set(HEALTH.filter(h=>h.vo2max>0).map(h=>h.date.slice(0,4)))].sort();
+  const all=HEALTH.filter(h=>h.vo2max>0);
+  const years=[...new Set(all.map(h=>h.date.slice(0,4)))].sort();
   const pills=['Teljes',...years];
+  const rangeFor=yr=>{
+    const d=yr?all.filter(h=>h.date.startsWith(yr)):all;
+    if(!d.length)return null;
+    const vals=d.map(h=>h.vo2max);
+    return{min:Math.min(...vals),max:Math.max(...vals)};
+  };
   pills.forEach(p=>{
+    const yr=p==='Teljes'?'':p;
+    const r=rangeFor(yr);
     const btn=document.createElement('button');
-    btn.dataset.yr=p==='Teljes'?'':p;
-    btn.textContent=p;
-    btn.style.cssText='font-size:10px;font-weight:700;letter-spacing:.5px;font-family:"Inter",sans-serif;border-radius:20px;padding:4px 12px;cursor:pointer;border:1px solid var(--border);transition:all .15s;background:var(--surface);color:var(--text3)';
+    btn.dataset.yr=yr;
+    btn.style.cssText='font-family:"Inter",sans-serif;border-radius:12px;padding:5px 11px;cursor:pointer;border:1px solid var(--border);transition:all .15s;background:var(--surface);color:var(--text3);display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.2';
+    const top=document.createElement('span');
+    top.textContent=p;
+    top.style.cssText='font-size:10px;font-weight:700;letter-spacing:.5px';
+    btn.appendChild(top);
+    if(r){
+      const sub=document.createElement('span');
+      sub.textContent=r.min.toFixed(1)+'–'+r.max.toFixed(1);
+      sub.style.cssText='font-size:8.5px;font-weight:500;opacity:.75;letter-spacing:0';
+      btn.appendChild(sub);
+    }
     btn.onclick=()=>{
       _vo2Year=btn.dataset.yr;
       nav.querySelectorAll('button').forEach(b=>{
