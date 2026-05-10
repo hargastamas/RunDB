@@ -323,22 +323,25 @@ canvas{display:block;width:100%!important}
 
 <!-- ═══ OVERVIEW ═══ -->
 <div class="page active" id="page-overview">
+  <!-- MOST -->
+  <div class="slabel" style="border-top:none;padding-top:0;margin-top:0">Legutóbbi forma<button class="info-btn" tabindex="0">i<span class="info-tip">0–100-as index az előző napi HRV és nyugalmi pulzus alapján, személyes átlagodhoz viszonyítva. 70+ = jó forma, 45–69 = átlagos, 0–44 = fáradt.</span></button></div>
+  <div id="recovery-widget"></div>
+  <div class="slabel">Ezen a héten</div>
+  <div class="stat-row" id="thisweek-stats"></div>
+  <div class="slabel">Ez a hónap vs. tavaly ilyenkor</div>
+  <div class="stat-row" id="vsly-stats"></div>
+  <!-- JELENLEGI FITNESZ -->
+  <div class="slabel">Becsült versenyidők<button class="info-btn" tabindex="0">i<span class="info-tip">A VO₂ Max alapján számított elméleti versenytempók Jack Daniels futóedzési modellje szerint. Tájékoztató jellegű becslés.</span></button></div>
+  <div class="stat-row race-pred-grid" id="race-pred-stats"></div>
+  <div class="slabel">Heti km — futási volumen (utolsó 52 hét)</div>
+  <div class="chart-card"><canvas id="weeklyKmChart" height="160"></canvas></div>
+  <!-- ÖSSZEGZÉS -->
   <div class="slabel">Összesítő</div>
   <div class="stat-row" id="overview-stats"></div>
   <div class="slabel">Personal Records — kattints a futáshoz</div>
   <div class="pr-grid" id="pr-grid"></div>
-  <div class="slabel">Becsült versenyidők<button class="info-btn" tabindex="0">i<span class="info-tip">A VO₂ Max alapján számított elméleti versenytempók Jack Daniels futóedzési modellje szerint. Tájékoztató jellegű becslés.</span></button></div>
-  <div class="stat-row race-pred-grid" id="race-pred-stats"></div>
   <div class="slabel">Sorozatok &amp; konzisztencia</div>
   <div class="stat-row" id="streak-stats"></div>
-  <div class="slabel">Ezen a héten</div>
-  <div class="stat-row" id="thisweek-stats"></div>
-  <div class="slabel">Legutóbbi forma<button class="info-btn" tabindex="0">i<span class="info-tip">0–100-as index az előző napi HRV és nyugalmi pulzus alapján, személyes átlagodhoz viszonyítva. 70+ = jó forma, 45–69 = átlagos, 0–44 = fáradt.</span></button></div>
-  <div id="recovery-widget"></div>
-  <div class="slabel">Ez a hónap vs. tavaly ilyenkor</div>
-  <div class="stat-row" id="vsly-stats"></div>
-  <div class="slabel">Heti km — futási volumen (utolsó 52 hét)</div>
-  <div class="chart-card"><canvas id="weeklyKmChart" height="160"></canvas></div>
   <div class="slabel">Havi km heatmap</div>
   <div class="chart-card">
     <div class="month-names" id="month-names"></div>
