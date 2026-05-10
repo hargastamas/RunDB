@@ -329,7 +329,6 @@ canvas{display:block;width:100%!important}
   <div class="stat-row" id="today-stats">
     <div id="today-forma"></div>
     <div id="today-vo2"></div>
-    <div id="today-streak"></div>
   </div>
   <!-- EZEN A HÉTEN -->
   <div class="slabel">Ezen a héten</div>
@@ -1356,9 +1355,6 @@ function initOverview(){
     <div class="stat-box"><div class="stat-lbl">Átl. tempó</div><div class="stat-num">${fmtPace(avgPace)}</div><div class="stat-unit">min/km</div></div>
     <div class="stat-box"><div class="stat-lbl">Összes TRIMP</div><div class="stat-num">${Math.round(totTrimp).toLocaleString()}</div><div class="stat-unit">terhelési pont</div></div>
     <div class="stat-box"><div class="stat-lbl">Szintemelkedés ${curYear}</div><div class="stat-num">${Math.round(elevYear).toLocaleString()}</div><div class="stat-unit">méter · össz: ${Math.round(totElev/1000).toFixed(1)}k m</div></div>`;
-  const{current,longest}=_computeStreaks();
-  const todayStreak=document.getElementById('today-streak');
-  if(todayStreak)todayStreak.innerHTML=`<div class="stat-box"><div class="stat-lbl">Heti sorozat</div><div class="stat-num lime">${current}</div><div class="stat-unit">egymást követő hét</div><div class="stat-unit" style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border)">Leghosszabb: <strong style="color:var(--text)">${longest} hét</strong></div></div>`;
 
   // Ezen a héten
   const today=new Date().toISOString().slice(0,10);
@@ -1378,10 +1374,12 @@ function initOverview(){
     const [lbl,col]=ratio<0.7?['Könnyű hét','var(--lime)']:ratio<1.2?['Átlagos hét','var(--text2)']:ratio<1.6?['Kemény hét','var(--orange)']:['Nagyon kemény','var(--red)'];
     trimpCtx=`<div class="stat-unit" style="color:${col}">${lbl} · ${pct>=0?'+':''}${pct}% az átlagodhoz képest</div>`;
   }
+  const{current,longest}=_computeStreaks();
   document.getElementById('thisweek-stats').innerHTML=`
     <div class="stat-box"><div class="stat-lbl">Km ezen a héten</div><div class="stat-num lime">${twKm.toFixed(1)}</div>${kmDeltaStr}</div>
     <div class="stat-box"><div class="stat-lbl">Futások</div><div class="stat-num">${twRuns}</div><div class="stat-unit">ezen a héten</div></div>
-    <div class="stat-box"><div class="stat-lbl">Terhelés (TRIMP)</div><div class="stat-num">${twTrimp}</div>${trimpCtx}</div>`;
+    <div class="stat-box"><div class="stat-lbl">Terhelés (TRIMP)</div><div class="stat-num">${twTrimp}</div>${trimpCtx}</div>
+    <div class="stat-box"><div class="stat-lbl">Heti sorozat</div><div class="stat-num lime">${current}</div><div class="stat-unit">egymást követő hét</div><div class="stat-unit" style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border)">Leghosszabb: <strong style="color:var(--text)">${longest} hét</strong></div></div>`;
 
   const p=PRS;
   function prCard(label,numHtml,meta,run){
