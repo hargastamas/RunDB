@@ -1233,7 +1233,7 @@ function renderCalendar(){
 }
 
 // ── OVERVIEW ──
-let _vo2Year='';
+let _vo2Year=new Date().getFullYear().toString();
 const _MONTHS_SHORT=['Jan','Feb','Már','Ápr','Máj','Jún','Júl','Aug','Sze','Okt','Nov','Dec'];
 
 function _buildVo2Nav(){
@@ -1275,7 +1275,7 @@ function _buildVo2Nav(){
       });
       drawVo2Chart();
     };
-    if(p==='Teljes'){btn.style.background='var(--lime)';btn.style.color='var(--on-lime)';btn.style.borderColor='var(--lime)';}
+    if(yr===_vo2Year){btn.style.background='var(--lime)';btn.style.color='var(--on-lime)';btn.style.borderColor='var(--lime)';}
     nav.appendChild(btn);
   });
 }
