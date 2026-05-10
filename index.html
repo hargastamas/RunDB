@@ -157,6 +157,7 @@ nav{background:var(--bg);border-bottom:1px solid var(--border);transition:backgr
 .heatmap-cells{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;flex:1}
 .hm-cell{height:26px;border-radius:4px;cursor:pointer;transition:opacity .15s}
 .hm-cell:hover{opacity:.7}
+#hm-tooltip{position:fixed;background:var(--tip-bg);border:1px solid var(--tip-border);color:var(--tip-text);border-radius:8px;padding:7px 12px;font-size:12px;font-family:'DM Mono',monospace;pointer-events:none;display:none;z-index:1000;box-shadow:0 4px 16px rgba(0,0,0,.2);white-space:nowrap}
 .month-names{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-bottom:4px;margin-left:38px}
 .month-name{font-size:8px;color:var(--text3);font-family:'DM Mono',monospace;text-align:center}
 
@@ -291,6 +292,7 @@ canvas{display:block;width:100%!important}
 </style>
 </head>
 <body>
+<div id="hm-tooltip"></div>
 
 <nav>
   <div class="nav-brand">Run<span>DB</span></div>
@@ -325,7 +327,7 @@ canvas{display:block;width:100%!important}
   <div class="stat-row" id="streak-stats"></div>
   <div class="slabel">Ezen a héten</div>
   <div class="stat-row" id="thisweek-stats"></div>
-  <div class="slabel">Legutóbbi forma</div>
+  <div class="slabel">Legutóbbi forma<button class="info-btn" tabindex="0">i<span class="info-tip">0–100-as index az előző napi HRV és nyugalmi pulzus alapján, személyes átlagodhoz viszonyítva. 70+ = jó forma, 45–69 = átlagos, 0–44 = fáradt.</span></button></div>
   <div id="recovery-widget"></div>
   <div class="slabel">Ez a hónap vs. tavaly ilyenkor</div>
   <div class="stat-row" id="vsly-stats"></div>
@@ -333,11 +335,6 @@ canvas{display:block;width:100%!important}
   <div class="stat-row" id="best4w-stats"></div>
   <div class="slabel">Heti km — futási volumen (utolsó 52 hét)</div>
   <div class="chart-card"><canvas id="weeklyKmChart" height="160"></canvas></div>
-  <div class="slabel">Havi km — teljes history</div>
-  <div class="chart-card">
-    <div id="overview-km-nav" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"></div>
-    <canvas id="overviewKmChart" height="180"></canvas>
-  </div>
   <div class="slabel">Havi km heatmap</div>
   <div class="chart-card">
     <div class="month-names" id="month-names"></div>
@@ -502,11 +499,6 @@ canvas{display:block;width:100%!important}
     <div id="trimp-nav" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;align-items:center"><span style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:.5px;text-transform:uppercase">Elmúlt</span></div>
     <canvas id="weeklyTRIMPChart" height="160"></canvas>
   </div>
-  <div class="slabel">Terhelési egyensúly (ACWR)<button class="info-btn" tabindex="0">i<span class="info-tip">Az utolsó 7 nap átlagos napi TRIMP osztva az utolsó 28 nap átlagával. 0.8–1.5 között biztonságos. 1.5 felett megnő a sérülésveszély. 0.8 alatt alacsony a terhelés. Hirtelen ugrás (pl. 0.9-ről 1.6-ra) figyelmeztető jel.</span></button></div>
-  <div class="chart-card">
-    <div class="chart-sub">7 napos átlag TRIMP / 28 napos átlag TRIMP · optimális zóna: 0.8–1.5</div>
-    <canvas id="acwrChart" height="160"></canvas>
-  </div>
   <div class="slabel">Lépésszám trend<button class="info-btn" tabindex="0">i<span class="info-tip">Havi átlagos lépésszám percenként futás közben. Magasabb kadencia általában hatékonyabb futóformát jelent és csökkenti az ízületekre ható erőt. Elit futók: 170–180 lépés/perc. Ha az évek során emelkedik, a futóformád fejlődik.</span></button></div>
   <div class="chart-card">
     <div class="chart-sub">Havi átlag lépésszám/perc — magasabb általában hatékonyabb futóformát jelent</div>
@@ -522,11 +514,6 @@ canvas{display:block;width:100%!important}
     <div class="chart-sub">Havi átlagos AEI — magasabb = hatékonyabb aerob rendszer</div>
     <canvas id="aeiTrendChart" height="160"></canvas>
   </div>
-  <div class="slabel">Hőmérséklet hatása tempóra<button class="info-btn" tabindex="0">i<span class="info-tip">Minden pont egy futást jelöl ahol volt hőmérsékleti adat. Vízszintes tengely: hőfok (°C), függőleges: tempó. A meleg általában rontja a teljesítményt — ha a pontok jobbra tolódva feljebb vannak, ez normális és várható.</span></button></div>
-  <div class="chart-card">
-    <div class="chart-sub">X = hőmérséklet (°C) · Y = tempó · <span style="color:#60a5fa">■</span> tél (0–10°C) · <span style="color:var(--lime)">■</span> tavasz/ősz · <span style="color:#f87171">■</span> nyár (24°C+)</span></div>
-    <canvas id="tempChart" height="220"></canvas>
-  </div>
   <div class="slabel">Fitnesz &amp; Forma (CTL / ATL / TSB)<button class="info-btn" tabindex="0">i<span class="info-tip">Edzésterhelés modell:<br>• CTL (fitnesz) = 42 napos exponenciálisan súlyozott TRIMP átlag<br>• ATL (fáradtság) = 7 napos súlyozott átlag<br>• TSB (forma) = CTL − ATL. Ha TSB pozitív és emelkedik, versenyképes formában vagy.</span></button></div>
   <div class="chart-card">
     <div class="chart-sub">CTL = fitnesz · ATL = fáradtság · TSB = forma (pozitív = pihent)</div>
@@ -537,12 +524,6 @@ canvas{display:block;width:100%!important}
     <div id="pace-hist-nav" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"></div>
     <canvas id="paceHistChart" height="160"></canvas>
   </div>
-  <div class="slabel">Futódinamika trendek<button class="info-btn" tabindex="0">i<span class="info-tip">Talajérintési idő (GCT), lépéshossz és vertikális oszcilláció havi átlaga. Csak azokat a futásokat tartalmazza, ahol az óra mérte ezeket az adatokat.</span></button></div>
-  <div class="g2">
-    <div class="chart-card"><div class="chart-title">Talajérintési idő (ms)</div><canvas id="gctChart" height="150"></canvas></div>
-    <div class="chart-card"><div class="chart-title">Lépéshossz (cm)</div><canvas id="slChart" height="150"></canvas></div>
-  </div>
-  <div class="chart-card" style="margin-top:10px"><div class="chart-title">Vertikális oszcilláció (cm)</div><canvas id="voChart" height="130"></canvas></div>
 </div>
 
 <!-- ═══ EGÉSZSÉG ═══ -->
@@ -577,8 +558,6 @@ canvas{display:block;width:100%!important}
   </div>
   <div class="slabel">Lépések — utolsó 60 nap<button class="info-btn" tabindex="0">i<span class="info-tip">Napi összes lépésszám. A zöld sávok 10 000 lépés felett vannak, ami az általánosan ajánlott napi minimum aktív életmódhoz. Edzős napokon természetesen magasabb.</span></button></div>
   <div class="chart-card"><canvas id="stepsChart" height="150"></canvas></div>
-  <div class="slabel">Aktív kalória — utolsó 60 nap<button class="info-btn" tabindex="0">i<span class="info-tip">Mozgásból eredő aktív kalóriaégetés (nem tartalmazza az alapanyagcserét). Edzős napokon magasabb. Az 500 kcal feletti napok lime színnel jelennek meg.</span></button></div>
-  <div class="chart-card"><canvas id="activeCalChart" height="150"></canvas></div>
 </div>
 
 <script>
@@ -1247,51 +1226,8 @@ function renderCalendar(){
 }
 
 // ── OVERVIEW ──
-let _overviewKmYear='';
 let _vo2Year='';
 const _MONTHS_SHORT=['Jan','Feb','Már','Ápr','Máj','Jún','Júl','Aug','Sze','Okt','Nov','Dec'];
-
-function _buildOverviewKmNav(){
-  const nav=document.getElementById('overview-km-nav');
-  if(!nav||nav.dataset.built)return;
-  nav.dataset.built='1';
-  const years=[...new Set(MONTHLY.map(m=>m.ym.slice(0,4)))].sort();
-  const pills=['Teljes',...years];
-  const isLight=()=>document.documentElement.classList.contains('light');
-  pills.forEach(p=>{
-    const btn=document.createElement('button');
-    btn.dataset.yr=p==='Teljes'?'':p;
-    btn.textContent=p;
-    btn.style.cssText='font-size:10px;font-weight:700;letter-spacing:.5px;font-family:"Inter",sans-serif;border-radius:20px;padding:4px 12px;cursor:pointer;border:1px solid var(--border);transition:all .15s;background:var(--surface);color:var(--text3)';
-    btn.onclick=()=>{
-      _overviewKmYear=btn.dataset.yr;
-      nav.querySelectorAll('button').forEach(b=>{
-        const active=b.dataset.yr===_overviewKmYear;
-        b.style.background=active?'var(--lime)':'var(--surface)';
-        b.style.color=active?'var(--on-lime)':'var(--text3)';
-        b.style.borderColor=active?'var(--lime)':'var(--border)';
-      });
-      drawOverviewKmChart();
-    };
-    if(p==='Teljes'){btn.style.background='var(--lime)';btn.style.color='var(--on-lime)';btn.style.borderColor='var(--lime)';}
-    nav.appendChild(btn);
-  });
-}
-
-function drawOverviewKmChart(){
-  const isLight=document.documentElement.classList.contains('light');
-  const data=_overviewKmYear?MONTHLY.filter(m=>m.ym.startsWith(_overviewKmYear)):MONTHLY;
-  const labels=_overviewKmYear
-    ?data.map(m=>_MONTHS_SHORT[parseInt(m.ym.slice(5))-1])
-    :data.map(m=>m.ym.slice(2));
-  drawBar('overviewKmChart',labels,
-    [{data:data.map(m=>m.km),
-      color:data.map(m=>m.km>=150?getLime():m.ym.startsWith('2026')?'rgba(96,165,250,.6)':isLight?'rgba(0,200,83,.18)':'rgba(200,241,53,.22)'),
-      label:'km'}],
-    {rotateLabels:!_overviewKmYear,yFmt:v=>Math.round(v)+'km',
-     extraTip:i=>data[i].runs+' futás',
-     onClick:(_,i)=>filterAndShowRuns(data[i].ym)});
-}
 
 function _buildVo2Nav(){
   const nav=document.getElementById('vo2-nav');
@@ -1350,8 +1286,6 @@ function drawVo2Chart(){
 function drawOverviewCharts(){
   _refreshHeatmap();
   _drawRecovery();
-  _buildOverviewKmNav();
-  drawOverviewKmChart();
   const wk52=WEEKLY.slice(-52);
   const isLight=document.documentElement.classList.contains('light');
   drawBar('weeklyKmChart',wk52.map(w=>w.date.slice(5)),
@@ -1377,22 +1311,6 @@ function _computeStreaks(){
   return{current,longest};
 }
 
-function _computeACWR(){
-  const td={};RUNS.forEach(r=>{td[r.date]=(td[r.date]||0)+r.trimp;});
-  const dates=Object.keys(td).sort();if(!dates.length)return[];
-  const all=[];
-  for(let d=new Date(dates[0]),end=new Date();d<=end;d.setDate(d.getDate()+1)){
-    all.push({date:d.toISOString().slice(0,10),t:td[d.toISOString().slice(0,10)]||0});
-  }
-  // weekly points only (every 7th day), need ≥28 days of history
-  const result=[];
-  for(let i=27;i<all.length;i+=7){
-    const atl=all.slice(i-6,i+1).reduce((s,x)=>s+x.t,0)/7;
-    const ctl=all.slice(i-27,i+1).reduce((s,x)=>s+x.t,0)/28;
-    if(ctl>0)result.push({date:all[i].date,value:+(atl/ctl).toFixed(2)});
-  }
-  return result;
-}
 
 let _intPeriod=90;
 function _drawIntensity(days){
@@ -1505,7 +1423,10 @@ function initOverview(){
         const alpha=0.1+(found.km/maxKm)*0.9;
         cell.dataset.alpha=alpha.toFixed(2);
         _hmCellColor(cell,alpha.toFixed(2));
-        cell.title=`${found.ym}: ${found.km}km · ${found.runs} futás`;
+        const tt=document.getElementById('hm-tooltip');
+        cell.addEventListener('mouseenter',()=>{tt.textContent=`${found.ym} · ${found.km} km · ${found.runs} futás`;tt.style.display='block';});
+        cell.addEventListener('mousemove',e=>{tt.style.left=(e.clientX+14)+'px';tt.style.top=(e.clientY-36)+'px';});
+        cell.addEventListener('mouseleave',()=>{tt.style.display='none';});
         cell.onclick=()=>filterAndShowRuns(found.ym);
       } else {cell.style.background='var(--border)';cell.style.opacity='.4';}
       cells.appendChild(cell);
@@ -1775,17 +1696,6 @@ function drawTrendCharts(){
   _drawZoneChart();
   _buildTrimpNav();
   _drawTrimpChart();
-  // ACWR
-  const acwr=_computeACWR();
-  if(acwr.length){
-    drawLine('acwrChart',acwr.map(a=>a.date.slice(5)),
-      [{data:acwr.map(a=>a.value),color:'#60a5fa',fill:false,label:'ACWR'}],
-      {rotateLabels:true,yFmt:v=>v.toFixed(2),minVal:0,maxVal:Math.max(2,Math.max(...acwr.map(a=>a.value))*1.1),
-       refLines:[
-         {value:1.5,color:'#ff4444',label:'1.5 — túlterhelés kockázata'},
-         {value:0.8,color:'#ff8c00',label:'0.8 — alulterhelés'}
-       ]});
-  }
   // Cadence trend
   const cadM=MONTHLY.map(m=>{const rs=RUNS.filter(r=>r.ym===m.ym&&r.cadence>0);return rs.length?+(rs.reduce((s,r)=>s+r.cadence,0)/rs.length).toFixed(1):null;});
   const cadLabels=MONTHLY.map(m=>m.ym.slice(2));
@@ -1830,25 +1740,11 @@ function drawTrendCharts(){
   }
   _drawPaceHist(_paceHistPeriod);
 
-  // Running dynamics
-  _drawDynamics();
-
   // AEI trend (all time monthly)
   const aeiD=MONTHLY.filter(m=>m.avg_aei);
   if(aeiD.length)drawLine('aeiTrendChart',aeiD.map(m=>m.ym.slice(2)),
     [{data:aeiD.map(m=>m.avg_aei),color:getLime(),fill:true,fillColor:getLimeDim(),label:'AEI'}],
     {rotateLabels:true,yFmt:v=>v.toFixed(2)});
-
-  // Temperature vs pace scatter
-  const tempPts=RUNS.filter(r=>r.temp!=null&&r.pace>0&&r.pace<9.5).map(r=>{
-    const t=r.temp;
-    const color=t<=10?'rgba(96,165,250,.8)':t>=24?'rgba(248,113,113,.8)':(isLight?'rgba(0,200,83,.75)':'rgba(200,241,53,.7)');
-    return{x:t,y:r.pace,r:4,color,run:r};
-  });
-  if(tempPts.length){
-    const minT=Math.min(...tempPts.map(p=>p.x))-2,maxT=Math.max(...tempPts.map(p=>p.x))+2;
-    drawScatterChart('tempChart',tempPts,{minX:minT,maxX:maxT,minY:4,maxY:9,xLabel:'°C'});
-  }
 }
 
 // ── EGÉSZSÉG ──
@@ -1908,17 +1804,12 @@ function drawHealthCharts(){
     [{data:stepsD.map(h=>h.steps),color:stepsD.map(h=>h.steps>=10000?getLime():isLight?'rgba(0,200,83,.3)':'rgba(200,241,53,.3)'),label:'lépés'}],
     {rotateLabels:true,yFmt:v=>Math.round(v/1000)+'k'});
 
-  // Active calories (last 60 days)
-  const calD=HEALTH.filter(h=>h.date>=c60&&h.active_cal>0);
-  if(calD.length)drawBar('activeCalChart',calD.map(h=>h.date.slice(5)),
-    [{data:calD.map(h=>h.active_cal),color:calD.map(h=>h.active_cal>=500?getLime():isLight?'rgba(0,200,83,.3)':'rgba(200,241,53,.3)'),label:'kcal'}],
-    {rotateLabels:true,yFmt:v=>Math.round(v)+'kcal'});
 }
 
 // ── PR PROGRESSION ──
 let _prProgKey='half';
 const _PR_PROG_KEYS=[
-  {k:'half',lbl:'Félmaraton tempó',metric:r=>r.pace,lower:true,fmt:v=>fmtPace(v)+'/km',minDist:18},
+  {k:'half',lbl:'Félmaraton tempó',metric:r=>r.pace,lower:true,fmt:v=>fmtPace(v)+'/km',minDist:16},
   {k:'10k',lbl:'10k tempó',metric:r=>r.pace,lower:true,fmt:v=>fmtPace(v)+'/km',minDist:9,maxDist:12},
   {k:'5k',lbl:'5k tempó',metric:r=>r.pace,lower:true,fmt:v=>fmtPace(v)+'/km',minDist:4.5,maxDist:6},
   {k:'longest',lbl:'Leghosszabb futás',metric:r=>r.dist,lower:false,fmt:v=>v.toFixed(1)+'km',minDist:0},
@@ -2071,22 +1962,6 @@ function _drawPaceHist(days){
     {rotateLabels:false,yFmt:v=>Math.round(v)+' futás'});
 }
 
-// ── RUNNING DYNAMICS ──
-function _drawDynamics(){
-  const byMonth=(field,mult=1)=>{
-    const res=MONTHLY.map(m=>{
-      const rs=RUNS.filter(r=>r.ym===m.ym&&r[field]>0);
-      return rs.length?+(rs.reduce((s,r)=>s+r[field]*mult,0)/rs.length).toFixed(1):null;
-    });
-    return{labels:MONTHLY.map(m=>m.ym.slice(2)),data:res};
-  };
-  const gct=byMonth('gct');
-  const sl=byMonth('sl',100); // stored in m, show cm
-  const vo=byMonth('vo',100); // stored in m, show cm
-  if(gct.data.some(v=>v))drawLine('gctChart',gct.labels,[{data:gct.data,color:'#60a5fa',fill:true,fillColor:'rgba(96,165,250,.08)',label:'ms'}],{rotateLabels:true,yFmt:v=>Math.round(v)+' ms'});
-  if(sl.data.some(v=>v))drawLine('slChart',sl.labels,[{data:sl.data,color:getLime(),fill:true,fillColor:getLimeDim(),label:'cm'}],{rotateLabels:true,yFmt:v=>Math.round(v)+' cm'});
-  if(vo.data.some(v=>v))drawLine('voChart',vo.labels,[{data:vo.data,color:'#f87171',fill:true,fillColor:'rgba(248,113,113,.08)',label:'cm'}],{rotateLabels:true,yFmt:v=>v.toFixed(1)+' cm'});
-}
 
 // ── INIT ──
 _bootstrap();
