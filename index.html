@@ -1865,7 +1865,7 @@ function _drawRecovery(){
   else if(forma>=45){status='Átlagos forma';col='var(--orange)';advice='Könnyű edzés javasolt';}
   else{status='Fáradt';col='var(--red)';advice='Pihenj ma';}
   el.innerHTML=`<div class="stat-box" style="border-left:3px solid ${col}">
-    <div class="stat-lbl">Legutóbbi forma<button class="info-btn" tabindex="0">i<span class="info-tip">0–100-as index az előző napi HRV és nyugalmi pulzus alapján, személyes átlagodhoz viszonyítva. 70+ = jó forma, 45–69 = átlagos, 0–44 = fáradt.</span></button></div>
+    <div class="stat-lbl">Legutóbbi forma</div>
     <div class="stat-num" style="color:${col}">${forma}</div>
     <div class="stat-unit">${status} — ${advice}</div>
     <div class="stat-unit" style="margin-top:3px;font-size:10px">HRV: ${lastHRV.hrv}ms · HR: ${lastHR.resting_hr}bpm · ${lastHRV.date}</div>
