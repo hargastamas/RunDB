@@ -510,9 +510,13 @@ function _shDate(s){const m=s&&s.match(/(\d{4})\.(\d{2})\.(\d{2})/);return m?m[1
 
 function _row2run(c){
   const date=_shDate(c[0]);if(!date)return null;
-  if(!(c[2]||'').toLowerCase().includes('run'))return null;
+  if(!(c[2]||'').toLowerCase().includes('run')){
+    if(c[2]&&c[2].trim())console.log('RunDB skip [type]',c[2],'→',date);
+    return null;
+  }
   const dur=_tMin(c[3]);if(!dur||dur<0.5)return null;
-  const dist=_unit(c[8],'km');if(!dist||dist<0.1)return null;
+  const dist=_unit(c[8],'km');
+  if(!dist||dist<0.1){console.log('RunDB skip [dist]',c[8],'→',date);return null;}
   const pace=+(dur/dist).toFixed(3);
   const avg_hr=Math.round(_unit(c[12],'bpm')||_hun(c[12])||0)||null;
   const max_hr=Math.round(_unit(c[13],'bpm')||_hun(c[13])||0)||null;
@@ -540,6 +544,7 @@ function _row2run(c){
 
 function _parseCSV(text){
   const runs=[],lines=text.trim().replace(/\r/g,'').split('\n');
+  console.log('RunDB: sheet sorok száma:',lines.length-1);
   for(let i=1;i<lines.length;i++){
     const cols=[];let cur='',inQ=false;
     for(const ch of lines[i]){
@@ -550,6 +555,7 @@ function _parseCSV(text){
     cols.push(cur);
     const r=_row2run(cols);if(r)runs.push(r);
   }
+  console.log('RunDB: sikeresen parsolt futások:',runs.length,'· összes km:',+runs.reduce((s,r)=>s+r.dist,0).toFixed(1));
   return runs;
 }
 
