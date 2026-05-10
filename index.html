@@ -1363,10 +1363,21 @@ function initOverview(){
   const twKm=thisW?thisW.km:0,twRuns=thisW?thisW.runs:0,twTrimp=thisW?Math.round(thisW.trimp):0;
   const kmDelta=thisW&&prevW?+(twKm-prevW.km).toFixed(1):null;
   const kmDeltaStr=kmDelta===null?'':`<div class="stat-unit" style="color:${kmDelta>=0?'var(--lime)':'var(--orange)'}">${kmDelta>=0?'+':''}${kmDelta} km az előző héthez képest</div>`;
+  // TRIMP vs 8-week rolling avg
+  const twIdx=thisW?WEEKLY.indexOf(thisW):-1;
+  const ref8=twIdx>0?WEEKLY.slice(Math.max(0,twIdx-8),twIdx):[];
+  const avgTrimp8=ref8.length?ref8.reduce((s,w)=>s+(w.trimp||0),0)/ref8.length:0;
+  let trimpCtx='';
+  if(avgTrimp8>0){
+    const pct=Math.round((twTrimp/avgTrimp8-1)*100);
+    const ratio=twTrimp/avgTrimp8;
+    const [lbl,col]=ratio<0.7?['Könnyű hét','var(--lime)']:ratio<1.2?['Átlagos hét','var(--text2)']:ratio<1.6?['Kemény hét','var(--orange)']:['Nagyon kemény','var(--red)'];
+    trimpCtx=`<div class="stat-unit" style="color:${col}">${lbl} · ${pct>=0?'+':''}${pct}% az átlagodhoz képest</div>`;
+  }
   document.getElementById('thisweek-stats').innerHTML=`
     <div class="stat-box"><div class="stat-lbl">Km ezen a héten</div><div class="stat-num lime">${twKm.toFixed(1)}</div>${kmDeltaStr}</div>
     <div class="stat-box"><div class="stat-lbl">Futások</div><div class="stat-num">${twRuns}</div><div class="stat-unit">ezen a héten</div></div>
-    <div class="stat-box"><div class="stat-lbl">TRIMP</div><div class="stat-num">${twTrimp}</div><div class="stat-unit">terhelési pont</div></div>`;
+    <div class="stat-box"><div class="stat-lbl">Terhelés (TRIMP)</div><div class="stat-num">${twTrimp}</div>${trimpCtx}</div>`;
 
   const p=PRS;
   function prCard(label,numHtml,meta,run){
