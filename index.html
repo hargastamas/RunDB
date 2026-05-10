@@ -1119,6 +1119,7 @@ function redrawTab(id){
   if(id==='stats'){showStatsSub(_statsSub);}
   if(id==='trends'){drawTrendCharts();}
   if(id==='health'){drawHealthCharts();}
+  if(id==='calendar'){renderCalendar();}
 }
 
 // ── CALENDAR ──
@@ -1214,7 +1215,7 @@ function renderCalendar(){
           let bg,textCol;
           if(r.z1>=50){bg=isLight?'#00C853':'#C8F135';textCol='#111111';}
           else if((r.z3+r.z4)>=50){bg='#ff6622';textCol='#fff';}
-          else{bg='#6dbf6d';textCol='#fff';}
+          else{bg=isLight?'#22a85a':'#6dbf6d';textCol='#fff';}
 
           const bubble=document.createElement('div');
           bubble.className='cal-bubble';
