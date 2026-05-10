@@ -1276,7 +1276,7 @@ function drawVo2Chart(){
   if(!vo2D.length)return;
   const labels=_vo2Year?vo2D.map(h=>h.date.slice(5)):vo2D.map(h=>h.date.slice(2));
   drawLine('vo2Chart',labels,
-    [{data:vo2D.map(h=>h.vo2max),color:'#a78bfa',fill:true,fillColor:'rgba(167,139,250,.08)',label:'ml/kg/min'}],
+    [{data:vo2D.map(h=>h.vo2max),color:'#f87171',fill:true,fillColor:'rgba(248,113,113,.08)',label:'ml/kg/min'}],
     {rotateLabels:true,yFmt:v=>v.toFixed(1)});
 }
 
