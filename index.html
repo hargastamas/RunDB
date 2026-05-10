@@ -1026,17 +1026,16 @@ function renderCalendar(){
   // week start (Monday) of a date string
   function monOf(d){const dt=new Date(d),day=dt.getDay(),diff=day===0?-6:1-day;dt.setDate(dt.getDate()+diff);return dt.toISOString().slice(0,10);}
 
-  // collect all weeks that have at least one run
+  // all run-weeks (for lookup)
   const weekSet=new Set(dates.map(monOf));
-  const weeks=[...weekSet].sort().reverse();
-
-  // gap detector: only flag when an entire week is skipped (gap between run-weeks > 7 days)
-  const gapBeforeWeek={};
   const sortedRunWeeks=[...weekSet].sort();
-  for(let i=1;i<sortedRunWeeks.length;i++){
-    const daysBetween=Math.round((new Date(sortedRunWeeks[i])-new Date(sortedRunWeeks[i-1]))/(864e5));
-    if(daysBetween>7)gapBeforeWeek[sortedRunWeeks[i]]=daysBetween-7;
-  }
+
+  // generate every consecutive week from first to last run-week
+  const firstWeek=sortedRunWeeks[0];
+  const lastWeek=sortedRunWeeks[sortedRunWeeks.length-1];
+  const weeks=[];
+  for(let d=new Date(lastWeek);d>=new Date(firstWeek);d.setDate(d.getDate()-7))
+    weeks.push(d.toISOString().slice(0,10));
 
   const MONTHS=['jan','feb','már','ápr','máj','jún','júl','aug','szep','okt','nov','dec'];
   function shortDate(d){const dt=new Date(d);return MONTHS[dt.getMonth()]+' '+dt.getDate()+'.';}
@@ -1066,10 +1065,8 @@ function renderCalendar(){
     const rangeLabel=sameMonth
       ?MONTHS[monDt.getMonth()]+' '+monDt.getDate()+'–'+sunDt.getDate()+'.'
       :shortDate(mon)+' – '+shortDate(sunStr);
-    const gapDays=gapBeforeWeek[mon];
     info.innerHTML='<div class="cal-week-range">'+rangeLabel+'</div>'
-      +(weekKm>0?'<div class="cal-week-km'+(isLight?' light-lime':'')+'">'+weekKm.toFixed(1)+' km</div>':'')
-      +(gapDays?'<div class="cal-gap-badge">'+gapDays+' nap szünet</div>':'');
+      +(weekKm>0?'<div class="cal-week-km'+(isLight?' light-lime':'')+'">'+weekKm.toFixed(1)+' km</div>':'');
     row.appendChild(info);
 
     // day cells
