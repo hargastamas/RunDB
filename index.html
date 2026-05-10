@@ -701,7 +701,8 @@ function drawBar(id,labels,datasets,opts={}){
   if(!canvas)return;
   const dpr=window.devicePixelRatio||1;
   const W=canvas.offsetWidth||canvas.parentElement.offsetWidth||700;
-  const H=parseInt(canvas.getAttribute('height'))||180;
+  if(!canvas.dataset.logicalH)canvas.dataset.logicalH=canvas.getAttribute('height')||'180';
+  const H=parseInt(canvas.dataset.logicalH);
   canvas.width=W*dpr; canvas.height=H*dpr;
   canvas.style.width=W+'px'; canvas.style.height=H+'px';
   const ctx=canvas.getContext('2d');
@@ -779,7 +780,8 @@ function drawLine(id,labels,datasets,opts={}){
   if(!canvas)return;
   const dpr=window.devicePixelRatio||1;
   const W=canvas.offsetWidth||canvas.parentElement.offsetWidth||700;
-  const H=parseInt(canvas.getAttribute('height'))||150;
+  if(!canvas.dataset.logicalH)canvas.dataset.logicalH=canvas.getAttribute('height')||'150';
+  const H=parseInt(canvas.dataset.logicalH);
   canvas.width=W*dpr; canvas.height=H*dpr;
   canvas.style.width=W+'px'; canvas.style.height=H+'px';
   const ctx=canvas.getContext('2d');
@@ -844,7 +846,8 @@ function drawScatterChart(id,points,opts={}){
   if(!canvas)return;
   const dpr=window.devicePixelRatio||1;
   const W=canvas.offsetWidth||canvas.parentElement.offsetWidth||700;
-  const H=parseInt(canvas.getAttribute('height'))||280;
+  if(!canvas.dataset.logicalH)canvas.dataset.logicalH=canvas.getAttribute('height')||'280';
+  const H=parseInt(canvas.dataset.logicalH);
   canvas.width=W*dpr; canvas.height=H*dpr;
   canvas.style.width=W+'px'; canvas.style.height=H+'px';
   const ctx=canvas.getContext('2d');
