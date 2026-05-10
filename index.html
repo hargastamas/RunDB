@@ -520,7 +520,10 @@ canvas{display:block;width:100%!important}
   </div>
   <div class="slabel">VO₂ Max trend<button class="info-btn" tabindex="0">i<span class="info-tip">Az Apple Watch becslése az aerob kapacitásodról ml/kg/min-ben. 35 alatt: átlag alatti. 40–45: átlagos aktív felnőtt. 50+: sportoló szint. 60+: elit. Futóedzéssel évek alatt jelentősen javítható. A növekvő trend a legfontosabb hosszú távú fitnesz mutató.</span></button></div>
   <div class="chart-card">
-    <div class="chart-sub">ml/kg/min — Apple Watch becslés · teljes history</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:8px">
+      <div class="chart-sub" style="margin:0">ml/kg/min — Apple Watch becslés</div>
+      <div id="vo2-nav" style="display:flex;gap:5px;flex-wrap:wrap"></div>
+    </div>
     <canvas id="vo2Chart" height="150"></canvas>
   </div>
   <div class="slabel">Lépések — utolsó 60 nap<button class="info-btn" tabindex="0">i<span class="info-tip">Napi összes lépésszám. A zöld sávok 10 000 lépés felett vannak, ami az általánosan ajánlott napi minimum aktív életmódhoz. Edzős napokon természetesen magasabb.</span></button></div>
@@ -1178,6 +1181,7 @@ function renderCalendar(){
 
 // ── OVERVIEW ──
 let _overviewKmYear='';
+let _vo2Year='';
 const _MONTHS_SHORT=['Jan','Feb','Már','Ápr','Máj','Jún','Júl','Aug','Sze','Okt','Nov','Dec'];
 
 function _buildOverviewKmNav(){
@@ -1220,6 +1224,42 @@ function drawOverviewKmChart(){
     {rotateLabels:!_overviewKmYear,yFmt:v=>Math.round(v)+'km',
      extraTip:i=>data[i].runs+' futás',
      onClick:(_,i)=>filterAndShowRuns(data[i].ym)});
+}
+
+function _buildVo2Nav(){
+  const nav=document.getElementById('vo2-nav');
+  if(!nav||nav.dataset.built)return;
+  nav.dataset.built='1';
+  const years=[...new Set(HEALTH.filter(h=>h.vo2max>0).map(h=>h.date.slice(0,4)))].sort();
+  const pills=['Teljes',...years];
+  pills.forEach(p=>{
+    const btn=document.createElement('button');
+    btn.dataset.yr=p==='Teljes'?'':p;
+    btn.textContent=p;
+    btn.style.cssText='font-size:10px;font-weight:700;letter-spacing:.5px;font-family:"Inter",sans-serif;border-radius:20px;padding:4px 12px;cursor:pointer;border:1px solid var(--border);transition:all .15s;background:var(--surface);color:var(--text3)';
+    btn.onclick=()=>{
+      _vo2Year=btn.dataset.yr;
+      nav.querySelectorAll('button').forEach(b=>{
+        const active=b.dataset.yr===_vo2Year;
+        b.style.background=active?'var(--lime)':'var(--surface)';
+        b.style.color=active?'var(--bg)':'var(--text3)';
+        b.style.borderColor=active?'var(--lime)':'var(--border)';
+      });
+      drawVo2Chart();
+    };
+    if(p==='Teljes'){btn.style.background='var(--lime)';btn.style.color='var(--bg)';btn.style.borderColor='var(--lime)';}
+    nav.appendChild(btn);
+  });
+}
+
+function drawVo2Chart(){
+  const all=HEALTH.filter(h=>h.vo2max>0);
+  const vo2D=_vo2Year?all.filter(h=>h.date.startsWith(_vo2Year)):all;
+  if(!vo2D.length)return;
+  const labels=_vo2Year?vo2D.map(h=>h.date.slice(5)):vo2D.map(h=>h.date.slice(2));
+  drawLine('vo2Chart',labels,
+    [{data:vo2D.map(h=>h.vo2max),color:'#a78bfa',fill:true,fillColor:'rgba(167,139,250,.08)',label:'ml/kg/min'}],
+    {rotateLabels:true,yFmt:v=>v.toFixed(1)});
 }
 
 function drawOverviewCharts(){
@@ -1655,11 +1695,9 @@ function drawHealthCharts(){
        refLines:[{value:70,color:getLime(),label:'70 — jó forma'},{value:30,color:'#ff4444',label:'30 — fáradt'}]});
   }
 
-  // VO2 Max (all time, non-null)
-  const vo2D=HEALTH.filter(h=>h.vo2max>0);
-  if(vo2D.length)drawLine('vo2Chart',vo2D.map(h=>h.date.slice(5)),
-    [{data:vo2D.map(h=>h.vo2max),color:'#a78bfa',fill:true,fillColor:'rgba(167,139,250,.08)',label:'ml/kg/min'}],
-    {rotateLabels:true,yFmt:v=>v.toFixed(1)});
+  // VO2 Max
+  _buildVo2Nav();
+  drawVo2Chart();
 
   // Steps (last 60 days)
   const stepsD=HEALTH.filter(h=>h.date>=c60&&h.steps>0);
