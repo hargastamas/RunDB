@@ -570,19 +570,40 @@ function _clearDOM(){
   const calBody=document.getElementById('cal-body');if(calBody)calBody.innerHTML='';
 }
 
-async function _bootstrap(){
-  ({MONTHLY,YEARLY,WEEKLY,PRS,PR_DATES}=_compute(BASE_RUNS));
-  RUNS=BASE_RUNS.slice();filteredRuns=RUNS.slice();
+const CACHE_KEY='rundb_runs_v1';
+
+function _saveCache(runs){
+  try{localStorage.setItem(CACHE_KEY,JSON.stringify(runs));}catch(e){}
+}
+function _loadCache(){
+  try{const d=localStorage.getItem(CACHE_KEY);return d?JSON.parse(d):null;}catch(e){return null;}
+}
+
+function _render(runs){
+  ({MONTHLY,YEARLY,WEEKLY,PRS,PR_DATES}=_compute(runs));
+  RUNS=runs;filteredRuns=runs.slice();
+  _clearDOM();
   initOverview();initRunsTab();initCalendarTab();initMonthlyTab();initYearlyTab();initCompareTab();
+}
+
+async function _bootstrap(){
+  // Phase 1 — render from cache if available (correct data, no flash)
+  const cached=_loadCache();
+  if(cached){
+    _render(cached);
+  } else {
+    // First ever load: render base data while fetching
+    _render(BASE_RUNS.slice());
+  }
+  // Phase 2 — fetch live sheet in background, update only if there's new data
   try{
     const sheetRuns=await _fetchSheet();
     const merged=_merge(BASE_RUNS,sheetRuns);
-    if(merged.length===BASE_RUNS.length)return;
-    ({MONTHLY,YEARLY,WEEKLY,PRS,PR_DATES}=_compute(merged));
-    RUNS=merged;filteredRuns=RUNS.slice();
-    _clearDOM();
-    initOverview();initRunsTab();initCalendarTab();initMonthlyTab();initYearlyTab();initCompareTab();
-    console.log('RunDB live: '+sheetRuns.length+' sheet run(s) → '+merged.length+' total');
+    const prev=cached||BASE_RUNS;
+    if(merged.length===prev.length&&merged[merged.length-1]?.date===prev[prev.length-1]?.date)return;
+    _saveCache(merged);
+    _render(merged);
+    console.log('RunDB: updated to '+merged.length+' runs');
   }catch(e){console.warn('RunDB: sheet fetch failed:',e.message);}
 }
 // ─────────────────────────────────────────────────────────────────────────────

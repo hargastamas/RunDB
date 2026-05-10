@@ -570,20 +570,43 @@ function _clearDOM(){
   const calBody=document.getElementById('cal-body');if(calBody)calBody.innerHTML='';
 }
 
-async function _bootstrap(){
-  ({MONTHLY,YEARLY,WEEKLY,PRS,PR_DATES}=_compute(BASE_RUNS));
-  RUNS=BASE_RUNS.slice();filteredRuns=RUNS.slice();
+const CACHE_KEY='rundb_runs_v2';
+
+function _saveCache(runs){
+  try{localStorage.setItem(CACHE_KEY,JSON.stringify(runs));}catch(e){}
+}
+function _loadCache(){
+  try{const d=localStorage.getItem(CACHE_KEY);return d?JSON.parse(d):null;}catch(e){return null;}
+}
+
+function _render(runs){
+  ({MONTHLY,YEARLY,WEEKLY,PRS,PR_DATES}=_compute(runs));
+  RUNS=runs;filteredRuns=runs.slice();
+  _clearDOM();
   initOverview();initRunsTab();initCalendarTab();initMonthlyTab();initYearlyTab();initCompareTab();
+}
+
+async function _bootstrap(){
+  const cached=_loadCache();
+  // Render immediately from cache (ha van) — nincs flash
+  _render(cached&&cached.length?cached:BASE_RUNS.slice());
+
+  // Mindig fetcheljük a sheet-et a friss adatért
   try{
     const sheetRuns=await _fetchSheet();
     const merged=_merge(BASE_RUNS,sheetRuns);
-    if(merged.length===BASE_RUNS.length)return;
-    ({MONTHLY,YEARLY,WEEKLY,PRS,PR_DATES}=_compute(merged));
-    RUNS=merged;filteredRuns=RUNS.slice();
-    _clearDOM();
-    initOverview();initRunsTab();initCalendarTab();initMonthlyTab();initYearlyTab();initCompareTab();
-    console.log('RunDB live: '+sheetRuns.length+' sheet run(s) → '+merged.length+' total');
-  }catch(e){console.warn('RunDB: sheet fetch failed:',e.message);}
+    // Cache-t mindig mentjük a legfrissebb adattal
+    _saveCache(merged);
+    // Csak akkor renderelünk újra, ha az adat különbözik attól, amit most mutatunk
+    const showing=cached&&cached.length?cached:BASE_RUNS;
+    const changed=merged.length!==showing.length||
+                  merged[merged.length-1]?.date!==showing[showing.length-1]?.date;
+    if(changed){_render(merged);console.log('RunDB: '+merged.length+' futás betöltve');}
+  }catch(e){
+    // Ha a fetch sikertelen de nincs cache, mentsük le legalább a base adatot
+    if(!cached||!cached.length)_saveCache(BASE_RUNS.slice());
+    console.warn('RunDB: sheet fetch sikertelen:',e.message);
+  }
 }
 // ─────────────────────────────────────────────────────────────────────────────
 const MONTHS_HU=['jan','feb','már','ápr','máj','jún','júl','aug','szep','okt','nov','dec'];
