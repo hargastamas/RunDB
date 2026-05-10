@@ -559,26 +559,11 @@ function _parseCSV(text){
   return runs;
 }
 
-function _dedup(runs){
-  const seen=new Map();
-  runs.forEach(r=>{
-    const key=r.date+'|'+Math.round(r.dist);
-    if(!seen.has(key)||r.avg_hr)seen.set(key,r);
-  });
-  const result=[...seen.values()];
-  if(runs.length!==result.length){
-    const removed=runs.filter(r=>!result.includes(r));
-    removed.forEach(r=>console.log('RunDB dedup removed:',r.date,r.dist+'km'));
-  }
-  console.log('RunDB: dedup:',runs.length,'→',result.length,'runs, km:',+result.reduce((s,r)=>s+r.dist,0).toFixed(1));
-  return result;
-}
 function _merge(base,sheet){
-  const deduped=_dedup(sheet);
-  const sheetDates=new Set(deduped.map(r=>r.date));
-  const baseKept=base.filter(r=>!sheetDates.has(r.date));
-  const result=[...baseKept,...deduped].sort((a,b)=>a.date.localeCompare(b.date));
-  console.log('RunDB: merge → base kept:',baseKept.length,'('+baseKept.reduce((s,r)=>s+r.dist,0).toFixed(1)+'km) + sheet:',deduped.length,'('+deduped.reduce((s,r)=>s+r.dist,0).toFixed(1)+'km) = total:',+result.reduce((s,r)=>s+r.dist,0).toFixed(1)+'km');
+  const sheetDates=new Set(sheet.map(r=>r.date));
+  const result=[...base.filter(r=>!sheetDates.has(r.date)),...sheet]
+    .sort((a,b)=>a.date.localeCompare(b.date));
+  console.log('RunDB: merge → base kept:',base.filter(r=>!sheetDates.has(r.date)).length,'+ sheet:',sheet.length,'= total runs:',result.length,', km:',+result.reduce((s,r)=>s+r.dist,0).toFixed(1));
   return result;
 }
 
