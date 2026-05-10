@@ -1026,6 +1026,10 @@ function renderCalendar(){
   // week start (Monday) of a date string
   function monOf(d){const dt=new Date(d),day=dt.getDay(),diff=day===0?-6:1-day;dt.setDate(dt.getDate()+diff);return dt.toISOString().slice(0,10);}
 
+  // collect all weeks that have at least one run
+  const weekSet=new Set(dates.map(monOf));
+  const weeks=[...weekSet].sort().reverse();
+
   // gap detector: only flag when an entire week is skipped (gap between run-weeks > 7 days)
   const gapBeforeWeek={};
   const sortedRunWeeks=[...weekSet].sort();
@@ -1033,10 +1037,6 @@ function renderCalendar(){
     const daysBetween=Math.round((new Date(sortedRunWeeks[i])-new Date(sortedRunWeeks[i-1]))/(864e5));
     if(daysBetween>7)gapBeforeWeek[sortedRunWeeks[i]]=daysBetween-7;
   }
-
-  // collect all weeks that have at least one run
-  const weekSet=new Set(dates.map(monOf));
-  const weeks=[...weekSet].sort().reverse();
 
   const MONTHS=['jan','feb','már','ápr','máj','jún','júl','aug','szep','okt','nov','dec'];
   function shortDate(d){const dt=new Date(d);return MONTHS[dt.getMonth()]+' '+dt.getDate()+'.';}
