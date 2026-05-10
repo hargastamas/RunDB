@@ -206,6 +206,66 @@ canvas{display:block;width:100%!important}
 .cal-bubble:hover{transform:scale(1.12);box-shadow:0 4px 20px rgba(0,0,0,.35)}
 .cal-bubble-label{font-size:8px;color:var(--text3);text-align:center;line-height:1.3;max-width:72px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cal-empty{width:6px;height:6px;border-radius:50%;background:var(--border);margin:20px auto 0}
+
+/* ── MOBILE ── */
+@media(max-width:640px){
+  /* Page padding */
+  .page{padding:14px}
+
+  /* Nav: scrollable, hide scrollbar */
+  nav{padding:0 10px;gap:1px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-wrap:nowrap}
+  nav::-webkit-scrollbar{display:none}
+  .nav-brand{font-size:13px;margin-right:10px;flex-shrink:0}
+  .tab-btn{font-size:10px;padding:5px 8px;flex-shrink:0}
+
+  /* Stats: 2 oszlop */
+  .stat-row{grid-template-columns:repeat(2,1fr)}
+  .stat-num{font-size:26px}
+
+  /* PR grid: 1 oszlop */
+  .pr-grid{grid-template-columns:1fr}
+  .pr-num{font-size:36px}
+
+  /* Tables: vízszintes scroll */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+  /* Filter bar selects */
+  .filter-bar{gap:6px}
+  .search-input{min-width:100%;margin-bottom:2px}
+
+  /* Charts: 1 oszlop */
+  .g2{grid-template-columns:1fr}
+
+  /* Compare */
+  .compare-grid{grid-template-columns:1fr}
+
+  /* Modal */
+  .modal-overlay{padding-top:12px;padding-left:8px;padding-right:8px}
+  .modal{padding:20px;width:100%;margin-bottom:20px}
+  .modal-dist{font-size:44px}
+  .modal-stats{grid-template-columns:repeat(2,1fr)}
+
+  /* Heatmap: kisebb év label */
+  .heatmap-year{font-size:8px;width:26px}
+  .month-names{margin-left:32px}
+
+  /* Calendar: szűkebb info oszlop, kisebb sorok */
+  .cal-header{grid-template-columns:58px repeat(7,1fr)}
+  .cal-week{grid-template-columns:58px repeat(7,1fr);padding:5px 0 5px 2px;min-height:42px}
+  .cal-week-info{padding-right:3px;gap:2px;padding-top:4px}
+  .cal-week-range{font-size:7px}
+  .cal-week-km{font-size:9px}
+  /* Buborékok méretének maximalizálása (inline style override) */
+  .cal-bubble{max-width:32px!important;max-height:32px!important;font-size:7px!important}
+  /* Label elrejtése mobilon – nem fér el */
+  .cal-bubble-label{display:none}
+  .cal-empty{margin:12px auto 0;width:5px;height:5px}
+  .cal-day-hdr{font-size:7px}
+  /* Theme toggle: kisebb mobilon */
+  #theme-toggle{padding:4px 8px;font-size:10px}
+  #theme-icon{font-size:11px}
+  #theme-label{display:none}
+}
 </style>
 </head>
 <body>
