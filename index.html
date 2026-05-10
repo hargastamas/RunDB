@@ -1321,15 +1321,15 @@ function initOverview(){
   const midRun=RUNS.find(r=>r.date===p.mid_10k?.date);
   const longRun=RUNS.find(r=>r.date===p.longest?.date);
   const trimpRun=RUNS.find(r=>r.date===p.highest_trimp?.date);
+  const vo2vals=HEALTH.filter(h=>h.vo2max>0);
+  const bestVo2=vo2vals.length?Math.max(...vo2vals.map(h=>h.vo2max)):null;
+  const curVo2=vo2vals.length?vo2vals[vo2vals.length-1].vo2max:null;
   document.getElementById('pr-grid').innerHTML=
     prCard('Félmaraton PR',`${fmtPace(p.half?.pace)}<span class="unit">/km</span>`,`${p.half?.dist}km · ${p.half?.date}<br>Átl. HR: ${p.half?.hr} bpm`,halfRun)+
     prCard('Legjobb 5k tempó',`${fmtPace(p.short_5k?.pace)}<span class="unit">/km</span>`,`${p.short_5k?.dist}km · ${p.short_5k?.date}<br>Átl. HR: ${p.short_5k?.hr} bpm`,shortRun)+
     prCard('Legjobb 10k tempó',`${fmtPace(p.mid_10k?.pace)}<span class="unit">/km</span>`,`${p.mid_10k?.dist}km · ${p.mid_10k?.date}<br>Átl. HR: ${p.mid_10k?.hr} bpm`,midRun)+
     prCard('Leghosszabb futás',`${p.longest?.dist}<span class="unit">km</span>`,`${fmtPace(p.longest?.pace)}/km · ${p.longest?.date}<br>Átl. HR: ${p.longest?.hr} bpm`,longRun)+
     prCard('Max TRIMP',`${p.highest_trimp?.val}<span class="unit">pt</span>`,`${p.highest_trimp?.dist}km · ${p.highest_trimp?.date}`,trimpRun)+
-    const vo2vals=HEALTH.filter(h=>h.vo2max>0);
-    const bestVo2=vo2vals.length?Math.max(...vo2vals.map(h=>h.vo2max)):null;
-    const curVo2=vo2vals.length?vo2vals[vo2vals.length-1].vo2max:null;
     prCard('VO₂ Max csúcs',bestVo2?`${bestVo2.toFixed(1)}<span class="unit">ml/kg/min</span>`:'—',
       bestVo2?`Jelenlegi: ${curVo2?.toFixed(1)} · ${vo2vals.find(h=>h.vo2max===bestVo2)?.date}`:'Apple Health adat betöltése...',null);
 
