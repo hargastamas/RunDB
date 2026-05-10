@@ -1545,6 +1545,29 @@ function closeModal(e){if(e.target===document.getElementById('modal'))closeModal
 function closeModalBtn(){document.getElementById('modal').classList.remove('open')}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModalBtn()});
 
+function showVo2Modal(){
+  const yr=new Date().getFullYear().toString();
+  const all=HEALTH.filter(h=>h.vo2max>0);
+  const data=all.filter(h=>h.date.startsWith(yr));
+  if(!data.length)return;
+  const vals=data.map(h=>h.vo2max);
+  const min=Math.min(...vals),max=Math.max(...vals);
+  const trend=+(vals[vals.length-1]-vals[0]).toFixed(1);
+  const trendCol=trend>0?'var(--lime)':trend<0?'var(--red)':'var(--text2)';
+  const trendStr=(trend>0?'+':'')+trend;
+  document.getElementById('modal-content').innerHTML=`
+    <div style="margin-bottom:20px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:6px">VO₂ Max — ${yr}</div>
+      <div style="font-size:32px;font-weight:900;color:var(--text);letter-spacing:-1.5px;line-height:1">${vals[vals.length-1].toFixed(1)}<span style="font-size:14px;font-weight:400;color:var(--text3);margin-left:5px">ml/kg/min</span></div>
+      <div style="font-size:12px;color:var(--text2);margin-top:6px">${yr}-ben: ${min.toFixed(1)}–${max.toFixed(1)} · Változás: <span style="color:${trendCol};font-weight:700">${trendStr}</span></div>
+    </div>
+    <canvas id="vo2-modal-chart" height="180"></canvas>`;
+  document.getElementById('modal').classList.add('open');
+  setTimeout(()=>drawLine('vo2-modal-chart',data.map(h=>h.date.slice(5)),
+    [{data:vals,color:'#f87171',fill:true,fillColor:'rgba(248,113,113,.08)',label:'ml/kg/min'}],
+    {rotateLabels:true,yFmt:v=>v.toFixed(1)}),0);
+}
+
 // ── MONTHLY ──
 function initMonthlyTab(){
   const s=document.getElementById('monthly-year-filter');
@@ -1883,7 +1906,7 @@ function _drawRacePredictions(){
     const vsDiff=+(vo2-bestVo2).toFixed(1);
     const vsStr=vsDiff===0?'Személyes csúcs':`Csúcs: ${bestVo2} ml/kg/min`;
     const cat=vo2>=60?'Elit':vo2>=50?'Sportoló szint':vo2>=45?'Aktív felnőtt':'Átlag alatti';
-    vsel.innerHTML=`<div class="stat-box"><div class="stat-lbl">VO₂ Max</div><div class="stat-num lime">${vo2.toFixed(1)}<span style="font-size:13px;font-weight:500;color:var(--text3);margin-left:3px">ml/kg/min</span></div><div class="stat-unit">${cat} · ${vsStr}</div></div>`;
+    vsel.innerHTML=`<div class="stat-box" style="cursor:pointer" onclick="showVo2Modal()"><div class="stat-lbl">VO₂ Max</div><div class="stat-num lime">${vo2.toFixed(1)}<span style="font-size:13px;font-weight:500;color:var(--text3);margin-left:3px">ml/kg/min</span></div><div class="stat-unit">${cat} · ${vsStr}</div></div>`;
   }
   function raceTime(pct,distKm){
     const target=pct*vo2;
