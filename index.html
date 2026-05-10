@@ -336,11 +336,13 @@ canvas{display:block;width:100%!important}
     <div class="month-names" id="month-names"></div>
     <div id="heatmap"></div>
   </div>
-  <div class="slabel">Aerob hatékonysági index (AEI)</div>
+  <div class="slabel">PR fejlődés</div>
   <div class="chart-card">
-    <div class="chart-sub">sebesség ÷ HR × 100 — magasabb = hatékonyabb aerob rendszer</div>
-    <canvas id="aeiChart" height="150"></canvas>
+    <div id="pr-prog-nav" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"></div>
+    <canvas id="prProgChart" height="160"></canvas>
   </div>
+  <div class="slabel">Ez a hónap vs. tavaly ilyenkor</div>
+  <div class="stat-row" id="vsly-stats"></div>
 </div>
 
 <!-- ═══ RUNS ═══ -->
@@ -519,6 +521,22 @@ canvas{display:block;width:100%!important}
     <div class="chart-sub">X = hőmérséklet (°C) · Y = tempó · <span style="color:#60a5fa">■</span> tél (0–10°C) · <span style="color:var(--lime)">■</span> tavasz/ősz · <span style="color:#f87171">■</span> nyár (24°C+)</span></div>
     <canvas id="tempChart" height="220"></canvas>
   </div>
+  <div class="slabel">Fitness &amp; Freshness — CTL / ATL / TSB<button class="info-btn" tabindex="0">i<span class="info-tip">Edzésterhelés modell:<br>• CTL (fitnesz) = 42 napos exponenciálisan súlyozott TRIMP átlag<br>• ATL (fáradtság) = 7 napos súlyozott átlag<br>• TSB (forma) = CTL − ATL. Ha TSB pozitív és emelkedik, versenyképes formában vagy.</span></button></div>
+  <div class="chart-card">
+    <div class="chart-sub">CTL = fitnesz · ATL = fáradtság · TSB = forma (pozitív = pihent)</div>
+    <canvas id="ctlChart" height="200"></canvas>
+  </div>
+  <div class="slabel">Tempó eloszlás<button class="info-btn" tabindex="0">i<span class="info-tip">Hány futást teljesítettél az egyes tempósávokban? Megmutatja, hogy valójában milyen sebességen edzel a legtöbbet — eltér a HR-zóna képtől.</span></button></div>
+  <div class="chart-card">
+    <div id="pace-hist-nav" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"></div>
+    <canvas id="paceHistChart" height="160"></canvas>
+  </div>
+  <div class="slabel">Futódinamika trendek<button class="info-btn" tabindex="0">i<span class="info-tip">Talajérintési idő (GCT), lépéshossz és vertikális oszcilláció havi átlaga. Csak azokat a futásokat tartalmazza, ahol az óra mérte ezeket az adatokat.</span></button></div>
+  <div class="g2">
+    <div class="chart-card"><div class="chart-title">Talajérintési idő (ms)</div><canvas id="gctChart" height="150"></canvas></div>
+    <div class="chart-card"><div class="chart-title">Lépéshossz (cm)</div><canvas id="slChart" height="150"></canvas></div>
+  </div>
+  <div class="chart-card" style="margin-top:10px"><div class="chart-title">Vertikális oszcilláció (cm)</div><canvas id="voChart" height="130"></canvas></div>
 </div>
 
 <!-- ═══ EGÉSZSÉG ═══ -->
@@ -965,8 +983,8 @@ function drawLine(id,labels,datasets,opts={}){
       if(vp.length){ctx.moveTo(vp[0].x,pad.top+cH);vp.forEach(p=>ctx.lineTo(p.x,p.y));ctx.lineTo(vp[vp.length-1].x,pad.top+cH);ctx.closePath();ctx.fillStyle=ds.fillColor||'rgba(200,241,53,.08)';ctx.fill();}
     }
     ctx.strokeStyle=ds.color||LIME;ctx.lineWidth=2;ctx.lineJoin='round';
-    ctx.beginPath();let first=true;
-    pts.forEach(p=>{if(!p)return;first?(ctx.moveTo(p.x,p.y),first=false):ctx.lineTo(p.x,p.y)});
+    ctx.beginPath();let first=true,prevP=null;
+    pts.forEach(p=>{if(!p)return;if(first){ctx.moveTo(p.x,p.y);first=false;}else if(opts.stepped&&prevP){ctx.lineTo(p.x,prevP.y);ctx.lineTo(p.x,p.y);}else{ctx.lineTo(p.x,p.y);}prevP=p;});
     ctx.stroke();
     pts.forEach(p=>{if(!p)return;ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fillStyle=ds.color||LIME;ctx.fill()});
   });
@@ -1319,15 +1337,13 @@ function drawVo2Chart(){
 function drawOverviewCharts(){
   _buildOverviewKmNav();
   drawOverviewKmChart();
-  // weekly km (last 52 weeks)
   const wk52=WEEKLY.slice(-52);
   const isLight=document.documentElement.classList.contains('light');
   drawBar('weeklyKmChart',wk52.map(w=>w.date.slice(5)),
     [{data:wk52.map(w=>w.km),color:wk52.map(w=>w.km>=50?getLime():w.km>=25?(isLight?'rgba(120,154,0,.45)':'rgba(200,241,53,.45)'):(isLight?'rgba(120,154,0,.2)':'rgba(200,241,53,.2)')),label:'km'}],
-    {rotateLabels:true,yFmt:v=>Math.round(v)+'km',
-     extraTip:i=>(wk52[i].runs||'?')+' futás'});
-  const aD=MONTHLY.filter(m=>m.avg_aei);
-  drawLine('aeiChart',aD.map(m=>m.ym.slice(2)),[{data:aD.map(m=>m.avg_aei),color:getLime(),fill:true,fillColor:getLimeDim(),label:'AEI'}],{rotateLabels:true,yFmt:v=>v.toFixed(2)});
+    {rotateLabels:true,yFmt:v=>Math.round(v)+'km',extraTip:i=>(wk52[i].runs||'?')+' futás'});
+  _drawPRProgression();
+  _drawVsLastYear();
 }
 
 function _computeStreaks(){
@@ -1390,12 +1406,15 @@ function initOverview(){
   const avgPace=RUNS.reduce((s,r)=>s+r.pace,0)/RUNS.length;
   const totTrimp=RUNS.reduce((s,r)=>s+r.trimp,0);
   const totCal=RUNS.reduce((s,r)=>s+(r.calories||0),0);
+  const totElev=RUNS.reduce((s,r)=>s+(r.elevation||0),0);
+  const curYear=new Date().getFullYear();
+  const elevYear=RUNS.filter(r=>r.year===curYear).reduce((s,r)=>s+(r.elevation||0),0);
   document.getElementById('overview-stats').innerHTML=`
-    <div class="stat-box"><div class="stat-lbl">Összes km</div><div class="stat-num lime">${Math.round(totKm).toLocaleString()}</div><div class="stat-unit">km · 2020–2026</div></div>
+    <div class="stat-box"><div class="stat-lbl">Összes km</div><div class="stat-num lime">${Math.round(totKm).toLocaleString()}</div><div class="stat-unit">km · 2020–${curYear}</div></div>
     <div class="stat-box"><div class="stat-lbl">Futások</div><div class="stat-num">${RUNS.length}</div><div class="stat-unit">edzés</div></div>
     <div class="stat-box"><div class="stat-lbl">Átl. tempó</div><div class="stat-num">${fmtPace(avgPace)}</div><div class="stat-unit">min/km</div></div>
     <div class="stat-box"><div class="stat-lbl">Összes TRIMP</div><div class="stat-num">${Math.round(totTrimp).toLocaleString()}</div><div class="stat-unit">terhelési pont</div></div>
-    <div class="stat-box"><div class="stat-lbl">Kalória</div><div class="stat-num">${Math.round(totCal/1000)}k</div><div class="stat-unit">aktív kcal</div></div>`;
+    <div class="stat-box"><div class="stat-lbl">Szintemelkedés ${curYear}</div><div class="stat-num">${Math.round(elevYear).toLocaleString()}</div><div class="stat-unit">méter · össz: ${Math.round(totElev/1000).toFixed(1)}k m</div></div>`;
   const{current,longest}=_computeStreaks();
   document.getElementById('streak-stats').innerHTML=`
     <div class="stat-box"><div class="stat-lbl">Jelenlegi sorozat</div><div class="stat-num lime">${current}</div><div class="stat-unit">egymást követő hét</div></div>
@@ -1730,6 +1749,34 @@ function drawTrendCharts(){
   }
   _drawIntensity(_intPeriod);
 
+  // CTL / ATL / TSB
+  const ctl=_computeCTL();
+  if(ctl.length>4){
+    const minTSB=Math.min(...ctl.map(x=>x.tsb)),maxAll=Math.max(...ctl.map(x=>Math.max(x.ctl,x.atl)));
+    drawLine('ctlChart',ctl.map(x=>x.date.slice(5)),[
+      {data:ctl.map(x=>x.ctl),color:getLime(),fill:false,label:'CTL'},
+      {data:ctl.map(x=>x.atl),color:'#f87171',fill:false,label:'ATL'},
+      {data:ctl.map(x=>x.tsb),color:'#60a5fa',fill:true,fillColor:'rgba(96,165,250,.07)',label:'TSB'},
+    ],{rotateLabels:true,yFmt:v=>Math.round(v),minVal:Math.min(minTSB*1.1,-5),maxVal:maxAll*1.05,
+       refLines:[{value:0,color:'#555',label:'TSB = 0'}]});
+  }
+
+  // Pace histogram
+  const phn=document.getElementById('pace-hist-nav');
+  if(!phn.dataset.built){
+    phn.dataset.built='1';
+    [[90,'90 nap'],[365,'1 év'],[0,'Összes']].forEach(([d,lbl])=>{
+      const btn=document.createElement('button');btn.dataset.d=d;btn.textContent=lbl;
+      btn.style.cssText='font-size:10px;font-weight:700;letter-spacing:.3px;font-family:"Inter",sans-serif;border-radius:20px;padding:4px 12px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text3);transition:all .15s';
+      btn.onclick=()=>_drawPaceHist(d);
+      phn.appendChild(btn);
+    });
+  }
+  _drawPaceHist(_paceHistPeriod);
+
+  // Running dynamics
+  _drawDynamics();
+
   // AEI trend (all time monthly)
   const aeiD=MONTHLY.filter(m=>m.avg_aei);
   if(aeiD.length)drawLine('aeiTrendChart',aeiD.map(m=>m.ym.slice(2)),
@@ -1808,6 +1855,122 @@ function drawHealthCharts(){
   if(calD.length)drawBar('activeCalChart',calD.map(h=>h.date.slice(5)),
     [{data:calD.map(h=>h.active_cal),color:calD.map(h=>h.active_cal>=500?getLime():isLight?'rgba(120,154,0,.3)':'rgba(200,241,53,.3)'),label:'kcal'}],
     {rotateLabels:true,yFmt:v=>Math.round(v)+'kcal'});
+}
+
+// ── PR PROGRESSION ──
+let _prProgKey='half';
+const _PR_PROG_KEYS=[
+  {k:'half',lbl:'Félmaraton tempó',metric:r=>r.pace,lower:true,fmt:v=>fmtPace(v)+'/km',minDist:18},
+  {k:'10k',lbl:'10k tempó',metric:r=>r.pace,lower:true,fmt:v=>fmtPace(v)+'/km',minDist:9,maxDist:12},
+  {k:'5k',lbl:'5k tempó',metric:r=>r.pace,lower:true,fmt:v=>fmtPace(v)+'/km',minDist:4.5,maxDist:6},
+  {k:'longest',lbl:'Leghosszabb futás',metric:r=>r.dist,lower:false,fmt:v=>v.toFixed(1)+'km',minDist:0},
+];
+function _drawPRProgression(){
+  const nav=document.getElementById('pr-prog-nav');
+  if(!nav.dataset.built){
+    nav.dataset.built='1';
+    _PR_PROG_KEYS.forEach(({k,lbl})=>{
+      const btn=document.createElement('button');
+      btn.dataset.k=k;btn.textContent=lbl;
+      btn.style.cssText='font-size:10px;font-weight:700;letter-spacing:.3px;font-family:"Inter",sans-serif;border-radius:20px;padding:4px 12px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text3);transition:all .15s';
+      btn.onclick=()=>{_prProgKey=k;_renderPRProg();nav.querySelectorAll('button').forEach(b=>{const a=b.dataset.k===k;b.style.background=a?'var(--lime)':'var(--surface)';b.style.color=a?'var(--bg)':'var(--text3)';b.style.borderColor=a?'var(--lime)':'var(--border)';});};
+      if(k===_prProgKey){btn.style.background='var(--lime)';btn.style.color='var(--bg)';btn.style.borderColor='var(--lime)';}
+      nav.appendChild(btn);
+    });
+  }
+  _renderPRProg();
+}
+function _renderPRProg(){
+  const cfg=_PR_PROG_KEYS.find(x=>x.k===_prProgKey);
+  const pool=RUNS.filter(r=>r.dist>=(cfg.minDist||0)&&(cfg.maxDist===undefined||r.dist<=cfg.maxDist)&&r.pace>0&&r.pace<9.5);
+  if(!pool.length)return;
+  const sorted=pool.slice().sort((a,b)=>a.date.localeCompare(b.date));
+  let best=cfg.lower?Infinity:-Infinity;
+  const points=[],labels=[];
+  sorted.forEach(r=>{
+    const v=cfg.metric(r);
+    if(cfg.lower?v<best:v>best){best=v;points.push(v);labels.push(r.date.slice(2));}
+  });
+  if(points.length<2)return;
+  drawLine('prProgChart',labels,
+    [{data:points,color:getLime(),fill:false,label:cfg.lbl}],
+    {rotateLabels:labels.length>12,yFmt:cfg.fmt,stepped:true});
+}
+
+// ── VS LAST YEAR ──
+function _drawVsLastYear(){
+  const now=new Date();
+  const ym=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const ymPrev=`${now.getFullYear()-1}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const cur=MONTHLY.find(m=>m.ym===ym);
+  const prev=MONTHLY.find(m=>m.ym===ymPrev);
+  if(!document.getElementById('vsly-stats'))return;
+  if(!cur&&!prev){document.getElementById('vsly-stats').innerHTML='<div class="stat-box"><div class="stat-lbl" style="color:var(--text3)">Nincs adat</div></div>';return;}
+  const fmt=(v,unit,inv)=>{if(v===null)return'—';const s=v>=0?'+':'';const col=v===0?'var(--text2)':((v>0)!==inv)?'var(--lime)':'var(--orange)';return`<span style="color:${col}">${s}${v}${unit}</span>`;};
+  const kmC=cur?+cur.km.toFixed(1):0,kmP=prev?+prev.km.toFixed(1):0;
+  const runsC=cur?cur.runs:0,runsP=prev?prev.runs:0;
+  const trimpC=cur?Math.round(cur.total_trimp):0,trimpP=prev?Math.round(prev.total_trimp):0;
+  document.getElementById('vsly-stats').innerHTML=`
+    <div class="stat-box"><div class="stat-lbl">${ym} km</div><div class="stat-num lime">${kmC}</div><div class="stat-unit">${fmt(+(kmC-kmP).toFixed(1),'km',false)} vs. ${ymPrev}</div></div>
+    <div class="stat-box"><div class="stat-lbl">Futások</div><div class="stat-num">${runsC}</div><div class="stat-unit">${fmt(runsC-runsP,'',false)} vs. tavaly</div></div>
+    <div class="stat-box"><div class="stat-lbl">TRIMP</div><div class="stat-num">${trimpC}</div><div class="stat-unit">${fmt(trimpC-trimpP,'',false)} vs. tavaly</div></div>`;
+}
+
+// ── CTL / ATL / TSB ──
+function _computeCTL(){
+  const td={};RUNS.forEach(r=>{td[r.date]=(td[r.date]||0)+r.trimp;});
+  const first=RUNS.reduce((a,r)=>r.date<a?r.date:a,RUNS[0].date);
+  const result=[];let ctl=0,atl=0;
+  for(let d=new Date(first),end=new Date();d<=end;d.setDate(d.getDate()+1)){
+    const ds=d.toISOString().slice(0,10),t=td[ds]||0;
+    ctl=ctl*(1-1/42)+t*(1/42);
+    atl=atl*(1-1/7)+t*(1/7);
+    result.push({date:ds,ctl:+ctl.toFixed(1),atl:+atl.toFixed(1),tsb:+(ctl-atl).toFixed(1)});
+  }
+  // weekly samples
+  return result.filter((_,i)=>i%7===6||i===result.length-1);
+}
+
+// ── PACE HISTOGRAM ──
+let _paceHistPeriod=0;
+const _PACE_BANDS=[
+  {lo:0,hi:4.5,lbl:'<4:30'},
+  {lo:4.5,hi:5,lbl:'4:30–5:00'},
+  {lo:5,hi:5.5,lbl:'5:00–5:30'},
+  {lo:5.5,hi:6,lbl:'5:30–6:00'},
+  {lo:6,hi:6.5,lbl:'6:00–6:30'},
+  {lo:6.5,hi:7,lbl:'6:30–7:00'},
+  {lo:7,hi:99,lbl:'>7:00'},
+];
+function _drawPaceHist(days){
+  _paceHistPeriod=days;
+  document.querySelectorAll('#pace-hist-nav button').forEach(b=>{
+    const a=+b.dataset.d===days;b.style.background=a?'var(--lime)':'var(--surface)';b.style.color=a?'var(--bg)':'var(--text3)';b.style.borderColor=a?'var(--lime)':'var(--border)';
+  });
+  const cut=days===0?null:new Date(new Date().setDate(new Date().getDate()-days)).toISOString().slice(0,10);
+  const pool=RUNS.filter(r=>r.pace>0&&r.pace<9.5&&(!cut||r.date>=cut));
+  const counts=_PACE_BANDS.map(b=>pool.filter(r=>r.pace>=b.lo&&r.pace<b.hi).length);
+  const isLight=document.documentElement.classList.contains('light');
+  drawBar('paceHistChart',_PACE_BANDS.map(b=>b.lbl),
+    [{data:counts,color:counts.map((c,i)=>i<=1?getLime():i<=3?(isLight?'rgba(120,154,0,.5)':'rgba(200,241,53,.5)'):'rgba(255,140,0,.6)')}],
+    {rotateLabels:false,yFmt:v=>Math.round(v)+' futás'});
+}
+
+// ── RUNNING DYNAMICS ──
+function _drawDynamics(){
+  const byMonth=(field,mult=1)=>{
+    const res=MONTHLY.map(m=>{
+      const rs=RUNS.filter(r=>r.ym===m.ym&&r[field]>0);
+      return rs.length?+(rs.reduce((s,r)=>s+r[field]*mult,0)/rs.length).toFixed(1):null;
+    });
+    return{labels:MONTHLY.map(m=>m.ym.slice(2)),data:res};
+  };
+  const gct=byMonth('gct');
+  const sl=byMonth('sl',100); // stored in m, show cm
+  const vo=byMonth('vo',100); // stored in m, show cm
+  if(gct.data.some(v=>v))drawLine('gctChart',gct.labels,[{data:gct.data,color:'#60a5fa',fill:true,fillColor:'rgba(96,165,250,.08)',label:'ms'}],{rotateLabels:true,yFmt:v=>Math.round(v)+' ms'});
+  if(sl.data.some(v=>v))drawLine('slChart',sl.labels,[{data:sl.data,color:getLime(),fill:true,fillColor:getLimeDim(),label:'cm'}],{rotateLabels:true,yFmt:v=>Math.round(v)+' cm'});
+  if(vo.data.some(v=>v))drawLine('voChart',vo.labels,[{data:vo.data,color:'#f87171',fill:true,fillColor:'rgba(248,113,113,.08)',label:'cm'}],{rotateLabels:true,yFmt:v=>v.toFixed(1)+' cm'});
 }
 
 // ── INIT ──
