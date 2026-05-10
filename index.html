@@ -88,6 +88,10 @@ nav{background:var(--bg);border-bottom:1px solid var(--border);transition:backgr
 .pr-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--lime);opacity:0;transition:opacity .2s}
 .pr-card:hover{border-color:var(--lime);background:var(--surface2)}
 .pr-card:hover::before{opacity:1}
+.stat-box-link{cursor:pointer;position:relative;overflow:hidden;transition:border-color .2s,background .2s,box-shadow .2s}
+.stat-box-link::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--lime);opacity:0;transition:opacity .2s}
+.stat-box-link:hover{border-color:var(--lime);background:var(--surface2)}
+.stat-box-link:hover::before{opacity:1}
 .pr-lbl{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:12px}
 .pr-num{font-size:44px;font-weight:900;color:var(--text);line-height:1;letter-spacing:-2px}
 .pr-num .unit{font-size:18px;font-weight:400;color:var(--text3);letter-spacing:0;margin-left:4px}
@@ -190,7 +194,7 @@ canvas{display:block;width:100%!important}
 
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 
-:root.light .pr-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.08)}
+:root.light .pr-card:hover,:root.light .stat-box-link:hover{box-shadow:0 2px 12px rgba(0,0,0,.08)}
 :root.light .modal{box-shadow:0 8px 32px rgba(0,0,0,.12)}
 :root.light .table-wrap{box-shadow:0 1px 4px rgba(0,0,0,.04)}
 :root.light .chart-card{box-shadow:0 1px 4px rgba(0,0,0,.04)}
@@ -1364,7 +1368,7 @@ function initOverview(){
     const diffDays=Math.round((new Date(today)-new Date(lastRun.date))/(1000*60*60*24));
     const whenStr=diffDays===0?'Ma':diffDays===1?'Tegnap':`${diffDays} napja`;
     const elr=document.getElementById('today-lastrun');
-    if(elr)elr.innerHTML=`<div class="stat-box" style="cursor:pointer" onclick='showRunDetail(${JSON.stringify(lastRun)})'>
+    if(elr)elr.innerHTML=`<div class="stat-box stat-box-link" onclick='showRunDetail(${JSON.stringify(lastRun)})'>
       <div class="stat-lbl">Utolsó futás</div>
       <div class="stat-num">${lastRun.dist.toFixed(1)}<span style="font-size:14px;font-weight:500;color:var(--text3);margin-left:3px">km</span></div>
       <div class="stat-unit">${whenStr} · ${fmtPace(lastRun.pace)}/km</div>
@@ -1922,7 +1926,7 @@ function _drawRacePredictions(){
     const vsDiff=+(vo2-bestVo2).toFixed(1);
     const vsStr=vsDiff===0?'Személyes csúcs':`Csúcs: ${bestVo2} ml/kg/min`;
     const cat=vo2>=60?'Elit':vo2>=50?'Sportoló szint':vo2>=45?'Aktív felnőtt':'Átlag alatti';
-    vsel.innerHTML=`<div class="stat-box" style="cursor:pointer" onclick="showVo2Modal()"><div class="stat-lbl">VO₂ Max</div><div class="stat-num lime">${vo2.toFixed(1)}<span style="font-size:13px;font-weight:500;color:var(--text3);margin-left:3px">ml/kg/min</span></div><div class="stat-unit">${cat} · ${vsStr}</div></div>`;
+    vsel.innerHTML=`<div class="stat-box stat-box-link" onclick="showVo2Modal()"><div class="stat-lbl">VO₂ Max</div><div class="stat-num lime">${vo2.toFixed(1)}<span style="font-size:13px;font-weight:500;color:var(--text3);margin-left:3px">ml/kg/min</span></div><div class="stat-unit">${cat} · ${vsStr}</div></div>`;
   }
   function raceTime(pct,distKm){
     const target=pct*vo2;
