@@ -979,14 +979,16 @@ function drawLine(id,labels,datasets,opts={}){
   const n=labels.length;
   // grid
   ctx.strokeStyle=gridColor();ctx.lineWidth=1;
+  const inv=opts.yInvert;
   for(let i=0;i<=4;i++){
     const y=pad.top+cH*(1-i/4);
     ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cW,y);ctx.stroke();
     ctx.fillStyle=axisColor();ctx.font='9px DM Mono,monospace';ctx.textAlign='right';
-    ctx.fillText(opts.yFmt?opts.yFmt(minV+(range*i/4)):(minV+(range*i/4)).toFixed(1),pad.left-4,y+3);
+    const lv=inv?maxV-(range*i/4):minV+(range*i/4);
+    ctx.fillText(opts.yFmt?opts.yFmt(lv):lv.toFixed(1),pad.left-4,y+3);
   }
   datasets.forEach(ds=>{
-    const pts=ds.data.map((v,i)=>v!=null&&!isNaN(v)?{x:pad.left+(i/(n-1||1))*cW,y:pad.top+cH-((v-minV)/range)*cH}:null);
+    const pts=ds.data.map((v,i)=>v!=null&&!isNaN(v)?{x:pad.left+(i/(n-1||1))*cW,y:inv?pad.top+((v-minV)/range)*cH:pad.top+cH-((v-minV)/range)*cH}:null);
     if(ds.fill){
       ctx.beginPath();
       const vp=pts.filter(Boolean);
@@ -1950,7 +1952,7 @@ function _renderPRProg(){
   if(points.length<2)return;
   drawLine('prProgChart',labels,
     [{data:points,color:getLime(),fill:false,label:cfg.lbl}],
-    {rotateLabels:labels.length>12,yFmt:cfg.fmt,stepped:true});
+    {rotateLabels:labels.length>12,yFmt:cfg.fmt,stepped:true,yInvert:cfg.lower});
 }
 
 // ── RECOVERY WIDGET ──
