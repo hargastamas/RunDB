@@ -301,7 +301,10 @@ canvas{display:block;width:100%!important}
   <div class="slabel">Personal Records — kattints a futáshoz</div>
   <div class="pr-grid" id="pr-grid"></div>
   <div class="slabel">Havi km — teljes history</div>
-  <div class="chart-card"><canvas id="overviewKmChart" height="180"></canvas></div>
+  <div class="chart-card">
+    <div id="overview-km-nav" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"></div>
+    <canvas id="overviewKmChart" height="180"></canvas>
+  </div>
   <div class="slabel">Havi km heatmap</div>
   <div class="chart-card">
     <div class="month-names" id="month-names"></div>
@@ -1012,14 +1015,53 @@ function renderCalendar(){
 }
 
 // ── OVERVIEW ──
+let _overviewKmYear='';
+const _MONTHS_SHORT=['Jan','Feb','Már','Ápr','Máj','Jún','Júl','Aug','Sze','Okt','Nov','Dec'];
+
+function _buildOverviewKmNav(){
+  const nav=document.getElementById('overview-km-nav');
+  if(!nav||nav.dataset.built)return;
+  nav.dataset.built='1';
+  const years=[...new Set(MONTHLY.map(m=>m.ym.slice(0,4)))].sort();
+  const pills=['Teljes',...years];
+  const isLight=()=>document.documentElement.classList.contains('light');
+  pills.forEach(p=>{
+    const btn=document.createElement('button');
+    btn.dataset.yr=p==='Teljes'?'':p;
+    btn.textContent=p;
+    btn.style.cssText='font-size:10px;font-weight:700;letter-spacing:.5px;font-family:"Inter",sans-serif;border-radius:20px;padding:4px 12px;cursor:pointer;border:1px solid var(--border);transition:all .15s;background:var(--surface);color:var(--text3)';
+    btn.onclick=()=>{
+      _overviewKmYear=btn.dataset.yr;
+      nav.querySelectorAll('button').forEach(b=>{
+        const active=b.dataset.yr===_overviewKmYear;
+        b.style.background=active?'var(--lime)':'var(--surface)';
+        b.style.color=active?'var(--bg)':'var(--text3)';
+        b.style.borderColor=active?'var(--lime)':'var(--border)';
+      });
+      drawOverviewKmChart();
+    };
+    if(p==='Teljes'){btn.style.background='var(--lime)';btn.style.color='var(--bg)';btn.style.borderColor='var(--lime)';}
+    nav.appendChild(btn);
+  });
+}
+
+function drawOverviewKmChart(){
+  const isLight=document.documentElement.classList.contains('light');
+  const data=_overviewKmYear?MONTHLY.filter(m=>m.ym.startsWith(_overviewKmYear)):MONTHLY;
+  const labels=_overviewKmYear
+    ?data.map(m=>_MONTHS_SHORT[parseInt(m.ym.slice(5))-1])
+    :data.map(m=>m.ym.slice(2));
+  drawBar('overviewKmChart',labels,
+    [{data:data.map(m=>m.km),
+      color:data.map(m=>m.km>=150?getLime():m.ym.startsWith('2026')?'rgba(96,165,250,.6)':isLight?'rgba(120,154,0,.18)':'rgba(200,241,53,.22)'),
+      label:'km'}],
+    {rotateLabels:!_overviewKmYear,yFmt:v=>Math.round(v)+'km',
+     onClick:(_,i)=>filterAndShowRuns(data[i].ym)});
+}
+
 function drawOverviewCharts(){
-  drawBar('overviewKmChart',MONTHLY.map(m=>m.ym.slice(2)),
-    [{data:MONTHLY.map(m=>m.km),color:MONTHLY.map(m=>m.km>=150?getLime():m.ym.startsWith('2026')?'rgba(96,165,250,.6)':document.documentElement.classList.contains('light')?'rgba(120,154,0,.18)':'rgba(200,241,53,.22)'),label:'km'}],
-    {rotateLabels:true,yFmt:v=>Math.round(v)+'km',
-     onClick:(lbl,i)=>{
-       filterAndShowRuns(MONTHLY[i].ym);
-     }
-    });
+  _buildOverviewKmNav();
+  drawOverviewKmChart();
   const aD=MONTHLY.filter(m=>m.avg_aei);
   drawLine('aeiChart',aD.map(m=>m.ym.slice(2)),[{data:aD.map(m=>m.avg_aei),color:getLime(),fill:true,fillColor:getLimeDim(),label:'AEI'}],{rotateLabels:true,yFmt:v=>v.toFixed(2)});
 }
