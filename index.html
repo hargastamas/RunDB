@@ -503,7 +503,10 @@ canvas{display:block;width:100%!important}
     <canvas id="zoneTimeChart" height="160"></canvas>
   </div>
   <div class="slabel">Heti edzésterhelés<button class="info-btn" tabindex="0">i<span class="info-tip">TRIMP (Training Impulse) = az adott heti edzésterhelés egyetlen számban, pulzus × idő alapján számolva. Magasabb érték = keményebb hét. Segít nyomon követni, mikor volt csúcsterhelés és mikor volt pihenőhét.</span></button></div>
-  <div class="chart-card"><canvas id="weeklyTRIMPChart" height="160"></canvas></div>
+  <div class="chart-card">
+    <div id="trimp-nav" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px"></div>
+    <canvas id="weeklyTRIMPChart" height="160"></canvas>
+  </div>
   <div class="slabel">Terhelési egyensúly (ACWR)<button class="info-btn" tabindex="0">i<span class="info-tip">Az utolsó 7 nap átlagos napi TRIMP osztva az utolsó 28 nap átlagával. 0.8–1.5 között biztonságos. 1.5 felett megnő a sérülésveszély. 0.8 alatt alacsony a terhelés. Hirtelen ugrás (pl. 0.9-ről 1.6-ra) figyelmeztető jel.</span></button></div>
   <div class="chart-card">
     <div class="chart-sub">7 napos átlag TRIMP / 28 napos átlag TRIMP · optimális zóna: 0.8–1.5</div>
@@ -1720,33 +1723,40 @@ function renderYearCompare(){
 }
 
 // ── ZONE CHART NAV ──
-let _zoneYear='';
-function _buildZoneNav(){
-  const nav=document.getElementById('zone-nav');
+let _zoneYear=String(new Date().getFullYear());
+function _buildYearNav(navId,getCurrent,setCurrent,onDraw,source){
+  const nav=document.getElementById(navId);
   if(!nav||nav.dataset.built)return;
   nav.dataset.built='1';
-  const years=[...new Set(MONTHLY.map(m=>m.year))].sort();
-  ['Teljes',...years].forEach(p=>{
-    const yr=p==='Teljes'?'':p;
+  const years=[...new Set(source().map(m=>m.year))].sort();
+  const curYr=String(new Date().getFullYear());
+  if(!years.map(String).includes(getCurrent()))setCurrent(years.map(String).includes(curYr)?curYr:'');
+  const pills=['Teljes',...years];
+  pills.forEach(p=>{
+    const yr=p==='Teljes'?'':String(p);
     const btn=document.createElement('button');
-    btn.dataset.yr=String(yr);
-    btn.textContent=p;
+    btn.dataset.yr=yr;btn.textContent=p;
     btn.style.cssText='font-size:10px;font-weight:700;letter-spacing:.5px;font-family:"Inter",sans-serif;border-radius:20px;padding:4px 12px;cursor:pointer;border:1px solid var(--border);transition:all .15s;background:var(--surface);color:var(--text3)';
-    btn.onclick=()=>{
-      _zoneYear=btn.dataset.yr;
-      nav.querySelectorAll('button').forEach(b=>{const a=b.dataset.yr===_zoneYear;b.style.background=a?'var(--lime)':'var(--surface)';b.style.color=a?'var(--on-lime)':'var(--text3)';b.style.borderColor=a?'var(--lime)':'var(--border)';});
-      _drawZoneChart();
-    };
-    if(p==='Teljes'){btn.style.background='var(--lime)';btn.style.color='var(--on-lime)';btn.style.borderColor='var(--lime)';}
+    btn.onclick=()=>{setCurrent(btn.dataset.yr);nav.querySelectorAll('button').forEach(b=>{const a=b.dataset.yr===getCurrent();b.style.background=a?'var(--lime)':'var(--surface)';b.style.color=a?'var(--on-lime)':'var(--text3)';b.style.borderColor=a?'var(--lime)':'var(--border)';});onDraw();};
+    const active=yr===getCurrent();
+    if(active){btn.style.background='var(--lime)';btn.style.color='var(--on-lime)';btn.style.borderColor='var(--lime)';}
     nav.appendChild(btn);
   });
 }
+function _buildZoneNav(){_buildYearNav('zone-nav',()=>_zoneYear,v=>{_zoneYear=v;},_drawZoneChart,()=>MONTHLY);}
 function _drawZoneChart(){
   const data=_zoneYear?MONTHLY.filter(m=>m.year==_zoneYear):MONTHLY;
   drawBar('zoneTimeChart',data.map(m=>_zoneYear?m.ym.slice(5):m.ym.slice(2)),[
     {data:data.map(m=>m.avg_z1),color:getLime(),label:'Z1%'},
     {data:data.map(m=>m.avg_z4),color:'rgba(255,140,0,.7)',label:'Z4%'}
   ],{rotateLabels:true,yFmt:v=>Math.round(v)+'%',maxVal:100});
+}
+let _trimpYear=String(new Date().getFullYear());
+function _buildTrimpNav(){_buildYearNav('trimp-nav',()=>_trimpYear,v=>{_trimpYear=v;},_drawTrimpChart,()=>WEEKLY);}
+function _drawTrimpChart(){
+  const isLight=document.documentElement.classList.contains('light');
+  const wk=_trimpYear?WEEKLY.filter(w=>w.date.startsWith(_trimpYear)):WEEKLY.slice(-60);
+  drawBar('weeklyTRIMPChart',wk.map(w=>w.date.slice(_trimpYear?5:5)),[{data:wk.map(w=>w.trimp),color:wk.map(w=>w.trimp>300?getLime():w.trimp>150?(isLight?'rgba(0,200,83,.45)':'rgba(200,241,53,.5)'):(isLight?'rgba(0,200,83,.2)':'rgba(200,241,53,.2)'))}],{rotateLabels:true,yFmt:v=>Math.round(v)});
 }
 
 // ── TRENDS ──
@@ -1769,8 +1779,8 @@ function drawTrendCharts(){
   if(legendEl)legendEl.innerHTML='X = átl. HR · Y = tempó · '+scatterYears.map(yr=>`<span style="color:${yearColor(yr)}">■</span> ${yr}`).join(' · ')+' · kattints a pontra';
   _buildZoneNav();
   _drawZoneChart();
-  const wk=WEEKLY.slice(-60);
-  drawBar('weeklyTRIMPChart',wk.map(w=>w.date.slice(5)),[{data:wk.map(w=>w.trimp),color:wk.map(w=>w.trimp>300?getLime():w.trimp>150?(isLight?'rgba(0,200,83,.45)':'rgba(200,241,53,.5)'):(isLight?'rgba(0,200,83,.2)':'rgba(200,241,53,.2)'))}],{rotateLabels:true,yFmt:v=>Math.round(v)});
+  _buildTrimpNav();
+  _drawTrimpChart();
   // ACWR
   const acwr=_computeACWR();
   if(acwr.length){
