@@ -323,21 +323,25 @@ canvas{display:block;width:100%!important}
 
 <!-- ═══ OVERVIEW ═══ -->
 <div class="page active" id="page-overview">
-  <!-- MOST -->
-  <div class="slabel" style="border-top:none;padding-top:0;margin-top:0">Legutóbbi forma<button class="info-btn" tabindex="0">i<span class="info-tip">0–100-as index az előző napi HRV és nyugalmi pulzus alapján, személyes átlagodhoz viszonyítva. 70+ = jó forma, 45–69 = átlagos, 0–44 = fáradt.</span></button></div>
-  <div id="recovery-widget"></div>
+  <!-- MA -->
+  <div class="slabel" style="border-top:none;padding-top:0;margin-top:0">Ma</div>
+  <div class="stat-row" id="today-stats">
+    <div id="today-forma"></div>
+    <div id="today-vo2"></div>
+    <div id="today-streak"></div>
+  </div>
+  <!-- EZEN A HÉTEN -->
   <div class="slabel">Ezen a héten</div>
   <div class="stat-row" id="thisweek-stats"></div>
+  <!-- EZ A HÓNAP -->
   <div class="slabel">Ez a hónap vs. tavaly ilyenkor</div>
   <div class="stat-row" id="vsly-stats"></div>
   <!-- JELENLEGI FITNESZ -->
-  <div class="slabel">Jelenlegi fitnesz</div>
-  <div class="stat-row" id="vo2-current-stats"></div>
   <div class="slabel">Becsült versenyidők<button class="info-btn" tabindex="0">i<span class="info-tip">A VO₂ Max alapján számított elméleti versenytempók Jack Daniels futóedzési modellje szerint. Tájékoztató jellegű becslés.</span></button></div>
   <div class="stat-row race-pred-grid" id="race-pred-stats"></div>
   <div class="slabel">Heti km — futási volumen (utolsó 52 hét)</div>
   <div class="chart-card"><canvas id="weeklyKmChart" height="160"></canvas></div>
-  <!-- ÖSSZEGZÉS -->
+  <!-- ALL-TIME -->
   <div class="slabel">Összesítő</div>
   <div class="stat-row" id="overview-stats"></div>
   <div class="slabel">Personal Records — kattints a futáshoz</div>
@@ -1354,6 +1358,8 @@ function initOverview(){
     <div class="stat-box"><div class="stat-lbl">Összes TRIMP</div><div class="stat-num">${Math.round(totTrimp).toLocaleString()}</div><div class="stat-unit">terhelési pont</div></div>
     <div class="stat-box"><div class="stat-lbl">Szintemelkedés ${curYear}</div><div class="stat-num">${Math.round(elevYear).toLocaleString()}</div><div class="stat-unit">méter · össz: ${Math.round(totElev/1000).toFixed(1)}k m</div></div>`;
   const{current,longest}=_computeStreaks();
+  const todayStreak=document.getElementById('today-streak');
+  if(todayStreak)todayStreak.innerHTML=`<div class="stat-box"><div class="stat-lbl">Jelenlegi sorozat</div><div class="stat-num lime">${current}</div><div class="stat-unit">egymást követő hét</div></div>`;
   document.getElementById('streak-stats').innerHTML=`
     <div class="stat-box"><div class="stat-lbl">Jelenlegi sorozat</div><div class="stat-num lime">${current}</div><div class="stat-unit">egymást követő hét</div></div>
     <div class="stat-box"><div class="stat-lbl">Leghosszabb sorozat</div><div class="stat-num">${longest}</div><div class="stat-unit">egymást követő hét</div></div>`;
@@ -1848,7 +1854,7 @@ function _renderPRProg(){
 
 // ── RECOVERY WIDGET ──
 function _drawRecovery(){
-  const el=document.getElementById('recovery-widget');
+  const el=document.getElementById('today-forma');
   if(!el)return;
   const allHRV=HEALTH.filter(h=>h.hrv>0);
   const allHR=HEALTH.filter(h=>h.resting_hr>0);
@@ -1862,12 +1868,11 @@ function _drawRecovery(){
   if(forma>=70){status='Jó forma';col='var(--lime)';advice='Kemény edzés mehet';}
   else if(forma>=45){status='Átlagos forma';col='var(--orange)';advice='Könnyű edzés javasolt';}
   else{status='Fáradt';col='var(--red)';advice='Pihenj ma';}
-  el.innerHTML=`<div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid ${col};border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:0">
-    <div style="font-size:42px;font-weight:900;color:${col};letter-spacing:-2px;line-height:1">${forma}</div>
-    <div>
-      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px">${status} — ${advice}</div>
-      <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">HRV: ${lastHRV.hrv} ms · Nyugalmi HR: ${lastHR.resting_hr} bpm · ${lastHRV.date}</div>
-    </div>
+  el.innerHTML=`<div class="stat-box" style="border-left:3px solid ${col}">
+    <div class="stat-lbl">Legutóbbi forma<button class="info-btn" tabindex="0">i<span class="info-tip">0–100-as index az előző napi HRV és nyugalmi pulzus alapján, személyes átlagodhoz viszonyítva. 70+ = jó forma, 45–69 = átlagos, 0–44 = fáradt.</span></button></div>
+    <div class="stat-num" style="color:${col}">${forma}</div>
+    <div class="stat-unit">${status} — ${advice}</div>
+    <div class="stat-unit" style="margin-top:3px;font-size:10px">HRV: ${lastHRV.hrv}ms · HR: ${lastHR.resting_hr}bpm · ${lastHRV.date}</div>
   </div>`;
 }
 
@@ -1878,14 +1883,13 @@ function _drawRacePredictions(){
   const vo2vals=HEALTH.filter(h=>h.vo2max>0);
   if(!vo2vals.length){el.innerHTML='<div class="stat-box"><div class="stat-lbl" style="color:var(--text3)">Nincs VO₂ Max adat</div></div>';return;}
   const vo2=vo2vals[vo2vals.length-1].vo2max;
-  const vo2date=vo2vals[vo2vals.length-1].date;
   const bestVo2=Math.max(...vo2vals.map(h=>h.vo2max));
-  const vsel=document.getElementById('vo2-current-stats');
+  const vsel=document.getElementById('today-vo2');
   if(vsel){
     const vsDiff=+(vo2-bestVo2).toFixed(1);
-    const vsStr=vsDiff===0?'Ez a személyes csúcs':`Csúcs: ${bestVo2} ml/kg/min`;
+    const vsStr=vsDiff===0?'Személyes csúcs':`Csúcs: ${bestVo2} ml/kg/min`;
     const cat=vo2>=60?'Elit':vo2>=50?'Sportoló szint':vo2>=45?'Aktív felnőtt':'Átlag alatti';
-    vsel.innerHTML=`<div class="stat-box"><div class="stat-lbl">Jelenlegi VO₂ Max</div><div class="stat-num lime">${vo2.toFixed(1)}<span class="stat-unit" style="font-size:14px;margin-left:4px">ml/kg/min</span></div><div class="stat-unit">${cat} · ${vsStr}</div></div>`;
+    vsel.innerHTML=`<div class="stat-box"><div class="stat-lbl">VO₂ Max</div><div class="stat-num lime">${vo2.toFixed(1)}<span style="font-size:13px;font-weight:500;color:var(--text3);margin-left:3px">ml/kg/min</span></div><div class="stat-unit">${cat} · ${vsStr}</div></div>`;
   }
   function raceTime(pct,distKm){
     const target=pct*vo2;
