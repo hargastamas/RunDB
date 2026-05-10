@@ -799,6 +799,8 @@ const MONTHS_HU=['jan','feb','már','ápr','máj','jún','júl','aug','szep','ok
 const LIME='#C8F135';
 function getLime(){return document.documentElement.classList.contains('light')?'#00C853':'#C8F135';}
 function getLimeDim(){return document.documentElement.classList.contains('light')?'rgba(0,200,83,.15)':'rgba(200,241,53,.08)';}
+function _hmCellColor(cell,alpha){const isLight=document.documentElement.classList.contains('light');cell.style.background=isLight?`rgba(0,200,83,${alpha})`:`rgba(200,241,53,${alpha})`;}
+function _refreshHeatmap(){document.querySelectorAll('.hm-cell[data-alpha]').forEach(c=>_hmCellColor(c,c.dataset.alpha));}
 function gv(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
 function gridColor(){return gv('--grid-line');}
 function axisColor(){return gv('--axis-text');}
@@ -1338,6 +1340,7 @@ function drawVo2Chart(){
 }
 
 function drawOverviewCharts(){
+  _refreshHeatmap();
   _buildOverviewKmNav();
   drawOverviewKmChart();
   const wk52=WEEKLY.slice(-52);
@@ -1491,7 +1494,8 @@ function initOverview(){
       const cell=document.createElement('div');cell.className='hm-cell';
       if(found){
         const alpha=0.1+(found.km/maxKm)*0.9;
-        cell.style.background=document.documentElement.classList.contains('light')?`rgba(0,200,83,${alpha.toFixed(2)})`:`rgba(200,241,53,${alpha.toFixed(2)})`;
+        cell.dataset.alpha=alpha.toFixed(2);
+        _hmCellColor(cell,alpha.toFixed(2));
         cell.title=`${found.ym}: ${found.km}km · ${found.runs} futás`;
         cell.onclick=()=>filterAndShowRuns(found.ym);
       } else {cell.style.background='var(--border)';cell.style.opacity='.4';}
