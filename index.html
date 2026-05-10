@@ -325,6 +325,7 @@ canvas{display:block;width:100%!important}
   <div class="stat-row" id="streak-stats"></div>
   <div class="slabel">Ezen a héten</div>
   <div class="stat-row" id="thisweek-stats"></div>
+  <div id="recovery-widget"></div>
   <div class="slabel">Ez a hónap vs. tavaly ilyenkor</div>
   <div class="stat-row" id="vsly-stats"></div>
   <div class="slabel">Legjobb 28 napos időszak</div>
@@ -445,7 +446,7 @@ canvas{display:block;width:100%!important}
         <tbody id="monthly-tbody"></tbody>
       </table>
     </div>
-    <div class="slabel">Havi TRIMP — edzésterhelés</div>
+    <div class="slabel">Havi edzésterhelés</div>
     <div class="chart-card"><canvas id="monthlyTRIMPChart" height="160"></canvas></div>
   </div>
   <!-- ÉVES -->
@@ -490,21 +491,21 @@ canvas{display:block;width:100%!important}
 
 <!-- ═══ TRENDS ═══ -->
 <div class="page" id="page-trends">
-  <div class="slabel" style="border-top:none;padding-top:0;margin-top:0">HR vs. Tempó — aerob hatékonyság<button class="info-btn" tabindex="0">i<span class="info-tip">Minden pont egy futást jelöl. Vízszintes tengely: átlagos pulzus, függőleges: tempó. Minél balra és lejjebb van egy pont, annál hatékonyabb volt a futás — alacsonyabb pulzusnál gyorsabb tempó. A cél, hogy az évek során a pontok balra és lefelé tolódjanak.</span></button></div>
+  <div class="slabel" style="border-top:none;padding-top:0;margin-top:0">Pulzus vs. tempó<button class="info-btn" tabindex="0">i<span class="info-tip">Minden pont egy futást jelöl. Vízszintes tengely: átlagos pulzus, függőleges: tempó. Minél balra és lejjebb van egy pont, annál hatékonyabb volt a futás — alacsonyabb pulzusnál gyorsabb tempó. A cél, hogy az évek során a pontok balra és lefelé tolódjanak.</span></button></div>
   <div class="chart-card">
     <div class="chart-sub">X = átl. HR · Y = tempó · <span style="color:var(--lime)">■</span> Z1 futás · <span style="color:var(--orange)">■</span> Szürke zóna · <span style="color:#60a5fa">■</span> 2026 · kattints a pontra a futás részleteihez</div>
     <canvas id="scatterChart" height="280"></canvas>
   </div>
-  <div class="slabel">Havi Z1% arány<button class="info-btn" tabindex="0">i<span class="info-tip">Az edzések mekkora hányada zajlott könnyű, aerob (Z1) zónában. A polarizált edzéselmélet szerint az edzések 70–80%-ának Z1-ben kellene lennie. A Z4% a kemény edzések arányát mutatja — ideálisan 10–15% körül.</span></button></div>
+  <div class="slabel">Havi edzésmegoszlás<button class="info-btn" tabindex="0">i<span class="info-tip">Az edzések mekkora hányada zajlott könnyű, aerob (Z1) zónában. A polarizált edzéselmélet szerint az edzések 70–80%-ának Z1-ben kellene lennie. A Z4% a kemény edzések arányát mutatja — ideálisan 10–15% körül.</span></button></div>
   <div class="chart-card"><canvas id="zoneTimeChart" height="160"></canvas></div>
-  <div class="slabel">Heti TRIMP<button class="info-btn" tabindex="0">i<span class="info-tip">TRIMP (Training Impulse) = az adott heti edzésterhelés egyetlen számban, pulzus × idő alapján számolva. Magasabb érték = keményebb hét. Segít nyomon követni, mikor volt csúcsterhelés és mikor volt pihenőhét.</span></button></div>
+  <div class="slabel">Heti edzésterhelés<button class="info-btn" tabindex="0">i<span class="info-tip">TRIMP (Training Impulse) = az adott heti edzésterhelés egyetlen számban, pulzus × idő alapján számolva. Magasabb érték = keményebb hét. Segít nyomon követni, mikor volt csúcsterhelés és mikor volt pihenőhét.</span></button></div>
   <div class="chart-card"><canvas id="weeklyTRIMPChart" height="160"></canvas></div>
-  <div class="slabel">ACWR — Akut:Krónikus terhelésmutató<button class="info-btn" tabindex="0">i<span class="info-tip">Az utolsó 7 nap átlagos napi TRIMP osztva az utolsó 28 nap átlagával. 0.8–1.5 között biztonságos. 1.5 felett megnő a sérülésveszély. 0.8 alatt alacsony a terhelés. Hirtelen ugrás (pl. 0.9-ről 1.6-ra) figyelmeztető jel.</span></button></div>
+  <div class="slabel">Terhelési egyensúly (ACWR)<button class="info-btn" tabindex="0">i<span class="info-tip">Az utolsó 7 nap átlagos napi TRIMP osztva az utolsó 28 nap átlagával. 0.8–1.5 között biztonságos. 1.5 felett megnő a sérülésveszély. 0.8 alatt alacsony a terhelés. Hirtelen ugrás (pl. 0.9-ről 1.6-ra) figyelmeztető jel.</span></button></div>
   <div class="chart-card">
     <div class="chart-sub">7 napos átlag TRIMP / 28 napos átlag TRIMP · optimális zóna: 0.8–1.5</div>
     <canvas id="acwrChart" height="160"></canvas>
   </div>
-  <div class="slabel">Kadencia trend<button class="info-btn" tabindex="0">i<span class="info-tip">Havi átlagos lépésszám percenként futás közben. Magasabb kadencia általában hatékonyabb futóformát jelent és csökkenti az ízületekre ható erőt. Elit futók: 170–180 lépés/perc. Ha az évek során emelkedik, a futóformád fejlődik.</span></button></div>
+  <div class="slabel">Lépésszám trend<button class="info-btn" tabindex="0">i<span class="info-tip">Havi átlagos lépésszám percenként futás közben. Magasabb kadencia általában hatékonyabb futóformát jelent és csökkenti az ízületekre ható erőt. Elit futók: 170–180 lépés/perc. Ha az évek során emelkedik, a futóformád fejlődik.</span></button></div>
   <div class="chart-card">
     <div class="chart-sub">Havi átlag lépésszám/perc — magasabb általában hatékonyabb futóformát jelent</div>
     <canvas id="cadenceChart" height="160"></canvas>
@@ -514,17 +515,17 @@ canvas{display:block;width:100%!important}
     <div class="int-nav" id="int-nav"></div>
     <canvas id="intensityDonut" height="200"></canvas>
   </div>
-  <div class="slabel">AEI trend — aerob hatékonyság fejlődése<button class="info-btn" tabindex="0">i<span class="info-tip">Aerob Hatékonysági Index: sebesség ÷ pulzus × 100. Ha ugyanolyan pulzuson gyorsabban futsz, az AEI nő — ez a legjobb jele a hosszú távú aerob fejlődésnek. Havi átlag.</span></button></div>
+  <div class="slabel">Aerob hatékonyság fejlődése (AEI)<button class="info-btn" tabindex="0">i<span class="info-tip">Aerob Hatékonysági Index: sebesség ÷ pulzus × 100. Ha ugyanolyan pulzuson gyorsabban futsz, az AEI nő — ez a legjobb jele a hosszú távú aerob fejlődésnek. Havi átlag.</span></button></div>
   <div class="chart-card">
     <div class="chart-sub">Havi átlagos AEI — magasabb = hatékonyabb aerob rendszer</div>
     <canvas id="aeiTrendChart" height="160"></canvas>
   </div>
-  <div class="slabel">Hőmérséklet vs. tempó<button class="info-btn" tabindex="0">i<span class="info-tip">Minden pont egy futást jelöl ahol volt hőmérsékleti adat. Vízszintes tengely: hőfok (°C), függőleges: tempó. A meleg általában rontja a teljesítményt — ha a pontok jobbra tolódva feljebb vannak, ez normális és várható.</span></button></div>
+  <div class="slabel">Hőmérséklet hatása tempóra<button class="info-btn" tabindex="0">i<span class="info-tip">Minden pont egy futást jelöl ahol volt hőmérsékleti adat. Vízszintes tengely: hőfok (°C), függőleges: tempó. A meleg általában rontja a teljesítményt — ha a pontok jobbra tolódva feljebb vannak, ez normális és várható.</span></button></div>
   <div class="chart-card">
     <div class="chart-sub">X = hőmérséklet (°C) · Y = tempó · <span style="color:#60a5fa">■</span> tél (0–10°C) · <span style="color:var(--lime)">■</span> tavasz/ősz · <span style="color:#f87171">■</span> nyár (24°C+)</span></div>
     <canvas id="tempChart" height="220"></canvas>
   </div>
-  <div class="slabel">Fitness &amp; Freshness — CTL / ATL / TSB<button class="info-btn" tabindex="0">i<span class="info-tip">Edzésterhelés modell:<br>• CTL (fitnesz) = 42 napos exponenciálisan súlyozott TRIMP átlag<br>• ATL (fáradtság) = 7 napos súlyozott átlag<br>• TSB (forma) = CTL − ATL. Ha TSB pozitív és emelkedik, versenyképes formában vagy.</span></button></div>
+  <div class="slabel">Fitnesz &amp; Forma (CTL / ATL / TSB)<button class="info-btn" tabindex="0">i<span class="info-tip">Edzésterhelés modell:<br>• CTL (fitnesz) = 42 napos exponenciálisan súlyozott TRIMP átlag<br>• ATL (fáradtság) = 7 napos súlyozott átlag<br>• TSB (forma) = CTL − ATL. Ha TSB pozitív és emelkedik, versenyképes formában vagy.</span></button></div>
   <div class="chart-card">
     <div class="chart-sub">CTL = fitnesz · ATL = fáradtság · TSB = forma (pozitív = pihent)</div>
     <canvas id="ctlChart" height="200"></canvas>
@@ -562,6 +563,8 @@ canvas{display:block;width:100%!important}
     <div class="chart-sub">HRV + nyugalmi HR kombinációja a személyes átlaghoz képest · 50 = átlagos · &gt;70 = jó forma</div>
     <canvas id="formaChart" height="150"></canvas>
   </div>
+  <div class="slabel">Becsült versenyidők<button class="info-btn" tabindex="0">i<span class="info-tip">A VO₂ Max alapján számított elméleti versenytempók Jack Daniels futóedzési modellje szerint. Nem figyelembe veszi a specifikus edzettséget, taktikát vagy terepet — tájékoztató jellegű becslés.</span></button></div>
+  <div class="stat-row" id="race-pred-stats" style="grid-template-columns:repeat(4,1fr)"></div>
   <div class="slabel">VO₂ Max trend<button class="info-btn" tabindex="0">i<span class="info-tip">Az Apple Watch becslése az aerob kapacitásodról ml/kg/min-ben. 35 alatt: átlag alatti. 40–45: átlagos aktív felnőtt. 50+: sportoló szint. 60+: elit. Futóedzéssel évek alatt jelentősen javítható. A növekvő trend a legfontosabb hosszú távú fitnesz mutató.</span></button></div>
   <div class="chart-card">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:8px">
@@ -1342,6 +1345,7 @@ function drawVo2Chart(){
 
 function drawOverviewCharts(){
   _refreshHeatmap();
+  _drawRecovery();
   _buildOverviewKmNav();
   drawOverviewKmChart();
   const wk52=WEEKLY.slice(-52);
@@ -1848,6 +1852,8 @@ function drawHealthCharts(){
        refLines:[{value:70,color:getLime(),label:'70 — jó forma'},{value:30,color:'#ff4444',label:'30 — fáradt'}]});
   }
 
+  // Race predictions
+  _drawRacePredictions();
   // VO2 Max
   _buildVo2Nav();
   drawVo2Chart();
@@ -1903,6 +1909,64 @@ function _renderPRProg(){
   drawLine('prProgChart',labels,
     [{data:points,color:getLime(),fill:false,label:cfg.lbl}],
     {rotateLabels:labels.length>12,yFmt:cfg.fmt,stepped:true});
+}
+
+// ── RECOVERY WIDGET ──
+function _drawRecovery(){
+  const el=document.getElementById('recovery-widget');
+  if(!el)return;
+  const allHRV=HEALTH.filter(h=>h.hrv>0);
+  const allHR=HEALTH.filter(h=>h.resting_hr>0);
+  if(!allHRV.length||!allHR.length){el.innerHTML='';return;}
+  const avgHRV=allHRV.reduce((s,h)=>s+h.hrv,0)/allHRV.length;
+  const avgHR=allHR.reduce((s,h)=>s+h.resting_hr,0)/allHR.length;
+  const lastHRV=allHRV[allHRV.length-1];
+  const lastHR=allHR[allHR.length-1];
+  const forma=Math.min(100,Math.max(0,Math.round(50+(lastHRV.hrv-avgHRV)/avgHRV*40-(lastHR.resting_hr-avgHR)/avgHR*20)));
+  let status,col,advice;
+  if(forma>=70){status='Jó forma';col='var(--lime)';advice='Kemény edzés mehet';}
+  else if(forma>=45){status='Átlagos forma';col='var(--orange)';advice='Könnyű edzés javasolt';}
+  else{status='Fáradt';col='var(--red)';advice='Pihenj ma';}
+  el.innerHTML=`<div class="slabel">Mai edzéskészség</div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid ${col};border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:0">
+    <div style="font-size:42px;font-weight:900;color:${col};letter-spacing:-2px;line-height:1">${forma}</div>
+    <div>
+      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px">${status} — ${advice}</div>
+      <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">HRV: ${lastHRV.hrv} ms · Nyugalmi HR: ${lastHR.resting_hr} bpm · ${lastHRV.date}</div>
+    </div>
+  </div>`;
+}
+
+// ── RACE PREDICTIONS ──
+function _drawRacePredictions(){
+  const el=document.getElementById('race-pred-stats');
+  if(!el)return;
+  const vo2vals=HEALTH.filter(h=>h.vo2max>0);
+  if(!vo2vals.length){el.innerHTML='<div class="stat-box"><div class="stat-lbl" style="color:var(--text3)">Nincs VO₂ Max adat</div></div>';return;}
+  const vo2=vo2vals[vo2vals.length-1].vo2max;
+  function raceTime(pct,distKm){
+    const target=pct*vo2;
+    const c=-4.60-target;
+    const v=(-0.182258+Math.sqrt(0.182258*0.182258-4*0.000104*c))/(2*0.000104);
+    const paceMinKm=1000/v;
+    const totalMin=paceMinKm*distKm;
+    const h=Math.floor(totalMin/60),m=Math.floor(totalMin%60),s=Math.round((totalMin%1)*60);
+    const timeStr=h>0?`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`:`${m}:${String(s).padStart(2,'0')}`;
+    const paceStr=fmtPace(paceMinKm)+'/km';
+    return{timeStr,paceStr};
+  }
+  const races=[
+    {lbl:'5 km',pct:0.96,dist:5},
+    {lbl:'10 km',pct:0.92,dist:10},
+    {lbl:'Félmaraton',pct:0.85,dist:21.097},
+    {lbl:'Maraton',pct:0.79,dist:42.195},
+  ];
+  el.innerHTML=races.map(r=>{const{timeStr,paceStr}=raceTime(r.pct,r.dist);return`
+    <div class="stat-box">
+      <div class="stat-lbl">${r.lbl}</div>
+      <div class="stat-num" style="font-size:24px;letter-spacing:-1px">${timeStr}</div>
+      <div class="stat-unit">${paceStr} · VO₂ ${vo2}</div>
+    </div>`;}).join('');
 }
 
 // ── VS LAST YEAR ──
