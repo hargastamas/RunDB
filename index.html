@@ -8,6 +8,8 @@
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="RunDB">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=DM+Mono:wght@400;500&display=swap');
 
@@ -439,8 +441,6 @@ canvas{display:block;width:100%!important}
         <tbody id="monthly-tbody"></tbody>
       </table>
     </div>
-    <div class="slabel">Havi edzésterhelés</div>
-    <div class="chart-card"><canvas id="monthlyTRIMPChart" height="160"></canvas></div>
   </div>
   <!-- ÉVES -->
   <div id="stats-yearly" style="display:none">
@@ -1087,7 +1087,7 @@ function showStatsSub(sub){
     const active=b.dataset.sub===sub;
     b.classList.toggle('active',active);
   });
-  if(sub==='monthly'){renderMonthlyTable();drawBar('monthlyTRIMPChart',MONTHLY.map(m=>m.ym.slice(2)),[{data:MONTHLY.map(m=>m.total_trimp),color:MONTHLY.map(m=>m.total_trimp>1000?getLime():(document.documentElement.classList.contains('light')?'rgba(0,200,83,.3)':'rgba(200,241,53,.3)'))}],{rotateLabels:true,yFmt:v=>Math.round(v)});}
+  if(sub==='monthly'){renderMonthlyTable();}
   if(sub==='yearly'){initYearlyTab();}
   if(sub==='compare'){initCompareTab();}
 }
