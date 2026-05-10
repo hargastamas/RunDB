@@ -206,6 +206,13 @@ canvas{display:block;width:100%!important}
 .cal-bubble:hover{transform:scale(1.12);box-shadow:0 4px 20px rgba(0,0,0,.35)}
 .cal-bubble-label{font-size:8px;color:var(--text3);text-align:center;line-height:1.3;max-width:72px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cal-empty{width:6px;height:6px;border-radius:50%;background:var(--border);margin:20px auto 0}
+
+/* info button */
+.info-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;border:1.5px solid var(--text3);color:var(--text3);font-size:8px;font-weight:700;font-style:normal;cursor:pointer;background:none;padding:0;margin-left:7px;vertical-align:middle;transition:border-color .15s,color .15s;outline:none;font-family:'Inter',sans-serif;letter-spacing:0;text-transform:none;line-height:1;flex-shrink:0}
+.info-btn:hover,.info-btn:focus{border-color:var(--lime);color:var(--lime)}
+.info-tip{position:absolute;left:0;top:calc(100% + 8px);background:var(--tip-bg);border:1px solid var(--tip-border);color:var(--tip-text);border-radius:10px;padding:11px 14px;font-size:11px;line-height:1.65;width:290px;z-index:500;display:none;font-weight:400;letter-spacing:0;text-transform:none;font-family:'Inter',sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.25);pointer-events:none}
+.info-btn:hover .info-tip,.info-btn:focus .info-tip{display:block}
+@media(max-width:640px){.info-tip{width:220px}}
 /* gap badge */
 .cal-gap-badge{font-size:7px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--orange);background:rgba(255,140,0,.12);border:1px solid rgba(255,140,0,.25);border-radius:4px;padding:1px 5px;margin-top:3px;line-height:1.4;text-align:center}
 /* intensity donut period pills */
@@ -465,26 +472,26 @@ canvas{display:block;width:100%!important}
 
 <!-- ═══ TRENDS ═══ -->
 <div class="page" id="page-trends">
-  <div class="slabel" style="border-top:none;padding-top:0;margin-top:0">HR vs. Tempó — aerob hatékonyság</div>
+  <div class="slabel" style="border-top:none;padding-top:0;margin-top:0">HR vs. Tempó — aerob hatékonyság<button class="info-btn" tabindex="0">i<span class="info-tip">Minden pont egy futást jelöl. Vízszintes tengely: átlagos pulzus, függőleges: tempó. Minél balra és lejjebb van egy pont, annál hatékonyabb volt a futás — alacsonyabb pulzusnál gyorsabb tempó. A cél, hogy az évek során a pontok balra és lefelé tolódjanak.</span></button></div>
   <div class="chart-card">
     <div class="chart-sub">X = átl. HR · Y = tempó · <span style="color:var(--lime)">■</span> Z1 futás · <span style="color:var(--orange)">■</span> Szürke zóna · <span style="color:#60a5fa">■</span> 2026 · kattints a pontra a futás részleteihez</div>
     <canvas id="scatterChart" height="280"></canvas>
   </div>
-  <div class="slabel">Havi Z1% arány</div>
+  <div class="slabel">Havi Z1% arány<button class="info-btn" tabindex="0">i<span class="info-tip">Az edzések mekkora hányada zajlott könnyű, aerob (Z1) zónában. A polarizált edzéselmélet szerint az edzések 70–80%-ának Z1-ben kellene lennie. A Z4% a kemény edzések arányát mutatja — ideálisan 10–15% körül.</span></button></div>
   <div class="chart-card"><canvas id="zoneTimeChart" height="160"></canvas></div>
-  <div class="slabel">Heti TRIMP</div>
+  <div class="slabel">Heti TRIMP<button class="info-btn" tabindex="0">i<span class="info-tip">TRIMP (Training Impulse) = az adott heti edzésterhelés egyetlen számban, pulzus × idő alapján számolva. Magasabb érték = keményebb hét. Segít nyomon követni, mikor volt csúcsterhelés és mikor volt pihenőhét.</span></button></div>
   <div class="chart-card"><canvas id="weeklyTRIMPChart" height="160"></canvas></div>
-  <div class="slabel">ACWR — Akut:Krónikus terhelésmutató</div>
+  <div class="slabel">ACWR — Akut:Krónikus terhelésmutató<button class="info-btn" tabindex="0">i<span class="info-tip">Az utolsó 7 nap átlagos napi TRIMP osztva az utolsó 28 nap átlagával. 0.8–1.5 között biztonságos. 1.5 felett megnő a sérülésveszély. 0.8 alatt alacsony a terhelés. Hirtelen ugrás (pl. 0.9-ről 1.6-ra) figyelmeztető jel.</span></button></div>
   <div class="chart-card">
     <div class="chart-sub">7 napos átlag TRIMP / 28 napos átlag TRIMP · optimális zóna: 0.8–1.5</div>
     <canvas id="acwrChart" height="160"></canvas>
   </div>
-  <div class="slabel">Kadencia trend</div>
+  <div class="slabel">Kadencia trend<button class="info-btn" tabindex="0">i<span class="info-tip">Havi átlagos lépésszám percenként futás közben. Magasabb kadencia általában hatékonyabb futóformát jelent és csökkenti az ízületekre ható erőt. Elit futók: 170–180 lépés/perc. Ha az évek során emelkedik, a futóformád fejlődik.</span></button></div>
   <div class="chart-card">
     <div class="chart-sub">Havi átlag lépésszám/perc — magasabb általában hatékonyabb futóformát jelent</div>
     <canvas id="cadenceChart" height="160"></canvas>
   </div>
-  <div class="slabel">Futás intenzitás megoszlás</div>
+  <div class="slabel">Futás intenzitás megoszlás<button class="info-btn" tabindex="0">i<span class="info-tip">Az összes futás megoszlása edzéstípus szerint a kiválasztott időszakban. Könnyű: az idő ≥50%-a Z1 zónában. Kemény: az idő ≥50%-a Z3–4 zónában. Vegyes: a többi. Optimális arány: ~75% könnyű, ~15% vegyes, ~10% kemény.</span></button></div>
   <div class="chart-card">
     <div class="int-nav" id="int-nav"></div>
     <canvas id="intensityDonut" height="200"></canvas>
@@ -496,29 +503,29 @@ canvas{display:block;width:100%!important}
   <div class="slabel" style="border-top:none;padding-top:0;margin-top:0">Regeneráció — utolsó 90 nap</div>
   <div class="g2">
     <div class="chart-card">
-      <div class="chart-title">Nyugalmi HR</div>
+      <div class="chart-title">Nyugalmi HR<button class="info-btn" tabindex="0" style="margin-left:8px">i<span class="info-tip">Reggeli nyugalmi pulzus bpm-ben. Ha hirtelen 5+ bpm-mel emelkedik a személyes átlagodhoz képest, az fáradtságot vagy betegséget jelezhet. Hosszú távon csökkenő trend = javuló kardiovaszkuláris fitnesz.</span></button></div>
       <div class="chart-sub">alacsonyabb = jobb forma</div>
       <canvas id="restingHRChart" height="160"></canvas>
     </div>
     <div class="chart-card">
-      <div class="chart-title">HRV</div>
+      <div class="chart-title">HRV<button class="info-btn" tabindex="0" style="margin-left:8px">i<span class="info-tip">Szívritmus variabilitás — a szívverések közötti időköz ingadozása ms-ban. Magasabb = jobban regenerálódtál. Ha 20–30%-ot esik a személyes átlag alá, kemény edzés nem javasolt aznap. Ez az egyik legobjektívebb regenerációs mutató.</span></button></div>
       <div class="chart-sub">magasabb = jobb regeneráció</div>
       <canvas id="hrvChart" height="160"></canvas>
     </div>
   </div>
-  <div class="slabel">Napi Forma Index</div>
+  <div class="slabel">Napi Forma Index<button class="info-btn" tabindex="0">i<span class="info-tip">HRV (60% súly) és nyugalmi HR (40% súly) kombinációja, személyes átlagtól való eltérés alapján. 50 = teljesen átlagos nap. 70 felett az átlagnál jobb regeneráció, kemény edzés mehet. 30 alatt pihenjél vagy csak könnyű edzés.</span></button></div>
   <div class="chart-card">
     <div class="chart-sub">HRV + nyugalmi HR kombinációja a személyes átlaghoz képest · 50 = átlagos · &gt;70 = jó forma</div>
     <canvas id="formaChart" height="150"></canvas>
   </div>
-  <div class="slabel">VO₂ Max trend</div>
+  <div class="slabel">VO₂ Max trend<button class="info-btn" tabindex="0">i<span class="info-tip">Az Apple Watch becslése az aerob kapacitásodról ml/kg/min-ben. 35 alatt: átlag alatti. 40–45: átlagos aktív felnőtt. 50+: sportoló szint. 60+: elit. Futóedzéssel évek alatt jelentősen javítható. A növekvő trend a legfontosabb hosszú távú fitnesz mutató.</span></button></div>
   <div class="chart-card">
     <div class="chart-sub">ml/kg/min — Apple Watch becslés · teljes history</div>
     <canvas id="vo2Chart" height="150"></canvas>
   </div>
-  <div class="slabel">Lépések — utolsó 60 nap</div>
+  <div class="slabel">Lépések — utolsó 60 nap<button class="info-btn" tabindex="0">i<span class="info-tip">Napi összes lépésszám. A zöld sávok 10 000 lépés felett vannak, ami az általánosan ajánlott napi minimum aktív életmódhoz. Edzős napokon természetesen magasabb.</span></button></div>
   <div class="chart-card"><canvas id="stepsChart" height="150"></canvas></div>
-  <div class="slabel">Aktív kalória — utolsó 60 nap</div>
+  <div class="slabel">Aktív kalória — utolsó 60 nap<button class="info-btn" tabindex="0">i<span class="info-tip">Mozgásból eredő aktív kalóriaégetés (nem tartalmazza az alapanyagcserét). Edzős napokon magasabb. Az 500 kcal feletti napok lime színnel jelennek meg.</span></button></div>
   <div class="chart-card"><canvas id="activeCalChart" height="150"></canvas></div>
 </div>
 
