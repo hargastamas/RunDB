@@ -895,12 +895,12 @@ function drawBar(id,labels,datasets,opts={}){
   const n=labels.length,gW=cW/n,nDs=datasets.length;
   const bW=Math.max(2,(gW*0.72)/nDs);
   // grid
-  ctx.strokeStyle='#1e1e1e';ctx.lineWidth=1;
+  ctx.strokeStyle=gridColor();ctx.lineWidth=1;
   for(let i=0;i<=4;i++){
     const y=pad.top+cH*(1-i/4);
     ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cW,y);ctx.stroke();
     const val=minV+(range*i/4);
-    ctx.fillStyle='#444';ctx.font='9px DM Mono,monospace';ctx.textAlign='right';
+    ctx.fillStyle=axisColor();ctx.font='9px DM Mono,monospace';ctx.textAlign='right';
     ctx.fillText(opts.yFmt?opts.yFmt(val):Math.round(val),pad.left-4,y+3);
   }
   // bars
@@ -973,11 +973,11 @@ function drawLine(id,labels,datasets,opts={}){
   const maxV=opts.maxVal||(Math.max(...allV)*1.06),minV=opts.minVal||(Math.min(...allV)*0.94),range=maxV-minV||1;
   const n=labels.length;
   // grid
-  ctx.strokeStyle='#1e1e1e';ctx.lineWidth=1;
+  ctx.strokeStyle=gridColor();ctx.lineWidth=1;
   for(let i=0;i<=4;i++){
     const y=pad.top+cH*(1-i/4);
     ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cW,y);ctx.stroke();
-    ctx.fillStyle='#444';ctx.font='9px DM Mono,monospace';ctx.textAlign='right';
+    ctx.fillStyle=axisColor();ctx.font='9px DM Mono,monospace';ctx.textAlign='right';
     ctx.fillText(opts.yFmt?opts.yFmt(minV+(range*i/4)):(minV+(range*i/4)).toFixed(1),pad.left-4,y+3);
   }
   datasets.forEach(ds=>{
