@@ -2142,100 +2142,122 @@ function _drawPaceHist(days){
 const PLAN_START = '2026-05-11'; // Monday of week 1
 const PLAN_RACE  = '2026-09-06';
 
-// Each week: {phase, km, days:[{type,label,detail}]} — Mon–Fri only shown (5 slots)
+// Each week: {phase, km, days:[{type,label,detail}]} — Mon–Sun (7 slots, 0=H…6=V)
 // type: 'easy'|'tempo'|'long'|'interval'|'gym'|'rest'|'race'
 const PLAN_DATA = [
   // PHASE 1 — Alap (Z1 base), weeks 1–4
-  // Sorrend: H=terem, K=könnyű, Sze=könnyű+strides, Cs=pihenő, P=hosszú
-  // (csütörtök pihenő — 5 egymás utáni nap Phase 1-ben túl sok; 2. fázistól jön be)
-  {phase:'Alap',phaseColor:'#3b82f6',km:20,days:[
+  // H=terem, K=könnyű, Sze=könnyű+strides, Cs=könnyű 4km, P=pihenő, Szo=hosszú, V=pihenő
+  {phase:'Alap',phaseColor:'#3b82f6',km:24,days:[
     {type:'gym',   lbl:'Terem',        det:'Alsótest: guggolás, kitörés, vádli'},
     {type:'easy',  lbl:'Könnyű futás', det:'6 km, Z1–Z2 (~6:00/km)'},
     {type:'easy',  lbl:'Könnyű futás', det:'5 km, Z1 (~6:20/km) + 6×20mp strides'},
+    {type:'easy',  lbl:'Könnyű futás', det:'4 km, Z1'},
     {type:'rest',  lbl:'Pihenő',       det:'Pihenő'},
     {type:'long',  lbl:'Hosszú futás', det:'9 km, Z1 (~6:10/km)'},
+    {type:'rest',  lbl:'Pihenő',       det:'Pihenő'},
   ]},
-  {phase:'Alap',phaseColor:'#3b82f6',km:22,days:[
+  {phase:'Alap',phaseColor:'#3b82f6',km:26,days:[
     {type:'gym',   lbl:'Terem',        det:'Alsótest'},
     {type:'easy',  lbl:'Könnyű futás', det:'6 km, Z1–Z2'},
     {type:'easy',  lbl:'Könnyű futás', det:'6 km, Z1 + 6×20mp strides'},
+    {type:'easy',  lbl:'Könnyű futás', det:'4 km, Z1'},
     {type:'rest',  lbl:'Pihenő',       det:'Pihenő'},
     {type:'long',  lbl:'Hosszú futás', det:'10 km, Z1'},
+    {type:'rest',  lbl:'Pihenő',       det:'Pihenő'},
   ]},
-  {phase:'Alap',phaseColor:'#3b82f6',km:25,days:[
+  {phase:'Alap',phaseColor:'#3b82f6',km:29,days:[
     {type:'gym',   lbl:'Terem',        det:'Alsótest'},
     {type:'easy',  lbl:'Könnyű futás', det:'7 km, Z1–Z2'},
     {type:'easy',  lbl:'Könnyű futás', det:'6 km, Z1 + 8×20mp strides'},
+    {type:'easy',  lbl:'Könnyű futás', det:'4 km, Z1'},
     {type:'rest',  lbl:'Pihenő',       det:'Pihenő'},
     {type:'long',  lbl:'Hosszú futás', det:'12 km, Z1–Z2'},
+    {type:'rest',  lbl:'Pihenő',       det:'Pihenő'},
   ]},
-  {phase:'Alap',phaseColor:'#3b82f6',km:19,days:[  // recovery week
+  {phase:'Alap',phaseColor:'#3b82f6',km:23,days:[  // recovery week
     {type:'gym',   lbl:'Terem',        det:'Alsótest (könnyű)'},
     {type:'easy',  lbl:'Könnyű futás', det:'6 km, Z1'},
     {type:'easy',  lbl:'Könnyű futás', det:'5 km, Z1 + 6×20mp strides'},
+    {type:'easy',  lbl:'Könnyű futás', det:'4 km, Z1'},
     {type:'rest',  lbl:'Pihenő',       det:'Pihenő'},
     {type:'long',  lbl:'Hosszú futás', det:'8 km, Z1'},
+    {type:'rest',  lbl:'Pihenő',       det:'Pihenő'},
   ]},
   // PHASE 2 — Tempo, weeks 5–8
-  // Cs: 4 km könnyű (ettől a fázistól vezeti be a 4. futást!) → H=terem, K=könnyű, Sze=tempó, Cs=könnyű 4km, P=hosszú
+  // H=terem, K=könnyű, Sze=tempó, Cs=könnyű 4km, P=pihenő, Szo=hosszú, V=pihenő
   {phase:'Tempo',phaseColor:'#f59e0b',km:31,days:[
     {type:'gym',   lbl:'Terem',        det:'Alsótest'},
     {type:'easy',  lbl:'Könnyű futás', det:'6 km, Z1–Z2'},
     {type:'tempo', lbl:'Tempó futás',  det:'8 km: 2 km bemu + 4 km @ 4:45/km (laktátküszöb) + 2 km lev'},
     {type:'easy',  lbl:'Könnyű futás', det:'4 km, Z1'},
+    {type:'rest',  lbl:'Pihenő',       det:'Pihenő'},
     {type:'long',  lbl:'Hosszú futás', det:'13 km, Z1–Z2'},
+    {type:'rest',  lbl:'Pihenő',       det:'Pihenő'},
   ]},
   {phase:'Tempo',phaseColor:'#f59e0b',km:34,days:[
     {type:'gym',   lbl:'Terem',        det:'Alsótest'},
     {type:'easy',  lbl:'Könnyű futás', det:'7 km, Z1–Z2'},
     {type:'tempo', lbl:'Tempó futás',  det:'9 km: 2 km bemu + 5 km @ 4:42/km + 2 km lev'},
     {type:'easy',  lbl:'Könnyű futás', det:'4 km, Z1'},
+    {type:'rest',  lbl:'Pihenő',       det:'Pihenő'},
     {type:'long',  lbl:'Hosszú futás', det:'14 km, Z2'},
+    {type:'rest',  lbl:'Pihenő',       det:'Pihenő'},
   ]},
   {phase:'Tempo',phaseColor:'#f59e0b',km:37,days:[
     {type:'gym',   lbl:'Terem',        det:'Alsótest'},
     {type:'easy',  lbl:'Könnyű futás', det:'7 km, Z1–Z2'},
     {type:'tempo', lbl:'Tempó futás',  det:'10 km: 2 km bemu + 6 km @ 4:40/km + 2 km lev'},
     {type:'easy',  lbl:'Könnyű futás', det:'4 km, Z1'},
+    {type:'rest',  lbl:'Pihenő',       det:'Pihenő'},
     {type:'long',  lbl:'Hosszú futás', det:'16 km, Z2'},
+    {type:'rest',  lbl:'Pihenő',       det:'Pihenő'},
   ]},
   {phase:'Tempo',phaseColor:'#f59e0b',km:28,days:[  // recovery week
     {type:'gym',   lbl:'Terem',        det:'Alsótest (könnyű)'},
     {type:'easy',  lbl:'Könnyű futás', det:'6 km, Z1'},
     {type:'easy',  lbl:'Könnyű futás', det:'5 km, Z1'},
     {type:'easy',  lbl:'Könnyű futás', det:'4 km, Z1'},
+    {type:'rest',  lbl:'Pihenő',       det:'Pihenő'},
     {type:'long',  lbl:'Hosszú futás', det:'13 km, Z1'},
+    {type:'rest',  lbl:'Pihenő',       det:'Pihenő'},
   ]},
   // PHASE 3 — Intervallum, weeks 9–12
-  // Interval iramok: VO₂ Max zóna (4:03–4:08/km)
-  // Cs: 4 km → hosszú futás nő; W11: tiszta Z2 (intervall már elég stressz)
+  // Sze=intervall (VO₂ Max), Cs=könnyű 4km recovery, Szo=hosszú; W11 hosszú tiszta Z2
   {phase:'Intervallum',phaseColor:'#ef4444',km:35,days:[
     {type:'gym',     lbl:'Terem',         det:'Alsótest'},
     {type:'easy',    lbl:'Könnyű futás',  det:'7 km, Z1–Z2'},
     {type:'interval',lbl:'Intervall',     det:'9 km: 2 km bemu + 5×800m @ 4:05/km (90mp séta) + 2 km lev'},
     {type:'easy',    lbl:'Könnyű futás',  det:'4 km, Z1 — regeneráló'},
+    {type:'rest',    lbl:'Pihenő',        det:'Pihenő'},
     {type:'long',    lbl:'Hosszú futás',  det:'15 km, Z2 (utolsó 2 km @ 4:45/km)'},
+    {type:'rest',    lbl:'Pihenő',        det:'Pihenő'},
   ]},
   {phase:'Intervallum',phaseColor:'#ef4444',km:38,days:[
     {type:'gym',     lbl:'Terem',         det:'Alsótest'},
     {type:'easy',    lbl:'Könnyű futás',  det:'7 km, Z1–Z2'},
     {type:'interval',lbl:'Intervall',     det:'10 km: 2 km bemu + 6×800m @ 4:03/km (90mp séta) + 2 km lev'},
     {type:'easy',    lbl:'Könnyű futás',  det:'4 km, Z1 — regeneráló'},
+    {type:'rest',    lbl:'Pihenő',        det:'Pihenő'},
     {type:'long',    lbl:'Hosszú futás',  det:'17 km, Z2 (utolsó 3 km @ 4:40/km)'},
+    {type:'rest',    lbl:'Pihenő',        det:'Pihenő'},
   ]},
   {phase:'Intervallum',phaseColor:'#ef4444',km:42,days:[
     {type:'gym',     lbl:'Terem',         det:'Alsótest'},
     {type:'easy',    lbl:'Könnyű futás',  det:'9 km, Z1–Z2'},
     {type:'interval',lbl:'Intervall',     det:'10 km: 2 km bemu + 3×1600m @ 4:08/km (2 perc séta) + 2 km lev'},
     {type:'easy',    lbl:'Könnyű futás',  det:'4 km, Z1 — regeneráló'},
+    {type:'rest',    lbl:'Pihenő',        det:'Pihenő'},
     {type:'long',    lbl:'Hosszú futás',  det:'19 km, Z2 — tiszta könnyű (az intervall elég stressz)'},
+    {type:'rest',    lbl:'Pihenő',        det:'Pihenő'},
   ]},
   {phase:'Intervallum',phaseColor:'#ef4444',km:32,days:[  // recovery week
     {type:'gym',     lbl:'Terem',         det:'Alsótest (könnyű)'},
     {type:'easy',    lbl:'Könnyű futás',  det:'6 km, Z1'},
     {type:'easy',    lbl:'Könnyű futás',  det:'6 km, Z1'},
     {type:'easy',    lbl:'Könnyű futás',  det:'4 km, Z1'},
+    {type:'rest',    lbl:'Pihenő',        det:'Pihenő'},
     {type:'long',    lbl:'Hosszú futás',  det:'16 km, Z1'},
+    {type:'rest',    lbl:'Pihenő',        det:'Pihenő'},
   ]},
   // PHASE 4 — Versenyspecifikus, weeks 13–14
   {phase:'Versenyspecifikus',phaseColor:'#8b5cf6',km:36,days:[
@@ -2243,14 +2265,18 @@ const PLAN_DATA = [
     {type:'easy',  lbl:'Könnyű futás', det:'7 km, Z1–Z2'},
     {type:'tempo', lbl:'Versenyiramú', det:'10 km: 2 km bemu + 6 km @ 4:32/km (versenyiram) + 2 km lev'},
     {type:'easy',  lbl:'Könnyű futás', det:'5 km, Z1'},
+    {type:'rest',  lbl:'Pihenő',       det:'Pihenő'},
     {type:'long',  lbl:'Hosszú futás', det:'14 km: első 10 km Z2, utolsó 4 km @ 4:30/km'},
+    {type:'rest',  lbl:'Pihenő',       det:'Pihenő'},
   ]},
   {phase:'Versenyspecifikus',phaseColor:'#8b5cf6',km:34,days:[
     {type:'gym',   lbl:'Terem',        det:'Alsótest (könnyű)'},
     {type:'easy',  lbl:'Könnyű futás', det:'7 km, Z1–Z2'},
     {type:'tempo', lbl:'Versenyiramú', det:'9 km: 2 km bemu + 5 km @ 4:30/km (versenyiram) + 2 km lev'},
     {type:'easy',  lbl:'Könnyű futás', det:'5 km, Z1'},
+    {type:'rest',  lbl:'Pihenő',       det:'Pihenő'},
     {type:'long',  lbl:'Hosszú futás', det:'13 km, Z2'},
+    {type:'rest',  lbl:'Pihenő',       det:'Pihenő'},
   ]},
   // PHASE 5 — Taper, weeks 15–16
   {phase:'Taper',phaseColor:'#10b981',km:24,days:[
@@ -2258,27 +2284,33 @@ const PLAN_DATA = [
     {type:'easy',  lbl:'Könnyű futás', det:'6 km, Z1–Z2'},
     {type:'tempo', lbl:'Tempó futás',  det:'7 km: 2 km bemu + 3 km @ 4:32/km + 2 km lev — élénkítő'},
     {type:'easy',  lbl:'Könnyű futás', det:'5 km, Z1'},
+    {type:'rest',  lbl:'Pihenő',       det:'Pihenő'},
     {type:'long',  lbl:'Hosszú futás', det:'6 km, Z1 — laza, élvezd'},
+    {type:'rest',  lbl:'Pihenő',       det:'Pihenő'},
   ]},
   {phase:'Taper',phaseColor:'#10b981',km:12,days:[
     {type:'gym',   lbl:'Terem',        det:'Alsótest (minimál — csak aktiváció)'},
     {type:'easy',  lbl:'Könnyű futás', det:'5 km, Z1 — friss érzés'},
     {type:'easy',  lbl:'Könnyű futás', det:'4 km, Z1 + 4×20mp strides — láb élesítés'},
     {type:'rest',  lbl:'Pihenő',       det:'Teljes pihenő'},
-    {type:'easy',  lbl:'Könnyű futás', det:'3 km, Z1 — utolsó aktiváció (cs. vagy p.)'},
+    {type:'rest',  lbl:'Pihenő',       det:'Pihenő'},
+    {type:'easy',  lbl:'Könnyű futás', det:'3 km, Z1 — utolsó könnyű'},
+    {type:'rest',  lbl:'Pihenő',       det:'Pihenő'},
   ]},
-  // WEEK 17 — Race week
+  // WEEK 17 — Race week (Mon Aug 31 – Sun Sep 6)
   {phase:'Verseny',phaseColor:'#C8F135',km:21,days:[
     {type:'rest',  lbl:'Pihenő',       det:'Séta, nyújtás — nem futás'},
+    {type:'easy',  lbl:'Könnyű futás', det:'3 km, Z1 — lábak mozgásban'},
     {type:'rest',  lbl:'Pihenő',       det:'Pihenő'},
     {type:'easy',  lbl:'Aktiváció',    det:'3 km, Z1 + 4×20mp strides — 3 nappal verseny előtt'},
     {type:'rest',  lbl:'Pihenő',       det:'Pihenő'},
+    {type:'rest',  lbl:'Pihenő',       det:'Pihenő — verseny előtti nap'},
     {type:'race',  lbl:'VERSENY',      det:'Budapest Félmaraton — vasárnap 09.06. — cél: 4:30/km'},
   ]},
 ];
 
-const _PLAN_DAYS_HU = ['H','K','Sze','Cs','P'];
-const _PLAN_FULL_DAYS_HU = ['Hétfő','Kedd','Szerda','Csütörtök','Péntek'];
+const _PLAN_DAYS_HU = ['H','K','Sze','Cs','P','Szo','V'];
+const _PLAN_FULL_DAYS_HU = ['Hétfő','Kedd','Szerda','Csütörtök','Péntek','Szombat','Vasárnap'];
 
 function _planTypeColor(t){
   if(t==='easy')   return 'var(--lime)';
@@ -2298,7 +2330,7 @@ function _planWeekStart(weekIdx){
 }
 
 function _planDayDate(weekIdx, dayIdx){
-  // dayIdx 0=Mon … 4=Fri
+  // dayIdx 0=Mon … 6=Sun
   const d = new Date(PLAN_START);
   d.setDate(d.getDate() + weekIdx * 7 + dayIdx);
   return d.toISOString().slice(0,10);
@@ -2366,7 +2398,7 @@ function renderPlan(){
   } else {
     const week = PLAN_DATA[cwIdx];
     const dayOfWeek = new Date().getDay(); // 0=Sun,1=Mon...5=Fri,6=Sat
-    const planDayIdx = dayOfWeek === 0 ? 4 : Math.min(dayOfWeek - 1, 4); // map to Mon-Fri
+    const planDayIdx = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // map JS day (0=Sun) to plan idx (0=Mon…6=Sun)
     twEl.innerHTML = `
       <div style="font-size:12px;color:var(--text2);margin-bottom:10px">
         ${cwIdx+1}. hét · <span style="color:${week.phaseColor}">${week.phase} fázis</span> · ${week.km} km tervezett
@@ -2458,7 +2490,7 @@ function _renderPlanFull(cwIdx, today){
   const el = document.getElementById('plan-full');
   el.innerHTML = PLAN_DATA.map((week, wi)=>{
     const wkStart = _planWeekStart(wi);
-    const wkEnd = _planDayDate(wi, 4);
+    const wkEnd = _planDayDate(wi, 6);
     const isCurrent = wi === cwIdx;
     const isPast = wi < cwIdx;
     const completedSessions = week.days.filter((d,di)=>_sessionDone(wi,di,d.type)).length;
