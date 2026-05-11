@@ -1959,7 +1959,7 @@ function _drawRacePredictions(){
     if(ref){
       const predTime=ref.pace*ref.dist*Math.pow(race.dist/ref.dist,1.06);
       result={timeStr:fmtTime(predTime),paceStr:fmtPace(predTime/race.dist)+'/km',
-        sub:`${ref.dist.toFixed(1)}km · ${ref.date}`};
+        sub:`Alap: ${ref.dist.toFixed(1)}km-es futás (${ref.date})`};
     } else {
       const fb=vo2Predict(race.vo2pct,race.dist);
       if(!fb)return`<div class="stat-box"><div class="stat-lbl">${race.lbl}</div><div class="stat-num" style="font-size:24px">—</div><div class="stat-unit">Nincs elég adat</div></div>`;
@@ -1968,7 +1968,8 @@ function _drawRacePredictions(){
     return`<div class="stat-box">
       <div class="stat-lbl">${race.lbl}</div>
       <div class="stat-num" style="font-size:24px;letter-spacing:-1px">${result.timeStr}</div>
-      <div class="stat-unit">${result.paceStr} · ${result.sub}</div>
+      <div class="stat-unit">${result.paceStr}</div>
+      <div class="stat-unit" style="margin-top:4px">${result.sub}</div>
     </div>`;
   }).join('');
 }
