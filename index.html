@@ -342,7 +342,7 @@ canvas{display:block;width:100%!important}
   <div class="slabel">Ez a hónap vs. tavaly ilyenkor</div>
   <div class="stat-row" id="vsly-stats"></div>
   <!-- JELENLEGI FITNESZ -->
-  <div class="slabel">Becsült versenyidők<button class="info-btn" tabindex="0">i<span class="info-tip">A VO₂ Max alapján számított elméleti versenytempók Jack Daniels futóedzési modellje szerint. Tájékoztató jellegű becslés.</span></button></div>
+  <div class="slabel">Becsült versenyidők<button class="info-btn" tabindex="0">i<span class="info-tip">Riegel-formula alapján számított becslés a legutóbbi 180 nap legjobb edzésfutásaiból (T₂ = T₁ × (D₂/D₁)^1.06). Ha nincs elegendő adat az adott távhoz, VO₂ Max alapú becslés jelenik meg felső határként.</span></button></div>
   <div class="stat-row race-pred-grid" id="race-pred-stats"></div>
   <div class="slabel">Heti km — futási volumen (utolsó 52 hét)</div>
   <div class="chart-card"><canvas id="weeklyKmChart" height="160"></canvas></div>
@@ -1918,40 +1918,59 @@ function _drawRecovery(){
 function _drawRacePredictions(){
   const el=document.getElementById('race-pred-stats');
   if(!el)return;
+
+  // VO₂ Max card
   const vo2vals=HEALTH.filter(h=>h.vo2max>0);
-  if(!vo2vals.length){el.innerHTML='<div class="stat-box"><div class="stat-lbl" style="color:var(--text3)">Nincs VO₂ Max adat</div></div>';return;}
-  const vo2=vo2vals[vo2vals.length-1].vo2max;
-  const bestVo2=Math.max(...vo2vals.map(h=>h.vo2max));
+  const vo2=vo2vals.length?vo2vals[vo2vals.length-1].vo2max:null;
+  const bestVo2=vo2vals.length?Math.max(...vo2vals.map(h=>h.vo2max)):null;
   const vsel=document.getElementById('today-vo2');
-  if(vsel){
-    const vsDiff=+(vo2-bestVo2).toFixed(1);
-    const vsStr=vsDiff===0?'Személyes csúcs':`Csúcs: ${bestVo2} ml/kg/min`;
+  if(vsel&&vo2){
+    const vsStr=vo2===bestVo2?'Személyes csúcs':`Csúcs: ${bestVo2} ml/kg/min`;
     const cat=vo2>=60?'Elit':vo2>=50?'Sportoló szint':vo2>=45?'Aktív felnőtt':'Átlag alatti';
     vsel.innerHTML=`<div class="stat-box stat-box-link" onclick="showVo2Modal()"><div class="stat-lbl">VO₂ Max</div><div class="stat-num lime">${vo2.toFixed(1)}<span style="font-size:13px;font-weight:500;color:var(--text3);margin-left:3px">ml/kg/min</span></div><div class="stat-unit">${cat} · ${vsStr}</div></div>`;
   }
-  function raceTime(pct,distKm){
-    const target=pct*vo2;
-    const c=-4.60-target;
-    const v=(-0.182258+Math.sqrt(0.182258*0.182258-4*0.000104*c))/(2*0.000104);
-    const paceMinKm=1000/v;
-    const totalMin=paceMinKm*distKm;
+
+  function fmtTime(totalMin){
     const h=Math.floor(totalMin/60),m=Math.floor(totalMin%60),s=Math.round((totalMin%1)*60);
-    const timeStr=h>0?`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`:`${m}:${String(s).padStart(2,'0')}`;
-    const paceStr=fmtPace(paceMinKm)+'/km';
-    return{timeStr,paceStr};
+    return h>0?`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`:`${m}:${String(s).padStart(2,'0')}`;
   }
-  const races=[
-    {lbl:'5 km',pct:0.96,dist:5},
-    {lbl:'10 km',pct:0.92,dist:10},
-    {lbl:'Félmaraton',pct:0.85,dist:21.097},
-    {lbl:'Maraton',pct:0.79,dist:42.195},
+  function vo2Predict(pct,distKm){
+    if(!vo2)return null;
+    const c=-4.60-pct*vo2;
+    const v=(-0.182258+Math.sqrt(0.182258*0.182258-4*0.000104*c))/(2*0.000104);
+    const pace=1000/v,total=pace*distKm;
+    return{timeStr:fmtTime(total),paceStr:fmtPace(pace)+'/km',source:'vo2'};
+  }
+
+  const cutoff=new Date(new Date().setDate(new Date().getDate()-180)).toISOString().slice(0,10);
+  const recentRuns=RUNS.filter(r=>r.date>=cutoff&&r.pace>0&&r.pace<9.5);
+
+  const raceDefs=[
+    {lbl:'5 km',  dist:5,      minRef:3,  maxRef:8,  vo2pct:0.96},
+    {lbl:'10 km', dist:10,     minRef:6,  maxRef:16, vo2pct:0.92},
+    {lbl:'Félmaraton',dist:21.097,minRef:10,maxRef:null,vo2pct:0.85},
+    {lbl:'Maraton',   dist:42.195,minRef:18,maxRef:null,vo2pct:0.79},
   ];
-  el.innerHTML=races.map(r=>{const{timeStr,paceStr}=raceTime(r.pct,r.dist);return`
-    <div class="stat-box">
-      <div class="stat-lbl">${r.lbl}</div>
-      <div class="stat-num" style="font-size:24px;letter-spacing:-1px">${timeStr}</div>
-      <div class="stat-unit">${paceStr} · VO₂ ${vo2}</div>
-    </div>`;}).join('');
+
+  el.innerHTML=raceDefs.map(race=>{
+    const pool=recentRuns.filter(r=>r.dist>=race.minRef&&(race.maxRef===null||r.dist<=race.maxRef));
+    const ref=pool.length?pool.reduce((a,r)=>r.pace<a.pace?r:a):null;
+    let result;
+    if(ref){
+      const predTime=ref.pace*ref.dist*Math.pow(race.dist/ref.dist,1.06);
+      result={timeStr:fmtTime(predTime),paceStr:fmtPace(predTime/race.dist)+'/km',
+        sub:`${ref.dist.toFixed(1)}km-es futás alapján`};
+    } else {
+      const fb=vo2Predict(race.vo2pct,race.dist);
+      if(!fb)return`<div class="stat-box"><div class="stat-lbl">${race.lbl}</div><div class="stat-num" style="font-size:24px">—</div><div class="stat-unit">Nincs elég adat</div></div>`;
+      result={...fb,sub:`VO₂ Max felső határ (${vo2})`};
+    }
+    return`<div class="stat-box">
+      <div class="stat-lbl">${race.lbl}</div>
+      <div class="stat-num" style="font-size:24px;letter-spacing:-1px">${result.timeStr}</div>
+      <div class="stat-unit">${result.paceStr} · ${result.sub}</div>
+    </div>`;
+  }).join('');
 }
 
 // ── VS LAST YEAR ──
