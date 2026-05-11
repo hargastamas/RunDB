@@ -1319,6 +1319,7 @@ function _computeStreaks(){
   });
   const today=new Date().toISOString().slice(0,10);
   let wk=_wStart(today),current=0;
+  if(!weekSet.has(wk)){const d=new Date(wk);d.setDate(d.getDate()-7);wk=d.toISOString().slice(0,10);}
   while(weekSet.has(wk)){current++;const d=new Date(wk);d.setDate(d.getDate()-7);wk=d.toISOString().slice(0,10);}
   return{current,longest};
 }
