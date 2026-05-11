@@ -298,6 +298,57 @@ canvas{display:block;width:100%!important}
   #theme-icon{font-size:11px}
   #theme-label{display:none}
 }
+
+/* ── PLAN TAB ── */
+.plan-progress-bar{width:100%;height:10px;background:var(--surface2);border-radius:5px;overflow:hidden;margin-bottom:6px}
+.plan-progress-fill{height:100%;background:var(--lime);border-radius:5px;transition:width .4s}
+.plan-progress-lbl{font-size:12px;color:var(--text2);margin-bottom:20px}
+.plan-phase-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px}
+.plan-phase-pill{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid transparent}
+.plan-goal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:8px}
+.plan-goal-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 12px;text-align:center}
+.plan-goal-box .pg-lbl{font-size:11px;color:var(--text2);margin-bottom:4px}
+.plan-goal-box .pg-val{font-size:20px;font-weight:700;font-family:'DM Mono',monospace;letter-spacing:-1px}
+.plan-goal-box .pg-sub{font-size:10px;color:var(--text3);margin-top:2px}
+.plan-day-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:4px}
+.plan-day{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 12px;cursor:default;transition:border-color .15s}
+.plan-day.is-today{border-color:var(--lime)}
+.plan-day.is-done{opacity:.6}
+.plan-day.is-rest{opacity:.5}
+.plan-day.is-clickable{cursor:pointer}
+.plan-day.is-clickable:hover{border-color:var(--lime)}
+.plan-day .pd-dow{font-size:10px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.plan-day .pd-type{font-size:13px;font-weight:600;margin-bottom:4px}
+.plan-day .pd-detail{font-size:11px;color:var(--text2);line-height:1.4}
+.plan-day .pd-check{font-size:18px;float:right;margin-top:-2px}
+.plan-insight-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:8px}
+.plan-insight{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 12px}
+.plan-insight .pi-lbl{font-size:11px;color:var(--text2);margin-bottom:6px}
+.plan-insight .pi-val{font-size:22px;font-weight:700;font-family:'DM Mono',monospace;letter-spacing:-1px}
+.plan-insight .pi-sub{font-size:11px;color:var(--text3);margin-top:4px}
+.plan-insight .pi-bar{height:6px;background:var(--surface2);border-radius:3px;margin-top:8px;overflow:hidden}
+.plan-insight .pi-bar-fill{height:100%;border-radius:3px;background:var(--lime)}
+.plan-week-acc{border:1px solid var(--border);border-radius:10px;margin-bottom:6px;overflow:hidden}
+.plan-week-hdr{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;user-select:none;background:var(--surface)}
+.plan-week-hdr:hover{background:var(--surface2)}
+.plan-week-hdr .pwh-num{font-size:11px;color:var(--text3);min-width:52px}
+.plan-week-hdr .pwh-phase{font-size:11px;padding:2px 8px;border-radius:10px;border:1px solid transparent}
+.plan-week-hdr .pwh-dates{font-size:11px;color:var(--text2);flex:1}
+.plan-week-hdr .pwh-km{font-size:13px;font-weight:600;font-family:'DM Mono',monospace;margin-left:auto;margin-right:8px}
+.plan-week-hdr .pwh-arr{font-size:12px;color:var(--text3);transition:transform .2s}
+.plan-week-hdr.is-open .pwh-arr{transform:rotate(90deg)}
+.plan-week-hdr.is-current{border-left:3px solid var(--lime)}
+.plan-week-body{display:none;padding:10px 14px 14px;background:var(--surface);border-top:1px solid var(--border)}
+.plan-week-body.is-open{display:block}
+.plan-mini-days{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:6px}
+.plan-mini-day{background:var(--surface2);border-radius:6px;padding:8px 6px;font-size:10px;line-height:1.4}
+.plan-mini-day .pmd-dow{color:var(--text3);margin-bottom:2px;font-size:9px;text-transform:uppercase}
+.plan-mini-day .pmd-type{font-weight:600}
+.plan-mini-day .pmd-detail{color:var(--text2)}
+.plan-mini-day.is-done{opacity:.5}
+.plan-mini-day.is-gym{border-left:2px solid #a78bfa}
+.plan-mini-day.is-run{border-left:2px solid var(--lime)}
+.plan-mini-day.is-rest{border-left:2px solid var(--surface2)}
 </style>
 </head>
 <body>
@@ -311,6 +362,7 @@ canvas{display:block;width:100%!important}
   <button class="tab-btn" onclick="showTab('stats',this)">Statisztikák</button>
   <button class="tab-btn" onclick="showTab('trends',this)">Trendek</button>
   <button class="tab-btn" onclick="showTab('health',this)">Egészség</button>
+  <button class="tab-btn" onclick="showTab('plan',this)">Terv</button>
   <div style="margin-left:auto;flex-shrink:0">
     <button id="theme-toggle" onclick="toggleTheme()" style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 12px;cursor:pointer;display:flex;align-items:center;gap:7px;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:var(--text2);transition:all .2s">
       <span id="theme-icon" style="font-size:13px">☀️</span>
@@ -570,6 +622,20 @@ canvas{display:block;width:100%!important}
   </div>
   <div class="slabel">Lépések — utolsó 60 nap<button class="info-btn" tabindex="0">i<span class="info-tip">Napi összes lépésszám. A zöld sávok 10 000 lépés felett vannak, ami az általánosan ajánlott napi minimum aktív életmódhoz. Edzős napokon természetesen magasabb.</span></button></div>
   <div class="chart-card"><canvas id="stepsChart" height="150"></canvas></div>
+</div>
+
+<!-- ═══ TERV ═══ -->
+<div class="page" id="page-plan">
+  <div class="slabel" style="border-top:none;padding-top:0;margin-top:0">Edzésterv — Budapest Félmaraton 2026.09.06.</div>
+  <div id="plan-progress-wrap"></div>
+  <div id="plan-header"></div>
+  <div id="plan-goals"></div>
+  <div class="slabel" id="plan-thisweek-lbl" style="margin-top:24px">Ezen a héten</div>
+  <div id="plan-thisweek"></div>
+  <div class="slabel" style="margin-top:24px">Elemzés</div>
+  <div id="plan-insights"></div>
+  <div class="slabel" style="margin-top:24px">Teljes terv</div>
+  <div id="plan-full"></div>
 </div>
 
 <script>
@@ -1118,6 +1184,7 @@ function redrawTab(id){
   if(id==='trends'){drawTrendCharts();}
   if(id==='health'){drawHealthCharts();}
   if(id==='calendar'){renderCalendar();}
+  if(id==='plan'){renderPlan();}
 }
 
 // ── CALENDAR ──
@@ -2033,6 +2100,373 @@ function _drawPaceHist(days){
     {rotateLabels:false,yFmt:v=>Math.round(v)+' futás'});
 }
 
+
+// ── PLAN TAB ──
+// Plan start: 2026-05-11 (week 1), race: 2026-09-06 (week 17 = taper/race)
+const PLAN_START = '2026-05-11'; // Monday of week 1
+const PLAN_RACE  = '2026-09-06';
+
+// Each week: {phase, km, days:[{type,label,detail}]} — Mon–Fri only shown (5 slots)
+// type: 'easy'|'tempo'|'long'|'interval'|'gym'|'rest'|'race'
+const PLAN_DATA = [
+  // PHASE 1 — Alap (Z1 base), weeks 1–4
+  {phase:'Alap',phaseColor:'#3b82f6',km:28,days:[
+    {type:'easy',  lbl:'Könnyű futás', det:'8 km, Z1–Z2 (~6:00/km)'},
+    {type:'gym',   lbl:'Terem',        det:'Alsótest: guggolás, kitörés, vádli'},
+    {type:'easy',  lbl:'Könnyű futás', det:'6 km, Z1 (~6:20/km)'},
+    {type:'rest',  lbl:'Pihenő',       det:''},
+    {type:'long',  lbl:'Hosszú futás', det:'14 km, Z1 (~6:10/km)'},
+  ]},
+  {phase:'Alap',phaseColor:'#3b82f6',km:30,days:[
+    {type:'easy',  lbl:'Könnyű futás', det:'8 km, Z1–Z2'},
+    {type:'gym',   lbl:'Terem',        det:'Alsótest'},
+    {type:'easy',  lbl:'Könnyű futás', det:'6 km, Z1'},
+    {type:'rest',  lbl:'Pihenő',       det:''},
+    {type:'long',  lbl:'Hosszú futás', det:'16 km, Z1'},
+  ]},
+  {phase:'Alap',phaseColor:'#3b82f6',km:32,days:[
+    {type:'easy',  lbl:'Könnyű futás', det:'9 km, Z1–Z2'},
+    {type:'gym',   lbl:'Terem',        det:'Alsótest'},
+    {type:'easy',  lbl:'Könnyű futás', det:'7 km, Z1'},
+    {type:'rest',  lbl:'Pihenő',       det:''},
+    {type:'long',  lbl:'Hosszú futás', det:'16 km, Z1–Z2'},
+  ]},
+  {phase:'Alap',phaseColor:'#3b82f6',km:22,days:[  // recovery week
+    {type:'easy',  lbl:'Könnyű futás', det:'7 km, Z1'},
+    {type:'gym',   lbl:'Terem',        det:'Alsótest (könnyű)'},
+    {type:'easy',  lbl:'Könnyű futás', det:'5 km, Z1'},
+    {type:'rest',  lbl:'Pihenő',       det:''},
+    {type:'long',  lbl:'Hosszú futás', det:'10 km, Z1'},
+  ]},
+  // PHASE 2 — Tempo, weeks 5–8
+  {phase:'Tempo',phaseColor:'#f59e0b',km:33,days:[
+    {type:'easy',  lbl:'Könnyű futás', det:'8 km, Z1–Z2'},
+    {type:'gym',   lbl:'Terem',        det:'Alsótest'},
+    {type:'tempo', lbl:'Tempó futás',  det:'8 km: 2 km bemelegítés + 4 km @ 4:50/km + 2 km levezetés'},
+    {type:'rest',  lbl:'Pihenő',       det:''},
+    {type:'long',  lbl:'Hosszú futás', det:'17 km, Z1–Z2'},
+  ]},
+  {phase:'Tempo',phaseColor:'#f59e0b',km:35,days:[
+    {type:'easy',  lbl:'Könnyű futás', det:'8 km, Z1–Z2'},
+    {type:'gym',   lbl:'Terem',        det:'Alsótest'},
+    {type:'tempo', lbl:'Tempó futás',  det:'10 km: 2 km bemu + 6 km @ 4:45/km + 2 km lev'},
+    {type:'rest',  lbl:'Pihenő',       det:''},
+    {type:'long',  lbl:'Hosszú futás', det:'17 km, Z2'},
+  ]},
+  {phase:'Tempo',phaseColor:'#f59e0b',km:37,days:[
+    {type:'easy',  lbl:'Könnyű futás', det:'9 km, Z1–Z2'},
+    {type:'gym',   lbl:'Terem',        det:'Alsótest'},
+    {type:'tempo', lbl:'Tempó futás',  det:'10 km: 2 km bemu + 6 km @ 4:42/km + 2 km lev'},
+    {type:'rest',  lbl:'Pihenő',       det:''},
+    {type:'long',  lbl:'Hosszú futás', det:'18 km, Z2'},
+  ]},
+  {phase:'Tempo',phaseColor:'#f59e0b',km:24,days:[  // recovery week
+    {type:'easy',  lbl:'Könnyű futás', det:'7 km, Z1'},
+    {type:'gym',   lbl:'Terem',        det:'Alsótest (könnyű)'},
+    {type:'easy',  lbl:'Könnyű futás', det:'5 km, Z1'},
+    {type:'rest',  lbl:'Pihenő',       det:''},
+    {type:'long',  lbl:'Hosszú futás', det:'12 km, Z1'},
+  ]},
+  // PHASE 3 — Intervallum, weeks 9–12
+  {phase:'Intervallum',phaseColor:'#ef4444',km:36,days:[
+    {type:'easy',    lbl:'Könnyű futás',  det:'8 km, Z1–Z2'},
+    {type:'gym',     lbl:'Terem',         det:'Alsótest'},
+    {type:'interval',lbl:'Intervall',     det:'8 km: 5×800m @ 4:15/km, 90mp pihenő'},
+    {type:'rest',    lbl:'Pihenő',        det:''},
+    {type:'long',    lbl:'Hosszú futás',  det:'18 km, Z1–Z2 (utolsó 4 km Z3)'},
+  ]},
+  {phase:'Intervallum',phaseColor:'#ef4444',km:38,days:[
+    {type:'easy',    lbl:'Könnyű futás',  det:'9 km, Z1–Z2'},
+    {type:'gym',     lbl:'Terem',         det:'Alsótest'},
+    {type:'interval',lbl:'Intervall',     det:'9 km: 6×800m @ 4:12/km, 90mp pihenő'},
+    {type:'rest',    lbl:'Pihenő',        det:''},
+    {type:'long',    lbl:'Hosszú futás',  det:'19 km, Z2'},
+  ]},
+  {phase:'Intervallum',phaseColor:'#ef4444',km:40,days:[
+    {type:'easy',    lbl:'Könnyű futás',  det:'9 km, Z1–Z2'},
+    {type:'gym',     lbl:'Terem',         det:'Alsótest'},
+    {type:'interval',lbl:'Intervall',     det:'10 km: 3×1600m @ 4:20/km, 2mp pihenő'},
+    {type:'rest',    lbl:'Pihenő',        det:''},
+    {type:'long',    lbl:'Hosszú futás',  det:'20 km, Z2 (csúcs hét)'},
+  ]},
+  {phase:'Intervallum',phaseColor:'#ef4444',km:26,days:[  // recovery week
+    {type:'easy',    lbl:'Könnyű futás',  det:'7 km, Z1'},
+    {type:'gym',     lbl:'Terem',         det:'Alsótest (könnyű)'},
+    {type:'easy',    lbl:'Könnyű futás',  det:'6 km, Z1'},
+    {type:'rest',    lbl:'Pihenő',        det:''},
+    {type:'long',    lbl:'Hosszú futás',  det:'13 km, Z1'},
+  ]},
+  // PHASE 4 — Versenyspecifikus, weeks 13–14
+  {phase:'Versenyspecifikus',phaseColor:'#8b5cf6',km:38,days:[
+    {type:'easy',  lbl:'Könnyű futás', det:'8 km, Z1–Z2'},
+    {type:'gym',   lbl:'Terem',        det:'Alsótest (utolsó nehéz hét)'},
+    {type:'tempo', lbl:'Versenyiramú', det:'12 km: 2 km bemu + 8 km @ 4:35/km + 2 km lev'},
+    {type:'rest',  lbl:'Pihenő',       det:''},
+    {type:'long',  lbl:'Hosszú futás', det:'18 km, Z2 (4–5 km @ 4:38/km végen)'},
+  ]},
+  {phase:'Versenyspecifikus',phaseColor:'#8b5cf6',km:36,days:[
+    {type:'easy',  lbl:'Könnyű futás', det:'8 km, Z1–Z2'},
+    {type:'gym',   lbl:'Terem',        det:'Alsótest (könnyű)'},
+    {type:'tempo', lbl:'Versenyiramú', det:'10 km: 2 km bemu + 6 km @ 4:32/km + 2 km lev'},
+    {type:'rest',  lbl:'Pihenő',       det:''},
+    {type:'long',  lbl:'Hosszú futás', det:'16 km, Z2'},
+  ]},
+  // PHASE 5 — Taper, weeks 15–16
+  {phase:'Taper',phaseColor:'#10b981',km:26,days:[
+    {type:'easy',  lbl:'Könnyű futás', det:'7 km, Z1–Z2'},
+    {type:'gym',   lbl:'Terem',        det:'Alsótest (nagyon könnyű)'},
+    {type:'tempo', lbl:'Tempó futás',  det:'8 km: 2 km bemu + 4 km @ 4:35/km + 2 km lev'},
+    {type:'rest',  lbl:'Pihenő',       det:''},
+    {type:'long',  lbl:'Hosszú futás', det:'11 km, Z1–Z2'},
+  ]},
+  {phase:'Taper',phaseColor:'#10b981',km:18,days:[
+    {type:'easy',  lbl:'Könnyű futás', det:'6 km, Z1'},
+    {type:'gym',   lbl:'Terem',        det:'Alsótest (minimál)'},
+    {type:'easy',  lbl:'Könnyű futás', det:'5 km, Z1 — láb frissen tartás'},
+    {type:'rest',  lbl:'Pihenő',       det:''},
+    {type:'easy',  lbl:'Könnyű futás', det:'5 km, Z1 — frissítő kicsi futás'},
+  ]},
+  // WEEK 17 — Race week
+  {phase:'Verseny',phaseColor:'#C8F135',km:21,days:[
+    {type:'easy',  lbl:'Könnyű futás', det:'4 km, Z1 — utolsó aktiváció'},
+    {type:'rest',  lbl:'Pihenő',       det:''},
+    {type:'rest',  lbl:'Pihenő',       det:''},
+    {type:'rest',  lbl:'Pihenő',       det:''},
+    {type:'race',  lbl:'VERSENY',      det:'Budapest Félmaraton — cél: 4:30/km'},
+  ]},
+];
+
+const _PLAN_DAYS_HU = ['H','K','Sze','Cs','P'];
+const _PLAN_FULL_DAYS_HU = ['Hétfő','Kedd','Szerda','Csütörtök','Péntek'];
+
+function _planTypeColor(t){
+  if(t==='easy')   return 'var(--lime)';
+  if(t==='long')   return '#3b82f6';
+  if(t==='tempo')  return '#f59e0b';
+  if(t==='interval') return '#ef4444';
+  if(t==='gym')    return '#a78bfa';
+  if(t==='race')   return 'var(--lime)';
+  return 'var(--border)';
+}
+
+function _planWeekStart(weekIdx){
+  // Returns Monday date string for the given 0-based week index
+  const d = new Date(PLAN_START);
+  d.setDate(d.getDate() + weekIdx * 7);
+  return d.toISOString().slice(0,10);
+}
+
+function _planDayDate(weekIdx, dayIdx){
+  // dayIdx 0=Mon … 4=Fri
+  const d = new Date(PLAN_START);
+  d.setDate(d.getDate() + weekIdx * 7 + dayIdx);
+  return d.toISOString().slice(0,10);
+}
+
+function _gymDone(weekIdx){
+  return localStorage.getItem('plan_gym_'+weekIdx) === '1';
+}
+
+function _toggleGym(weekIdx){
+  if(_gymDone(weekIdx)){
+    localStorage.removeItem('plan_gym_'+weekIdx);
+  } else {
+    localStorage.setItem('plan_gym_'+weekIdx,'1');
+  }
+  renderPlan();
+}
+
+function _sessionDone(weekIdx, dayIdx, type){
+  const dateStr = _planDayDate(weekIdx, dayIdx);
+  if(type === 'gym') return _gymDone(weekIdx);
+  if(type === 'rest') return false;
+  if(type === 'race') return false;
+  // run types: check if a run exists on that date
+  return RUNS.some(r => r.date === dateStr && r.dist > 0);
+}
+
+function _planCurrentWeekIdx(){
+  const today = new Date();
+  const start = new Date(PLAN_START);
+  const diffDays = Math.floor((today - start) / 86400000);
+  if(diffDays < 0) return -1;
+  return Math.min(Math.floor(diffDays / 7), PLAN_DATA.length - 1);
+}
+
+function _fmtPlanDate(dateStr){
+  const d = new Date(dateStr);
+  return (d.getMonth()+1) + '.' + d.getDate() + '.';
+}
+
+function renderPlan(){
+  const today = new Date().toISOString().slice(0,10);
+  const cwIdx = _planCurrentWeekIdx();
+
+  // ── PROGRESS BAR ──
+  const totalWeeks = PLAN_DATA.length;
+  const doneWeeks = Math.max(0, cwIdx);
+  const pct = Math.round(doneWeeks / totalWeeks * 100);
+  const raceDate = new Date(PLAN_RACE);
+  const daysLeft = Math.ceil((raceDate - new Date()) / 86400000);
+  document.getElementById('plan-progress-wrap').innerHTML = `
+    <div class="plan-progress-bar"><div class="plan-progress-fill" style="width:${pct}%"></div></div>
+    <div class="plan-progress-lbl">${doneWeeks}/${totalWeeks} hét teljesítve · ${daysLeft} nap a versenyig</div>
+    <div class="plan-phase-pills">${[...new Set(PLAN_DATA.map(w=>w.phase))].map(ph=>{
+      const w = PLAN_DATA.find(x=>x.phase===ph);
+      return `<span class="plan-phase-pill" style="background:${w.phaseColor}22;border-color:${w.phaseColor};color:${w.phaseColor}">${ph}</span>`;
+    }).join('')}</div>`;
+
+  // ── GOAL BOXES ──
+  document.getElementById('plan-goals').innerHTML = `
+    <div class="plan-goal-grid">
+      <div class="plan-goal-box"><div class="pg-lbl">Célpace</div><div class="pg-val" style="color:var(--lime)">4:30<span style="font-size:13px">/km</span></div><div class="pg-sub">halfmaraton</div></div>
+      <div class="plan-goal-box"><div class="pg-lbl">Céleredmény</div><div class="pg-val">1:35<span style="font-size:13px">:00</span></div><div class="pg-sub">A-cél</div></div>
+      <div class="plan-goal-box"><div class="pg-lbl">Verseny</div><div class="pg-val" style="font-size:15px">szept. 6.</div><div class="pg-sub">Budapest HM</div></div>
+      <div class="plan-goal-box"><div class="pg-lbl">Heti km csúcs</div><div class="pg-val">40<span style="font-size:13px"> km</span></div><div class="pg-sub">11. hét</div></div>
+    </div>`;
+
+  // ── THIS WEEK ──
+  const twEl = document.getElementById('plan-thisweek');
+  if(cwIdx < 0 || cwIdx >= PLAN_DATA.length){
+    twEl.innerHTML = '<div style="color:var(--text2);font-size:13px;padding:8px 0">A terv még nem kezdődött el.</div>';
+  } else {
+    const week = PLAN_DATA[cwIdx];
+    const dayOfWeek = new Date().getDay(); // 0=Sun,1=Mon...5=Fri,6=Sat
+    const planDayIdx = dayOfWeek === 0 ? 4 : Math.min(dayOfWeek - 1, 4); // map to Mon-Fri
+    twEl.innerHTML = `
+      <div style="font-size:12px;color:var(--text2);margin-bottom:10px">
+        ${cwIdx+1}. hét · <span style="color:${week.phaseColor}">${week.phase} fázis</span> · ${week.km} km tervezett
+      </div>
+      <div class="plan-day-grid">
+        ${week.days.map((d,i)=>{
+          const dateStr = _planDayDate(cwIdx, i);
+          const done = _sessionDone(cwIdx, i, d.type);
+          const isToday = dateStr === today;
+          const isPast = dateStr < today;
+          const isGym = d.type === 'gym';
+          const isRest = d.type === 'rest';
+          const checkMark = done ? '✓' : (isPast && !isRest && !done ? '○' : '');
+          const classes = ['plan-day',
+            isToday ? 'is-today' : '',
+            done ? 'is-done' : '',
+            isRest ? 'is-rest' : '',
+            isGym ? 'is-clickable' : '',
+          ].filter(Boolean).join(' ');
+          const onclick = isGym ? `onclick="_toggleGym(${cwIdx})"` : '';
+          const borderStyle = isRest ? '' : `border-left:3px solid ${_planTypeColor(d.type)}`;
+          return `<div class="${classes}" style="${borderStyle}" ${onclick}>
+            <div class="pd-dow">${_PLAN_FULL_DAYS_HU[i]} · ${_fmtPlanDate(dateStr)}${isToday?' · Ma':''}</div>
+            <div class="pd-type">${checkMark ? `<span style="color:var(--lime)">${checkMark}</span> ` : ''}${d.lbl}</div>
+            ${d.det ? `<div class="pd-detail">${d.det}</div>` : ''}
+            ${isGym ? `<div style="font-size:10px;color:var(--text3);margin-top:6px">${done?'Kattints: visszavon':'Kattints: teljesítve'}</div>` : ''}
+          </div>`;
+        }).join('')}
+      </div>`;
+  }
+
+  // ── INSIGHTS ──
+  _renderPlanInsights(today, cwIdx);
+
+  // ── FULL PLAN ──
+  _renderPlanFull(cwIdx, today);
+}
+
+function _renderPlanInsights(today, cwIdx){
+  const el = document.getElementById('plan-insights');
+  const insights = [];
+
+  // Z1 easy pace from recent runs
+  const cutoff90 = new Date(new Date().setDate(new Date().getDate()-90)).toISOString().slice(0,10);
+  const easyRuns = RUNS.filter(r=>r.date>=cutoff90 && r.dist>4 && r.dist<12 && r.pace>5.5 && r.pace<7.5);
+  if(easyRuns.length){
+    const avgPace = easyRuns.reduce((s,r)=>s+r.pace,0)/easyRuns.length;
+    insights.push({lbl:'Z1 könnyű iram (átlag)', val:fmtPace(avgPace)+'/km', sub:`${easyRuns.length} futás alapján (utolsó 90 nap)`, bar:null});
+  }
+
+  // Zone compliance — how much was Z1/Z2 in recent runs
+  const recentRuns = RUNS.filter(r=>r.date>=cutoff90 && r.dist>0);
+  if(recentRuns.length){
+    const totalTime = recentRuns.reduce((s,r)=>s+r.duration,0);
+    const z1z2Time = recentRuns.reduce((s,r)=>s+r.duration*(r.z1+r.z2)/100,0);
+    const pct = Math.round(z1z2Time/totalTime*100);
+    insights.push({lbl:'Z1+Z2 arány (90 nap)', val:pct+'%', sub:'Cél: ≥ 75% könnyű futás', bar:{val:pct,max:100,tgt:75}});
+  }
+
+  // Riegel-based HM prediction from recent best
+  const cutoff180 = new Date(new Date().setDate(new Date().getDate()-180)).toISOString().slice(0,10);
+  const refRuns = RUNS.filter(r=>r.date>=cutoff180 && r.dist>=10 && r.dist<=18 && r.pace>0 && r.pace<9.5);
+  if(refRuns.length){
+    const best = refRuns.reduce((a,r)=>r.pace<a.pace?r:a);
+    const hmPace = best.pace * Math.pow(21.097/best.dist, 0.06);
+    const hmMin = Math.floor(hmPace); const hmSec = Math.round((hmPace-hmMin)*60);
+    const totalHmMin = hmPace * 21.097;
+    const hh = Math.floor(totalHmMin/60); const mm = Math.round(totalHmMin%60);
+    insights.push({lbl:'Riegel HM-becslés', val:`${hh}:${mm<10?'0'+mm:mm}`, sub:`${fmtPace(hmPace)}/km — alap: ${best.dist.toFixed(1)}km @ ${fmtPace(best.pace)}/km (${best.date})`, bar:null});
+  }
+
+  // Weekly km this week vs plan
+  if(cwIdx >= 0 && cwIdx < PLAN_DATA.length){
+    const wkStart = _planWeekStart(cwIdx);
+    const wkEnd = _planDayDate(cwIdx, 6);
+    const wkRuns = RUNS.filter(r=>r.date>=wkStart && r.date<=wkEnd);
+    const actualKm = wkRuns.reduce((s,r)=>s+r.dist,0);
+    const planKm = PLAN_DATA[cwIdx].km;
+    const pct = Math.min(Math.round(actualKm/planKm*100),100);
+    insights.push({lbl:'Heti km (terv vs. valóság)', val:`${actualKm.toFixed(1)} / ${planKm} km`, sub:`${cwIdx+1}. hét`, bar:{val:pct,max:100,tgt:100}});
+  }
+
+  el.innerHTML = `<div class="plan-insight-grid">${insights.map(ins=>`
+    <div class="plan-insight">
+      <div class="pi-lbl">${ins.lbl}</div>
+      <div class="pi-val">${ins.val}</div>
+      <div class="pi-sub">${ins.sub}</div>
+      ${ins.bar ? `<div class="pi-bar"><div class="pi-bar-fill" style="width:${ins.bar.val}%"></div></div>` : ''}
+    </div>`).join('')}</div>`;
+}
+
+function _renderPlanFull(cwIdx, today){
+  const el = document.getElementById('plan-full');
+  el.innerHTML = PLAN_DATA.map((week, wi)=>{
+    const wkStart = _planWeekStart(wi);
+    const wkEnd = _planDayDate(wi, 4);
+    const isCurrent = wi === cwIdx;
+    const isPast = wi < cwIdx;
+    const completedSessions = week.days.filter((d,di)=>_sessionDone(wi,di,d.type)).length;
+    const totalSessions = week.days.filter(d=>d.type!=='rest').length;
+    const hdrClass = ['plan-week-hdr', isCurrent?'is-current':'', isCurrent?'is-open':''].filter(Boolean).join(' ');
+    const bodyClass = ['plan-week-body', isCurrent?'is-open':''].filter(Boolean).join(' ');
+    const statusStr = isPast
+      ? `<span style="color:var(--text3)">${completedSessions}/${totalSessions}</span>`
+      : (isCurrent ? `<span style="color:var(--lime)">${completedSessions}/${totalSessions} ✓</span>` : '');
+
+    return `<div class="plan-week-acc">
+      <div class="${hdrClass}" onclick="this.classList.toggle('is-open');this.nextElementSibling.classList.toggle('is-open')">
+        <span class="pwh-num">${wi+1}. hét</span>
+        <span class="pwh-phase" style="background:${week.phaseColor}22;border-color:${week.phaseColor};color:${week.phaseColor}">${week.phase}</span>
+        <span class="pwh-dates">${_fmtPlanDate(wkStart)} – ${_fmtPlanDate(wkEnd)}</span>
+        <span class="pwh-km">${week.km} km</span>
+        ${statusStr}
+        <span class="pwh-arr">›</span>
+      </div>
+      <div class="${bodyClass}">
+        <div class="plan-mini-days">
+          ${week.days.map((d,di)=>{
+            const dateStr = _planDayDate(wi, di);
+            const done = _sessionDone(wi, di, d.type);
+            const typeClass = d.type==='gym'?'is-gym':d.type==='rest'?'is-rest':'is-run';
+            const isGym = d.type === 'gym';
+            const onclick = isGym ? `onclick="_toggleGym(${wi})" style="cursor:pointer"` : '';
+            return `<div class="plan-mini-day ${typeClass} ${done?'is-done':''}" ${onclick}>
+              <div class="pmd-dow">${_PLAN_DAYS_HU[di]} ${_fmtPlanDate(dateStr)}</div>
+              <div class="pmd-type" style="color:${_planTypeColor(d.type)}">${done?'✓ ':''} ${d.lbl}</div>
+              ${d.det ? `<div class="pmd-detail">${d.det}</div>` : ''}
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
 
 // ── INIT ──
 _bootstrap();
