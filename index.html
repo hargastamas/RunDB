@@ -1469,7 +1469,8 @@ function drawOverviewCharts(){
     const todayD=new Date();todayD.setHours(0,0,0,0);
     const daysLeft=Math.round((raceDate-todayD)/86400000);
     const totalDays=Math.round((raceDate-startDate)/86400000);
-    const donePct=Math.round((totalDays-daysLeft)/totalDays*100);
+    const doneDays=Math.min(totalDays,totalDays-daysLeft+1);
+    const donePct=Math.round(doneDays/totalDays*100);
     // Riegel HM prediction
     const cutoff180=new Date(new Date().setDate(new Date().getDate()-180)).toISOString().slice(0,10);
     const hmPool=RUNS.filter(r=>r.date>=cutoff180&&r.dist>=10&&r.pace>0&&r.pace<9.5);
@@ -1500,7 +1501,7 @@ function drawOverviewCharts(){
       <div style="width:100%;height:4px;background:var(--surface2);border-radius:2px;margin-top:14px">
         <div style="height:100%;border-radius:2px;background:var(--lime);width:${donePct}%"></div>
       </div>
-      <div style="font-size:11px;color:var(--text3);margin-top:5px">${donePct}% felkészülés · ${totalDays-daysLeft} / ${totalDays} nap</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:5px">${donePct}% felkészülés · ${doneDays} / ${totalDays} nap</div>
     </div>`;
   }
 
