@@ -388,8 +388,6 @@ canvas{display:block;width:100%!important}
   <div class="stat-row" id="today-stats">
     <div id="today-plan"></div>
     <div id="today-forma"></div>
-    <div id="today-tsb"></div>
-    <div id="today-vo2"></div>
     <div id="today-lastrun"></div>
   </div>
   <!-- EZEN A HÉTEN -->
@@ -398,14 +396,8 @@ canvas{display:block;width:100%!important}
   <!-- JELENLEGI FITNESZ -->
   <div class="slabel">Becsült versenyidők<button class="info-btn" tabindex="0">i<span class="info-tip">Riegel-formula alapján számított becslés a legutóbbi 180 nap legjobb edzésfutásaiból (T₂ = T₁ × (D₂/D₁)^1.06). Ha nincs elegendő adat az adott távhoz, VO₂ Max alapú becslés jelenik meg felső határként.</span></button></div>
   <div class="stat-row race-pred-grid" id="race-pred-stats"></div>
-  <!-- EZ A HÓNAP -->
-  <div class="slabel">Ez a hónap vs. tavaly ilyenkor</div>
-  <div class="stat-row" id="vsly-stats"></div>
   <div class="slabel">Heti km — futási volumen (utolsó 52 hét)</div>
   <div class="chart-card"><canvas id="weeklyKmChart" height="160"></canvas></div>
-  <!-- ALL-TIME -->
-  <div class="slabel">Összesítő</div>
-  <div class="stat-row" id="overview-stats"></div>
   <div class="slabel">Personal Records — kattints a futáshoz</div>
   <div class="pr-grid" id="pr-grid"></div>
   <div class="slabel">Havi km heatmap</div>
@@ -1505,33 +1497,12 @@ function drawOverviewCharts(){
     </div>`;
   }
 
-  // ── TSB CARD ──
-  const tsbEl=document.getElementById('today-tsb');
-  if(tsbEl&&RUNS.length>7){
-    const ctl=_computeCTL();
-    if(ctl.length>1){
-      const last=ctl[ctl.length-1],prev=ctl[ctl.length-2];
-      const tsb=last.tsb,delta=+(tsb-prev.tsb).toFixed(1);
-      let tsbLbl,tsbCol;
-      if(tsb>10){tsbLbl='Pihent';tsbCol='var(--lime)';}
-      else if(tsb>0){tsbLbl='Jó forma';tsbCol='var(--lime)';}
-      else if(tsb>-10){tsbLbl='Terhelés alatt';tsbCol='var(--orange)';}
-      else{tsbLbl='Fáradt';tsbCol='var(--red)';}
-      tsbEl.innerHTML=`<div class="stat-box">
-        <div class="stat-lbl">TSB — Terhelés</div>
-        <div class="stat-num" style="color:${tsbCol}">${tsb>0?'+':''}${tsb}</div>
-        <div class="stat-unit">${tsbLbl}</div>
-        <div class="stat-unit" style="margin-top:3px">CTL ${last.ctl} · ${delta>=0?'+':''}${delta} vs előző hét</div>
-      </div>`;
-    }
-  }
   const wk52=WEEKLY.slice(-52);
   const isLight=document.documentElement.classList.contains('light');
   drawBar('weeklyKmChart',wk52.map(w=>w.date.slice(5)),
     [{data:wk52.map(w=>w.km),color:wk52.map(w=>w.km>=50?getLime():w.km>=25?(isLight?'rgba(0,200,83,.45)':'rgba(200,241,53,.45)'):(isLight?'rgba(0,200,83,.2)':'rgba(200,241,53,.2)')),label:'km'}],
     {rotateLabels:true,yFmt:v=>Math.round(v)+'km',extraTip:i=>(wk52[i].runs||'?')+' futás'});
   _drawRacePredictions();
-  _drawVsLastYear();
 }
 
 function _computeStreaks(){
@@ -1648,27 +1619,10 @@ function initOverview(){
     const [lbl,col]=ratio<0.7?['Könnyű hét','var(--lime)']:ratio<1.2?['Átlagos hét','var(--text2)']:ratio<1.6?['Kemény hét','var(--orange)']:['Nagyon kemény','var(--red)'];
     trimpCtx=`<div class="stat-unit" style="color:${col}">${lbl} · ${pct>=0?'+':''}${pct}% az átlagodhoz képest</div>`;
   }
-  const{current,longest}=_computeStreaks();
-  // Terv haladás ezen a héten
-  const _cwI=_planCurrentWeekIdx(),_planW=_cwI>=0&&_cwI<PLAN_DATA.length?PLAN_DATA[_cwI]:null;
-  const _planKm=_planW?_planW.km:null,_kmPct=_planKm?Math.min(100,Math.round(twKm/_planKm*100)):null;
-  const _todPdi=(new Date().getDay()===0?6:new Date().getDay()-1);
-  let _remCount=0;
-  if(_planW)_planW.days.forEach((d,i)=>{if(i>=_todPdi&&d.type!=='rest'&&!_sessionDone(_cwI,i,d.type))_remCount++;});
-  const _remStr=_remCount>0?`Hátralevő: ${_remCount} edzés`:'<span style="color:var(--lime)">Hét kész ✓</span>';
-  const _planBox=_planW?`<div class="stat-box">
-    <div class="stat-lbl">Terv haladás</div>
-    <div class="stat-num">${_kmPct}%</div>
-    <div style="width:100%;height:4px;background:var(--surface2);border-radius:2px;margin-top:6px"><div style="height:100%;border-radius:2px;background:var(--lime);width:${_kmPct}%"></div></div>
-    <div class="stat-unit" style="margin-top:4px">${twKm.toFixed(1)} / ${_planKm} km</div>
-    <div class="stat-unit" style="margin-top:3px">${_remStr}</div>
-  </div>`:'';
   document.getElementById('thisweek-stats').innerHTML=`
     <div class="stat-box"><div class="stat-lbl">Km ezen a héten</div><div class="stat-num lime">${twKm.toFixed(1)}</div>${kmDeltaStr}</div>
     <div class="stat-box"><div class="stat-lbl">Futások</div><div class="stat-num">${twRuns}</div><div class="stat-unit">ezen a héten</div></div>
-    <div class="stat-box"><div class="stat-lbl">Terhelés (TRIMP)</div><div class="stat-num">${twTrimp}</div>${trimpCtx}</div>
-    <div class="stat-box"><div class="stat-lbl">Heti sorozat</div><div class="stat-num lime">${current}</div><div class="stat-unit">egymást követő hét</div><div class="stat-unit" style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border)">Leghosszabb: <strong style="color:var(--text)">${longest} hét</strong></div></div>
-    ${_planBox}`;
+    <div class="stat-box"><div class="stat-lbl">Terhelés (TRIMP)</div><div class="stat-num">${twTrimp}</div>${trimpCtx}</div>`;
 
   const p=PRS;
   function prCard(label,numHtml,meta,run){
