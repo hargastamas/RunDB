@@ -11,7 +11,6 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap');
 @font-face{font-family:'Proxima Nova';src:url('fonts/ProximaNova-Light.ttf') format('truetype');font-weight:300;font-style:normal;font-display:swap}
 @font-face{font-family:'Proxima Nova';src:url('fonts/ProximaNova-Regular.ttf') format('truetype');font-weight:400;font-style:normal;font-display:swap}
 @font-face{font-family:'Proxima Nova';src:url('fonts/ProximaNova-Semibold.ttf') format('truetype');font-weight:600;font-style:normal;font-display:swap}
@@ -91,7 +90,7 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);transition:b
 .stat-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px 20px;transition:background .25s,border-color .25s;box-shadow:0 2px 14px rgba(0,0,0,.35)}
 #today-stats>div{display:flex}#today-stats .stat-box{flex:1}
 .stat-lbl{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
-.stat-num{font-family:'DINPro','Proxima Nova',sans-serif;font-size:36px;font-weight:700;color:var(--text);line-height:1;letter-spacing:-0.5px}
+.stat-num{font-family:DINPro,"Proxima Nova",sans-serif;font-size:36px;font-weight:700;color:var(--text);line-height:1;letter-spacing:-0.5px}
 .stat-num.lime{color:var(--lime)}
 .stat-unit{font-size:12px;color:var(--text3);margin-top:4px}
 
@@ -106,22 +105,22 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);transition:b
 .stat-box-link:hover{border-color:var(--lime);background:var(--surface2)}
 .stat-box-link:hover::before{opacity:1}
 .pr-lbl{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:12px}
-.pr-num{font-family:'DINPro','Proxima Nova',sans-serif;font-size:44px;font-weight:900;color:var(--text);line-height:1;letter-spacing:-1px}
+.pr-num{font-family:DINPro,"Proxima Nova",sans-serif;font-size:44px;font-weight:900;color:var(--text);line-height:1;letter-spacing:-1px}
 .pr-num .unit{font-size:18px;font-weight:400;color:var(--text3);letter-spacing:0;margin-left:4px}
-.pr-meta{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:10px;line-height:1.7;border-top:1px solid var(--border);padding-top:10px}
+.pr-meta{font-size:12px;color:var(--text3);font-family:DINPro,"Proxima Nova",sans-serif;margin-top:10px;line-height:1.7;border-top:1px solid var(--border);padding-top:10px}
 .pr-link{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--lime);margin-top:6px;display:flex;align-items:center;gap:4px}
 .pr-link::after{content:'→'}
 
 /* FILTER BAR */
 .filter-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
-.search-input{font-size:13px;font-family:'DM Mono',monospace;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);outline:none;flex:1;min-width:160px;transition:border-color .15s}
+.search-input{font-size:13px;font-family:DINPro,"Proxima Nova",sans-serif;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);outline:none;flex:1;min-width:160px;transition:border-color .15s}
 .search-input:focus{border-color:var(--lime)}
 .search-input::placeholder{color:var(--text3)}
-.filter-select{font-size:11px;font-family:'DM Mono',monospace;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text2);outline:none;cursor:pointer}
+.filter-select{font-size:11px;font-family:DINPro,"Proxima Nova",sans-serif;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text2);outline:none;cursor:pointer}
 .filter-select:focus{border-color:var(--lime)}
 .filter-btn{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 12px;cursor:pointer;color:var(--text3);transition:all .15s}
 .filter-btn:hover{border-color:var(--lime);color:var(--lime)}
-.result-count{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-left:auto}
+.result-count{font-size:10px;color:var(--text3);font-family:DINPro,"Proxima Nova",sans-serif;margin-left:auto}
 
 /* RUNS TABLE */
 .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 2px 14px rgba(0,0,0,.35)}
@@ -133,7 +132,7 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);transition:b
 .data-table tbody tr{border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s}
 .data-table tbody tr:hover{background:var(--surface2)}
 .data-table tbody tr:last-child{border-bottom:none}
-.data-table tbody td{padding:12px 14px;font-family:'DM Mono',monospace;font-size:13px;color:var(--text2)}
+.data-table tbody td{padding:12px 14px;font-family:DINPro,"Proxima Nova",sans-serif;font-size:13px;color:var(--text2)}
 .data-table tbody td.primary{color:var(--text);font-weight:500}
 .data-table tbody td.lime{color:var(--lime)}
 .data-table tbody tr.is-z1 td.primary{color:var(--lime)}
@@ -147,8 +146,8 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);transition:b
 .best-badge{display:inline-block;background:rgba(0,241,159,.12);color:var(--lime);font-size:10px;font-weight:700;letter-spacing:1px;padding:2px 6px;border-radius:4px;text-transform:uppercase;margin-left:6px}
 
 /* PAGINATION */
-.pagination{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:13px;color:var(--text3);font-family:'DM Mono',monospace}
-.page-btn{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:6px 14px;cursor:pointer;font-family:'DM Mono',monospace;font-size:13px;color:var(--text2);transition:all .15s}
+.pagination{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:13px;color:var(--text3);font-family:DINPro,"Proxima Nova",sans-serif}
+.page-btn{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:6px 14px;cursor:pointer;font-family:DINPro,"Proxima Nova",sans-serif;font-size:13px;color:var(--text2);transition:all .15s}
 .page-btn:hover{border-color:var(--lime);color:var(--lime)}
 .page-btn:disabled{opacity:.25;cursor:not-allowed}
 
@@ -158,29 +157,29 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);transition:b
 .modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px;max-width:540px;width:90%;position:relative;margin-bottom:40px;box-shadow:0 8px 40px rgba(0,0,0,.6)}
 .modal-close{position:absolute;top:16px;right:16px;background:var(--surface2);border:1px solid var(--border);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:16px;line-height:1;transition:all .15s}
 .modal-close:hover{border-color:var(--lime);color:var(--lime)}
-.modal-dist{font-family:'DINPro','Proxima Nova',sans-serif;font-size:64px;font-weight:900;color:var(--text);line-height:1;letter-spacing:-2px;margin-bottom:4px}
+.modal-dist{font-family:DINPro,"Proxima Nova",sans-serif;font-size:64px;font-weight:900;color:var(--text);line-height:1;letter-spacing:-2px;margin-bottom:4px}
 .modal-dist span{font-size:24px;font-weight:400;color:var(--text3)}
 .modal-pace{font-size:18px;font-weight:700;color:var(--lime);margin-bottom:20px}
-.modal-date{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:20px}
+.modal-date{font-size:11px;color:var(--text3);font-family:DINPro,"Proxima Nova",sans-serif;margin-bottom:20px}
 .modal-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px}
 .modal-stat{background:var(--surface2);padding:14px 16px}
 .modal-stat-lbl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:5px}
-.modal-stat-val{font-size:20px;font-weight:700;color:var(--text);font-family:'DM Mono',monospace}
+.modal-stat-val{font-size:20px;font-weight:700;color:var(--text);font-family:DINPro,"Proxima Nova",sans-serif}
 .modal-zone-lbl{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
 .modal-zone-bar{height:12px;border-radius:6px;overflow:hidden;display:flex;gap:2px}
 .modal-zone-tags{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap}
-.modal-zone-tag{font-size:12px;font-family:'DM Mono',monospace}
+.modal-zone-tag{font-size:12px;font-family:DINPro,"Proxima Nova",sans-serif}
 .pr-tag{display:inline-block;background:rgba(0,241,159,.12);color:var(--lime);font-size:9px;font-weight:700;letter-spacing:1px;padding:3px 8px;border-radius:5px;text-transform:uppercase;margin-bottom:12px}
 
 /* HEATMAP */
 .heatmap-row{display:flex;align-items:center;gap:6px;margin-bottom:3px}
-.heatmap-year{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;width:32px;text-align:right;flex-shrink:0}
+.heatmap-year{font-size:12px;color:var(--text3);font-family:DINPro,"Proxima Nova",sans-serif;width:32px;text-align:right;flex-shrink:0}
 .heatmap-cells{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;flex:1}
 .hm-cell{height:26px;border-radius:4px;cursor:pointer;transition:opacity .15s}
 .hm-cell:hover{opacity:.7}
-#hm-tooltip{position:fixed;background:var(--tip-bg);border:1px solid var(--tip-border);color:var(--tip-text);border-radius:8px;padding:7px 12px;font-size:12px;font-family:'DM Mono',monospace;pointer-events:none;display:none;z-index:1000;box-shadow:0 4px 16px rgba(0,0,0,.2);white-space:nowrap}
+#hm-tooltip{position:fixed;background:var(--tip-bg);border:1px solid var(--tip-border);color:var(--tip-text);border-radius:8px;padding:7px 12px;font-size:12px;font-family:DINPro,"Proxima Nova",sans-serif;pointer-events:none;display:none;z-index:1000;box-shadow:0 4px 16px rgba(0,0,0,.2);white-space:nowrap}
 .month-names{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-bottom:4px;margin-left:38px}
-.month-name{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-align:center}
+.month-name{font-size:10px;color:var(--text3);font-family:DINPro,"Proxima Nova",sans-serif;text-align:center}
 
 /* MONTHLY / YEARLY TABLES */
 .data-table tbody td.best{color:var(--lime)}
@@ -191,7 +190,7 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);transition:b
 .compare-controls{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
 .compare-table{width:100%;border-collapse:collapse}
 .compare-table th{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);padding:8px 10px;text-align:left;border-bottom:1px solid var(--border)}
-.compare-table td{padding:11px 10px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;font-size:13px;color:var(--text2)}
+.compare-table td{padding:11px 10px;border-bottom:1px solid var(--border);font-family:DINPro,"Proxima Nova",sans-serif;font-size:13px;color:var(--text2)}
 .compare-table td.metric{color:var(--text3);font-size:11px;letter-spacing:0.5px}
 .compare-table td.val-a{color:#60a5fa;font-weight:500}
 .compare-table td.val-b{color:var(--lime);font-weight:500}
@@ -203,7 +202,7 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);transition:b
 canvas{display:block;width:100%!important}
 .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:0 2px 14px rgba(0,0,0,.35)}
 .chart-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
-.chart-sub{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:16px}
+.chart-sub{font-size:12px;color:var(--text3);font-family:DINPro,"Proxima Nova",sans-serif;margin-bottom:16px}
 
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 
@@ -227,11 +226,11 @@ canvas{display:block;width:100%!important}
 .cal-day-hdr{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);text-align:center;padding:4px 0}
 .cal-week{display:grid;grid-template-columns:110px repeat(7,1fr);gap:2px;border-top:1px solid var(--border);padding:10px 0 10px 2px;min-height:72px;align-items:start}
 .cal-week-info{display:flex;flex-direction:column;gap:3px;padding-top:6px;padding-right:8px}
-.cal-week-range{font-size:11px;font-weight:600;color:var(--text2);font-family:'DM Mono',monospace;line-height:1.3}
+.cal-week-range{font-size:11px;font-weight:600;color:var(--text2);font-family:DINPro,"Proxima Nova",sans-serif;line-height:1.3}
 .cal-week-km{font-size:14px;font-weight:700;color:var(--lime)}
 .cal-week-km.light-lime{color:#00B896}
 .cal-cell{display:flex;flex-direction:column;align-items:center;gap:5px;padding-top:2px}
-.cal-bubble{border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s,box-shadow .15s;flex-shrink:0;font-family:'DM Mono',monospace;font-weight:700}
+.cal-bubble{border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s,box-shadow .15s;flex-shrink:0;font-family:DINPro,"Proxima Nova",sans-serif;font-weight:700}
 .cal-bubble:hover{transform:scale(1.12);box-shadow:0 4px 20px rgba(0,0,0,.35)}
 .cal-bubble-label{font-size:8px;color:var(--text3);text-align:center;line-height:1.3;max-width:72px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cal-empty{width:6px;height:6px;border-radius:50%;background:var(--border);margin:20px auto 0}
@@ -322,7 +321,7 @@ canvas{display:block;width:100%!important}
 .plan-goal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:8px}
 .plan-goal-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 12px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.3)}
 .plan-goal-box .pg-lbl{font-size:11px;color:var(--text2);margin-bottom:4px}
-.plan-goal-box .pg-val{font-size:20px;font-weight:700;font-family:'DM Mono',monospace;letter-spacing:-1px}
+.plan-goal-box .pg-val{font-size:20px;font-weight:700;font-family:DINPro,"Proxima Nova",sans-serif;letter-spacing:-1px}
 .plan-goal-box .pg-sub{font-size:12px;color:var(--text3);margin-top:2px}
 .plan-day-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:4px}
 .plan-day{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 12px;cursor:default;transition:border-color .15s;box-shadow:0 2px 10px rgba(0,0,0,.3)}
@@ -338,7 +337,7 @@ canvas{display:block;width:100%!important}
 .plan-insight-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:8px}
 .plan-insight{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 12px;box-shadow:0 2px 10px rgba(0,0,0,.3)}
 .plan-insight .pi-lbl{font-size:12px;color:var(--text2);margin-bottom:6px}
-.plan-insight .pi-val{font-size:22px;font-weight:700;font-family:'DM Mono',monospace;letter-spacing:-1px}
+.plan-insight .pi-val{font-size:22px;font-weight:700;font-family:DINPro,"Proxima Nova",sans-serif;letter-spacing:-1px}
 .plan-insight .pi-sub{font-size:12px;color:var(--text3);margin-top:4px}
 .plan-insight .pi-bar{height:6px;background:var(--surface2);border-radius:3px;margin-top:8px;overflow:hidden}
 .plan-insight .pi-bar-fill{height:100%;border-radius:3px;background:var(--lime)}
@@ -348,7 +347,7 @@ canvas{display:block;width:100%!important}
 .plan-week-hdr .pwh-num{font-size:13px;color:var(--text3);min-width:52px}
 .plan-week-hdr .pwh-phase{font-size:12px;padding:2px 8px;border-radius:10px;border:1px solid transparent}
 .plan-week-hdr .pwh-dates{font-size:13px;color:var(--text2);flex:1}
-.plan-week-hdr .pwh-km{font-size:13px;font-weight:600;font-family:'DM Mono',monospace;margin-left:auto;margin-right:8px}
+.plan-week-hdr .pwh-km{font-size:13px;font-weight:600;font-family:DINPro,"Proxima Nova",sans-serif;margin-left:auto;margin-right:8px}
 .plan-week-hdr .pwh-arr{font-size:12px;color:var(--text3);transition:transform .2s}
 .plan-week-hdr.is-open .pwh-arr{transform:rotate(90deg)}
 .plan-week-hdr.is-current{border-left:3px solid var(--lime)}
@@ -470,7 +469,7 @@ canvas{display:block;width:100%!important}
   <div class="slabel" style="border-top:none;padding-top:0;margin-top:0">Edzésnapló — heti nézet</div>
   <div class="cal-year-nav">
     <select class="filter-select" id="cal-year" onchange="renderCalendar()"><option value="">Összes év</option></select>
-    <span id="cal-run-count" style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-left:auto"></span>
+    <span id="cal-run-count" style="font-size:10px;color:var(--text3);font-family:DINPro,sans-serif;margin-left:auto"></span>
   </div>
   <div class="cal-wrap">
     <div class="cal-header">
@@ -990,18 +989,18 @@ function drawDonut(id,segments){
   ctx.fillStyle=gv('--surface');ctx.fill();
   // center label
   ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillStyle=gv('--text');ctx.font=`bold ${Math.round(R*0.44)}px Inter,sans-serif`;
+  ctx.fillStyle=gv('--text');ctx.font=`bold ${Math.round(R*0.44)}px DINPro,sans-serif`;
   ctx.fillText(total,cx,cy-R*0.1);
-  ctx.fillStyle=gv('--text3');ctx.font=`${Math.round(R*0.18)}px DM Mono,monospace`;
+  ctx.fillStyle=gv('--text3');ctx.font=`${Math.round(R*0.18)}px DINPro,sans-serif`;
   ctx.fillText('futás',cx,cy+R*0.22);
   // legend
   let ly=cy-segments.length*22;
   const lx=cx+R+24;
   segments.forEach(sg=>{
     ctx.fillStyle=sg.color;ctx.beginPath();ctx.arc(lx+7,ly+7,7,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle=gv('--text');ctx.font='bold 13px Inter,sans-serif';ctx.textAlign='left';ctx.textBaseline='top';
+    ctx.fillStyle=gv('--text');ctx.font='bold 13px DINPro,sans-serif';ctx.textAlign='left';ctx.textBaseline='top';
     ctx.fillText(sg.label,lx+20,ly);
-    ctx.fillStyle=gv('--text3');ctx.font='10px DM Mono,monospace';
+    ctx.fillStyle=gv('--text3');ctx.font='10px DINPro,sans-serif';
     ctx.fillText(`${Math.round(sg.value/total*100)}%  ·  ${sg.value} futás`,lx+20,ly+17);
     ly+=44;
   });
@@ -1032,7 +1031,7 @@ function drawBar(id,labels,datasets,opts={}){
     const y=pad.top+cH*(1-i/4);
     ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cW,y);ctx.stroke();
     const val=minV+(range*i/4);
-    ctx.fillStyle=axisColor();ctx.font='9px DM Mono,monospace';ctx.textAlign='right';
+    ctx.fillStyle=axisColor();ctx.font='9px DINPro,sans-serif';ctx.textAlign='right';
     ctx.fillText(opts.yFmt?opts.yFmt(val):Math.round(val),pad.left-4,y+3);
   }
   // bars
@@ -1049,7 +1048,7 @@ function drawBar(id,labels,datasets,opts={}){
     });
   });
   // x labels
-  ctx.fillStyle=axisColor();ctx.font='8px DM Mono,monospace';ctx.textAlign='center';
+  ctx.fillStyle=axisColor();ctx.font='8px DINPro,sans-serif';ctx.textAlign='center';
   const step=Math.ceil(n/36);
   labels.forEach((lbl,i)=>{
     if(i%step!==0)return;
@@ -1059,7 +1058,7 @@ function drawBar(id,labels,datasets,opts={}){
   });
   // Tooltip & click
   let _bTip=document.getElementById('bar-tip');
-  if(!_bTip){_bTip=document.createElement('div');_bTip.id='bar-tip';_bTip.style.cssText='position:fixed;font-family:DM Mono,monospace;font-size:10px;padding:6px 10px;border-radius:6px;pointer-events:none;display:none;z-index:300;line-height:1.6;white-space:nowrap';document.body.appendChild(_bTip);}
+  if(!_bTip){_bTip=document.createElement('div');_bTip.id='bar-tip';_bTip.style.cssText='position:fixed;font-family:DINPro,"Proxima Nova",sans-serif;font-size:10px;padding:6px 10px;border-radius:6px;pointer-events:none;display:none;z-index:300;line-height:1.6;white-space:nowrap';document.body.appendChild(_bTip);}
   canvas.onmousemove=function(e){
     const rect=canvas.getBoundingClientRect();
     const mx=(e.clientX-rect.left);
@@ -1110,7 +1109,7 @@ function drawLine(id,labels,datasets,opts={}){
   for(let i=0;i<=4;i++){
     const y=pad.top+cH*(1-i/4);
     ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cW,y);ctx.stroke();
-    ctx.fillStyle=axisColor();ctx.font='9px DM Mono,monospace';ctx.textAlign='right';
+    ctx.fillStyle=axisColor();ctx.font='9px DINPro,sans-serif';ctx.textAlign='right';
     const lv=inv?maxV-(range*i/4):minV+(range*i/4);
     ctx.fillText(opts.yFmt?opts.yFmt(lv):lv.toFixed(1),pad.left-4,y+3);
   }
@@ -1133,10 +1132,10 @@ function drawLine(id,labels,datasets,opts={}){
     if(ry<pad.top||ry>pad.top+cH)return;
     ctx.save();ctx.strokeStyle=rl.color||'#888';ctx.lineWidth=1;ctx.setLineDash([5,4]);
     ctx.beginPath();ctx.moveTo(pad.left,ry);ctx.lineTo(pad.left+cW,ry);ctx.stroke();
-    ctx.setLineDash([]);ctx.fillStyle=rl.color||'#888';ctx.font='8px DM Mono,monospace';ctx.textAlign='left';
+    ctx.setLineDash([]);ctx.fillStyle=rl.color||'#888';ctx.font='8px DINPro,sans-serif';ctx.textAlign='left';
     ctx.fillText(rl.label||rl.value,pad.left+4,ry-3);ctx.restore();
   });}
-  ctx.fillStyle=axisColor();ctx.font='8px DM Mono,monospace';ctx.textAlign='center';
+  ctx.fillStyle=axisColor();ctx.font='8px DINPro,sans-serif';ctx.textAlign='center';
   const step=Math.ceil(n/30);
   labels.forEach((lbl,i)=>{
     if(i%step!==0)return;
@@ -1146,7 +1145,7 @@ function drawLine(id,labels,datasets,opts={}){
   });
   // Tooltip — hover snaps to nearest label index
   let _lTip=document.getElementById('line-tip');
-  if(!_lTip){_lTip=document.createElement('div');_lTip.id='line-tip';_lTip.style.cssText='position:fixed;font-family:DM Mono,monospace;font-size:10px;padding:6px 10px;border-radius:6px;pointer-events:none;display:none;z-index:300;line-height:1.6;white-space:nowrap';document.body.appendChild(_lTip);}
+  if(!_lTip){_lTip=document.createElement('div');_lTip.id='line-tip';_lTip.style.cssText='position:fixed;font-family:DINPro,"Proxima Nova",sans-serif;font-size:10px;padding:6px 10px;border-radius:6px;pointer-events:none;display:none;z-index:300;line-height:1.6;white-space:nowrap';document.body.appendChild(_lTip);}
   // Store data for hover
   canvas._lineLabels=labels;canvas._lineDatasets=datasets;canvas._linePad=pad;canvas._lineCW=cW;canvas._lineCH=cH;canvas._lineN=n;canvas._lineMinV=minV;canvas._lineRange=range;canvas._lineOpts=opts;
   canvas.onmousemove=function(e){
@@ -1182,9 +1181,9 @@ function drawScatterChart(id,points,opts={}){
   function doRedraw(hiIdx=-1){
     ctx.clearRect(0,0,W,H);
     ctx.strokeStyle=gridColor();ctx.lineWidth=1;
-    for(let i=0;i<=4;i++){const y=pad.top+cH*(i/4);ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cW,y);ctx.stroke();ctx.fillStyle=axisColor();ctx.font='9px DM Mono,monospace';ctx.textAlign='right';ctx.fillText(fmtPace(maxY-(rY*i/4)),pad.left-4,y+3);}
-    for(let i=0;i<=5;i++){const x=pad.left+cW*(i/5);ctx.beginPath();ctx.moveTo(x,pad.top);ctx.lineTo(x,pad.top+cH);ctx.stroke();ctx.fillStyle=axisColor();ctx.font='9px DM Mono,monospace';ctx.textAlign='center';ctx.fillText(Math.round(minX+(rX*i/5)),x,pad.top+cH+14);}
-    ctx.fillStyle=axisColor();ctx.font='8px DM Mono,monospace';ctx.textAlign='center';ctx.fillText('Átl. HR (bpm)',pad.left+cW/2,H-4);
+    for(let i=0;i<=4;i++){const y=pad.top+cH*(i/4);ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cW,y);ctx.stroke();ctx.fillStyle=axisColor();ctx.font='9px DINPro,sans-serif';ctx.textAlign='right';ctx.fillText(fmtPace(maxY-(rY*i/4)),pad.left-4,y+3);}
+    for(let i=0;i<=5;i++){const x=pad.left+cW*(i/5);ctx.beginPath();ctx.moveTo(x,pad.top);ctx.lineTo(x,pad.top+cH);ctx.stroke();ctx.fillStyle=axisColor();ctx.font='9px DINPro,sans-serif';ctx.textAlign='center';ctx.fillText(Math.round(minX+(rX*i/5)),x,pad.top+cH+14);}
+    ctx.fillStyle=axisColor();ctx.font='8px DINPro,sans-serif';ctx.textAlign='center';ctx.fillText('Átl. HR (bpm)',pad.left+cW/2,H-4);
     ctx.save();ctx.translate(11,pad.top+cH/2);ctx.rotate(-Math.PI/2);ctx.fillText('Tempó (min/km)',0,0);ctx.restore();
     pixelPts.forEach((p,i)=>{
       const r=i===hiIdx?p.r+4:p.r;
@@ -1195,7 +1194,7 @@ function drawScatterChart(id,points,opts={}){
     // legend
     const leg=[[getLime(),'Z1 futás'],['rgba(255,140,0,.8)','Szürke zóna'],['rgba(96,165,250,.85)','2026']];
     let lx=pad.left;
-    leg.forEach(([c,l])=>{ctx.beginPath();ctx.arc(lx+5,H-7,4,0,Math.PI*2);ctx.fillStyle=c;ctx.fill();ctx.fillStyle='#555';ctx.font='9px DM Mono,monospace';ctx.textAlign='left';ctx.fillText(l,lx+12,H-3);lx+=ctx.measureText(l).width+26;});
+    leg.forEach(([c,l])=>{ctx.beginPath();ctx.arc(lx+5,H-7,4,0,Math.PI*2);ctx.fillStyle=c;ctx.fill();ctx.fillStyle='#555';ctx.font='9px DINPro,sans-serif';ctx.textAlign='left';ctx.fillText(l,lx+12,H-3);lx+=ctx.measureText(l).width+26;});
   }
 
   const pixelPts=points.map(p=>({px:pad.left+((p.x-minX)/rX)*cW,py:pad.top+((maxY-p.y)/rY)*cH,r:p.r||4,run:p.run}));
@@ -1203,7 +1202,7 @@ function drawScatterChart(id,points,opts={}){
 
   // tooltip
   let tip=document.getElementById('scatter-tip');
-  if(!tip){tip=document.createElement('div');tip.id='scatter-tip';tip.style.cssText='position:fixed;font-family:DM Mono,monospace;font-size:10px;padding:7px 11px;border-radius:7px;pointer-events:none;display:none;z-index:300;line-height:1.7;white-space:nowrap';document.body.appendChild(tip);}
+  if(!tip){tip=document.createElement('div');tip.id='scatter-tip';tip.style.cssText='position:fixed;font-family:DINPro,"Proxima Nova",sans-serif;font-size:10px;padding:7px 11px;border-radius:7px;pointer-events:none;display:none;z-index:300;line-height:1.7;white-space:nowrap';document.body.appendChild(tip);}
   function findHit(mx,my){return pixelPts.findIndex(p=>Math.hypot(mx-p.px,my-p.py)<=p.r+6);}
   canvas.onmousemove=function(e){
     const rect=canvas.getBoundingClientRect();
@@ -1501,7 +1500,7 @@ function drawOverviewCharts(){
         </div>
         <div style="text-align:right">
           <div class="stat-lbl">Becsült félmaraton idő</div>
-          <div style="font-size:28px;font-weight:900;font-family:'DM Mono',monospace;letter-spacing:-1px;color:var(--text)">${hmPred||'—'}</div>
+          <div style="font-size:28px;font-weight:900;font-family:DINPro,sans-serif;letter-spacing:-1px;color:var(--text)">${hmPred||'—'}</div>
           <div style="font-size:12px;margin-top:3px"><span style="color:var(--text3)">A-cél: </span><span style="color:var(--lime);font-weight:700">1:35:00</span></div>
         </div>
       </div>
@@ -2054,7 +2053,7 @@ function drawHealthCharts(){
   if(!HEALTH.length){
     document.getElementById('page-health').querySelectorAll('canvas').forEach(c=>{
       const ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);
-      ctx.fillStyle=gv('--text3');ctx.font='13px Inter,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillStyle=gv('--text3');ctx.font='13px DINPro,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
       ctx.fillText('Egészség adatok betöltése...',c.offsetWidth/2,(parseInt(c.getAttribute('height'))||150)/2);
     });
     return;
