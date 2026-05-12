@@ -607,9 +607,9 @@ canvas{display:block;width:100%!important}
       <canvas id="hrvChart" height="160"></canvas>
     </div>
   </div>
-  <div class="slabel">Napi Forma Index<button class="info-btn" tabindex="0">i<span class="info-tip">HRV (60% súly) és nyugalmi HR (40% súly) kombinációja, személyes átlagtól való eltérés alapján. 50 = teljesen átlagos nap. 70 felett az átlagnál jobb regeneráció, kemény edzés mehet. 30 alatt pihenjél vagy csak könnyű edzés.</span></button></div>
+  <div class="slabel">Edzéskészség<button class="info-btn" tabindex="0">i<span class="info-tip">HRV (60% súly) és nyugalmi HR (40% súly) kombinációja, személyes átlagtól való eltérés alapján. 50 = teljesen átlagos nap. 70 felett az átlagnál jobb regeneráció, kemény edzés mehet. 30 alatt pihenjél vagy csak könnyű edzés.</span></button></div>
   <div class="chart-card">
-    <div class="chart-sub">HRV + nyugalmi HR kombinációja a személyes átlaghoz képest · 50 = átlagos · &gt;70 = jó forma</div>
+    <div class="chart-sub">HRV + nyugalmi HR kombinációja a személyes átlaghoz képest · 50 = átlagos · &gt;70 = edzéskész</div>
     <canvas id="formaChart" height="150"></canvas>
   </div>
   <div class="slabel">VO₂ Max trend<button class="info-btn" tabindex="0">i<span class="info-tip">Az Apple Watch becslése az aerob kapacitásodról ml/kg/min-ben. 35 alatt: átlag alatti. 40–45: átlagos aktív felnőtt. 50+: sportoló szint. 60+: elit. Futóedzéssel évek alatt jelentősen javítható. A növekvő trend a legfontosabb hosszú távú fitnesz mutató.</span></button></div>
@@ -2032,7 +2032,7 @@ function _drawRecovery(){
   else if(forma>=45){status='Átlagos forma';col='var(--orange)';advice='Könnyű edzés javasolt';}
   else{status='Fáradt';col='var(--red)';advice='Pihenj ma';}
   el.innerHTML=`<div class="stat-box" style="border-left:3px solid ${col}">
-    <div class="stat-lbl">Legutóbbi forma</div>
+    <div class="stat-lbl">Edzéskészség</div>
     <div class="stat-num" style="color:${col}">${forma}</div>
     <div class="stat-unit">${status} — ${advice}</div>
     <div class="stat-unit" style="margin-top:3px;font-size:10px">HRV: ${lastHRV.hrv}ms · HR: ${lastHR.resting_hr}bpm · ${lastHRV.date}</div>
