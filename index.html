@@ -2152,7 +2152,13 @@ function _drawRecovery(){
   if(!el)return;
   const allHRV=HEALTH.filter(h=>h.hrv>0);
   const allHR=HEALTH.filter(h=>h.resting_hr>0);
-  if(!allHRV.length||!allHR.length){el.innerHTML='';return;}
+  if(!allHRV.length||!allHR.length){
+    el.innerHTML=`<div class="stat-box" style="opacity:.5">
+      <div class="stat-lbl">Edzéskészség</div>
+      <div style="font-size:13px;color:var(--text3);margin-top:6px">Nincs HRV adat</div>
+    </div>`;
+    return;
+  }
   const avgHRV=allHRV.reduce((s,h)=>s+h.hrv,0)/allHRV.length;
   const avgHR=allHR.reduce((s,h)=>s+h.resting_hr,0)/allHR.length;
   const lastHRV=allHRV[allHRV.length-1];
