@@ -650,6 +650,7 @@ const BASE_WEEKLY=[{"w": "2020-03-23/2020-03-29", "km": 7.3, "trimp": 87.0, "run
 const SHEET_CSV='https://docs.google.com/spreadsheets/d/192YsNtDn7y6VpjMWKDlWUaA_A6scMiqP3DIDLS3Pfeg/export?format=csv&gid=1';
 const WORKOUT_CSV='https://docs.google.com/spreadsheets/d/192YsNtDn7y6VpjMWKDlWUaA_A6scMiqP3DIDLS3Pfeg/export?format=csv&gid=6';
 const HEALTH_CSV='https://docs.google.com/spreadsheets/d/1V8XlThjn4eSIjU06WDeuPVFQ24G30di4rNzHgHOGUB0/export?format=csv&gid=0';
+const HRV_LIVE_CSV='https://docs.google.com/spreadsheets/d/1V8XlThjn4eSIjU06WDeuPVFQ24G30di4rNzHgHOGUB0/gviz/tq?tqx=out:csv&sheet=HRV%20Live';
 let RUNS=[],MONTHLY=[],YEARLY=[],WEEKLY=[],PRS={},PR_DATES={},HEALTH=[],GYM_DATES=[];
 
 function _tMin(s){if(!s)return null;const m=s.match(/(\d+)h:(\d+)m:(\d+)s/);return m?+m[1]*60+ +m[2]+ +m[3]/60:null}
@@ -831,6 +832,18 @@ async function _fetchHealth(){
   if(!r.ok)throw new Error('HTTP '+r.status);
   return _parseHealth(await r.text());
 }
+async function _fetchHrvLive(){
+  const r=await fetch(HRV_LIVE_CSV);
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  const map={};
+  for(const line of (await r.text()).trim().split('\n')){
+    const cols=line.split(',');
+    const date=(cols[0]||'').replace(/"/g,'').trim();
+    const hrv=parseFloat((cols[1]||'').replace(/"/g,'').trim());
+    if(date&&date.match(/^\d{4}-\d{2}-\d{2}$/)&&!isNaN(hrv))map[date]=+hrv.toFixed(1);
+  }
+  return map;
+}
 
 function _clearDOM(){
   ['heatmap','month-names'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});
@@ -883,11 +896,20 @@ async function _fetchWorkouts(){
 }
 
 async function _bootstrap(){
-  const [runsResult,healthResult,workoutsResult]=await Promise.allSettled([_fetchSheet(),_fetchHealth(),_fetchWorkouts()]);
+  const [runsResult,healthResult,workoutsResult,hrvLiveResult]=await Promise.allSettled([_fetchSheet(),_fetchHealth(),_fetchWorkouts(),_fetchHrvLive()]);
   HEALTH=healthResult.status==='fulfilled'?healthResult.value:[];
   GYM_DATES=workoutsResult.status==='fulfilled'?workoutsResult.value:[];
   if(healthResult.status!=='fulfilled')console.warn('RunDB: health fetch failed:',healthResult.reason?.message);
   if(workoutsResult.status!=='fulfilled')console.warn('RunDB: workouts fetch failed:',workoutsResult.reason?.message);
+  if(hrvLiveResult.status==='fulfilled'){
+    const liveMap=hrvLiveResult.value;
+    HEALTH.forEach(h=>{if(liveMap[h.date]!==undefined)h.hrv=liveMap[h.date];});
+    const today=new Date().toISOString().slice(0,10);
+    if(liveMap[today]!==undefined&&!HEALTH.find(h=>h.date===today)){
+      HEALTH.push({date:today,active_cal:null,resting_cal:null,resting_hr:null,hrv:liveMap[today],steps:null,vo2max:null,exercise_min:null,stand_hours:null});
+      HEALTH.sort((a,b)=>a.date.localeCompare(b.date));
+    }
+  }
   const runs=runsResult.status==='fulfilled'?_merge(BASE_RUNS,runsResult.value):BASE_RUNS.slice();
   if(runsResult.status!=='fulfilled')console.warn('RunDB: sheet fetch sikertelen:',runsResult.reason?.message);
   _render(runs);
