@@ -11,7 +11,13 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=DM+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap');
+@font-face{font-family:'Proxima Nova';src:url('fonts/ProximaNova-Light.ttf') format('truetype');font-weight:300;font-style:normal;font-display:swap}
+@font-face{font-family:'Proxima Nova';src:url('fonts/ProximaNova-Regular.ttf') format('truetype');font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:'Proxima Nova';src:url('fonts/ProximaNova-Semibold.ttf') format('truetype');font-weight:600;font-style:normal;font-display:swap}
+@font-face{font-family:'Proxima Nova';src:url('fonts/ProximaNova-Extrabold.ttf') format('truetype');font-weight:700;font-style:normal;font-display:swap}
+@font-face{font-family:'Proxima Nova';src:url('fonts/ProximaNova-Extrabold.ttf') format('truetype');font-weight:800;font-style:normal;font-display:swap}
+@font-face{font-family:'Proxima Nova';src:url('fonts/ProximaNova-Extrabold.ttf') format('truetype');font-weight:900;font-style:normal;font-display:swap}
 @font-face{font-family:'DINPro';src:url('fonts/dinpro.otf') format('opentype');font-weight:400;font-style:normal;font-display:swap}
 @font-face{font-family:'DINPro';src:url('fonts/dinpro_medium.otf') format('opentype');font-weight:500;font-style:normal;font-display:swap}
 @font-face{font-family:'DINPro';src:url('fonts/dinpro_bold.otf') format('opentype');font-weight:700;font-style:normal;font-display:swap}
@@ -60,7 +66,7 @@
 }
 
 html{background:linear-gradient(160deg,#1e2d35 0%,#101518 100%);min-height:100%}
-body{background:transparent;color:var(--text);font-family:'Montserrat',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
+body{background:transparent;color:var(--text);font-family:'Proxima Nova',sans-serif;font-weight:600;min-height:100vh;-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
 
 /* NAV */
 nav{background:var(--surface);border-bottom:1px solid var(--border);transition:background .25s,border-color .25s;height:54px;display:flex;align-items:center;padding:0 28px;gap:4px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.3)}
@@ -85,7 +91,7 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);transition:b
 .stat-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px 20px;transition:background .25s,border-color .25s;box-shadow:0 2px 14px rgba(0,0,0,.35)}
 #today-stats>div{display:flex}#today-stats .stat-box{flex:1}
 .stat-lbl{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
-.stat-num{font-family:'DINPro','Montserrat',sans-serif;font-size:36px;font-weight:700;color:var(--text);line-height:1;letter-spacing:-0.5px}
+.stat-num{font-family:'DINPro','Proxima Nova',sans-serif;font-size:36px;font-weight:700;color:var(--text);line-height:1;letter-spacing:-0.5px}
 .stat-num.lime{color:var(--lime)}
 .stat-unit{font-size:12px;color:var(--text3);margin-top:4px}
 
@@ -100,7 +106,7 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);transition:b
 .stat-box-link:hover{border-color:var(--lime);background:var(--surface2)}
 .stat-box-link:hover::before{opacity:1}
 .pr-lbl{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:12px}
-.pr-num{font-family:'DINPro','Montserrat',sans-serif;font-size:44px;font-weight:900;color:var(--text);line-height:1;letter-spacing:-1px}
+.pr-num{font-family:'DINPro','Proxima Nova',sans-serif;font-size:44px;font-weight:900;color:var(--text);line-height:1;letter-spacing:-1px}
 .pr-num .unit{font-size:18px;font-weight:400;color:var(--text3);letter-spacing:0;margin-left:4px}
 .pr-meta{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:10px;line-height:1.7;border-top:1px solid var(--border);padding-top:10px}
 .pr-link{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--lime);margin-top:6px;display:flex;align-items:center;gap:4px}
@@ -152,7 +158,7 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);transition:b
 .modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px;max-width:540px;width:90%;position:relative;margin-bottom:40px;box-shadow:0 8px 40px rgba(0,0,0,.6)}
 .modal-close{position:absolute;top:16px;right:16px;background:var(--surface2);border:1px solid var(--border);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:16px;line-height:1;transition:all .15s}
 .modal-close:hover{border-color:var(--lime);color:var(--lime)}
-.modal-dist{font-family:'DINPro','Montserrat',sans-serif;font-size:64px;font-weight:900;color:var(--text);line-height:1;letter-spacing:-2px;margin-bottom:4px}
+.modal-dist{font-family:'DINPro','Proxima Nova',sans-serif;font-size:64px;font-weight:900;color:var(--text);line-height:1;letter-spacing:-2px;margin-bottom:4px}
 .modal-dist span{font-size:24px;font-weight:400;color:var(--text3)}
 .modal-pace{font-size:18px;font-weight:700;color:var(--lime);margin-bottom:20px}
 .modal-date{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:20px}
@@ -232,19 +238,19 @@ canvas{display:block;width:100%!important}
 .cal-plan-pill{font-size:7px;font-weight:700;padding:1px 5px;border-radius:3px;text-align:center;margin-top:2px;text-transform:uppercase;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* stats sub-nav */
-.stats-sub-btn{font-size:13px;font-weight:700;letter-spacing:.3px;font-family:'Montserrat',sans-serif;border-radius:20px;padding:6px 16px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text3);transition:all .15s}
+.stats-sub-btn{font-size:13px;font-weight:700;letter-spacing:.3px;font-family:'Proxima Nova',sans-serif;border-radius:20px;padding:6px 16px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text3);transition:all .15s}
 .stats-sub-btn.active{background:var(--lime);color:var(--on-lime);border-color:var(--lime)}
 /* info button */
-.info-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;border:1.5px solid var(--text3);color:var(--text3);font-size:8px;font-weight:700;font-style:normal;cursor:pointer;background:none;padding:0;margin-left:7px;vertical-align:middle;transition:border-color .15s,color .15s;outline:none;font-family:'Montserrat',sans-serif;letter-spacing:0;text-transform:none;line-height:1;flex-shrink:0}
+.info-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;border:1.5px solid var(--text3);color:var(--text3);font-size:8px;font-weight:700;font-style:normal;cursor:pointer;background:none;padding:0;margin-left:7px;vertical-align:middle;transition:border-color .15s,color .15s;outline:none;font-family:'Proxima Nova',sans-serif;letter-spacing:0;text-transform:none;line-height:1;flex-shrink:0}
 .info-btn:hover,.info-btn:focus{border-color:var(--lime);color:var(--lime)}
-.info-tip{position:absolute;left:0;top:calc(100% + 8px);background:var(--tip-bg);border:1px solid var(--tip-border);color:var(--tip-text);border-radius:10px;padding:11px 14px;font-size:13px;line-height:1.65;width:290px;z-index:500;display:none;font-weight:400;letter-spacing:0;text-transform:none;font-family:'Montserrat',sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.25);pointer-events:none}
+.info-tip{position:absolute;left:0;top:calc(100% + 8px);background:var(--tip-bg);border:1px solid var(--tip-border);color:var(--tip-text);border-radius:10px;padding:11px 14px;font-size:13px;line-height:1.65;width:290px;z-index:500;display:none;font-weight:400;letter-spacing:0;text-transform:none;font-family:'Proxima Nova',sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.25);pointer-events:none}
 .info-btn:hover .info-tip,.info-btn:focus .info-tip{display:block}
 @media(max-width:640px){.info-tip{width:220px}}
 /* gap badge */
 .cal-gap-badge{font-size:7px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--orange);background:rgba(255,140,0,.12);border:1px solid rgba(255,140,0,.25);border-radius:4px;padding:1px 5px;margin-top:3px;line-height:1.4;text-align:center}
 /* intensity donut period pills */
 .int-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.int-pill{font-size:12px;font-weight:700;letter-spacing:.5px;font-family:'Montserrat',sans-serif;border-radius:20px;padding:4px 12px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text3);transition:all .15s}
+.int-pill{font-size:12px;font-weight:700;letter-spacing:.5px;font-family:'Proxima Nova',sans-serif;border-radius:20px;padding:4px 12px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text3);transition:all .15s}
 
 /* ── MOBILE ── */
 @media(max-width:640px){
@@ -372,7 +378,7 @@ canvas{display:block;width:100%!important}
   <button class="tab-btn" onclick="showTab('health',this)">Egészség</button>
   <button class="tab-btn" onclick="showTab('plan',this)">Terv</button>
   <div style="margin-left:auto;flex-shrink:0">
-    <button id="theme-toggle" onclick="toggleTheme()" style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 12px;cursor:pointer;display:flex;align-items:center;gap:7px;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:600;color:var(--text2);transition:all .2s">
+    <button id="theme-toggle" onclick="toggleTheme()" style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 12px;cursor:pointer;display:flex;align-items:center;gap:7px;font-family:'Proxima Nova',sans-serif;font-size:11px;font-weight:600;color:var(--text2);transition:all .2s">
       <span id="theme-icon" style="font-size:13px">☀️</span>
       <span id="theme-label">Light</span>
     </button>
@@ -1422,7 +1428,7 @@ function _buildVo2Nav(){
     const r=rangeFor(yr);
     const btn=document.createElement('button');
     btn.dataset.yr=yr;
-    btn.style.cssText='font-family:"Montserrat",sans-serif;border-radius:12px;padding:5px 11px;cursor:pointer;border:1px solid var(--border);transition:all .15s;background:var(--surface);color:var(--text3);display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.2';
+    btn.style.cssText='font-family:"Proxima Nova",sans-serif;border-radius:12px;padding:5px 11px;cursor:pointer;border:1px solid var(--border);transition:all .15s;background:var(--surface);color:var(--text3);display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.2';
     const top=document.createElement('span');
     top.textContent=p;
     top.style.cssText='font-size:10px;font-weight:700;letter-spacing:.5px';
@@ -1949,7 +1955,7 @@ function _buildYearNav(navId,getCurrent,setCurrent,onDraw,source){
     const yr=p==='Teljes'?'':String(p);
     const btn=document.createElement('button');
     btn.dataset.yr=yr;btn.textContent=p;
-    btn.style.cssText='font-size:10px;font-weight:700;letter-spacing:.5px;font-family:"Montserrat",sans-serif;border-radius:20px;padding:4px 12px;cursor:pointer;border:1px solid var(--border);transition:all .15s;background:var(--surface);color:var(--text3)';
+    btn.style.cssText='font-size:10px;font-weight:700;letter-spacing:.5px;font-family:"Proxima Nova",sans-serif;border-radius:20px;padding:4px 12px;cursor:pointer;border:1px solid var(--border);transition:all .15s;background:var(--surface);color:var(--text3)';
     btn.onclick=()=>{setCurrent(btn.dataset.yr);nav.querySelectorAll('button').forEach(b=>{const a=b.dataset.yr===getCurrent();b.style.background=a?'var(--lime)':'var(--surface)';b.style.color=a?'var(--on-lime)':'var(--text3)';b.style.borderColor=a?'var(--lime)':'var(--border)';});onDraw();};
     const active=yr===getCurrent();
     if(active){btn.style.background='var(--lime)';btn.style.color='var(--on-lime)';btn.style.borderColor='var(--lime)';}
@@ -1972,7 +1978,7 @@ function _buildTrimpNav(){
   [12,26,52,0].forEach(n=>{
     const btn=document.createElement('button');
     btn.dataset.n=n;btn.textContent=n===0?'Összes':n+' hét';
-    btn.style.cssText='font-size:10px;font-weight:700;letter-spacing:.5px;font-family:"Montserrat",sans-serif;border-radius:20px;padding:4px 12px;cursor:pointer;border:1px solid var(--border);transition:all .15s;background:var(--surface);color:var(--text3)';
+    btn.style.cssText='font-size:10px;font-weight:700;letter-spacing:.5px;font-family:"Proxima Nova",sans-serif;border-radius:20px;padding:4px 12px;cursor:pointer;border:1px solid var(--border);transition:all .15s;background:var(--surface);color:var(--text3)';
     btn.onclick=()=>{_trimpWeeks=+btn.dataset.n;nav.querySelectorAll('button').forEach(b=>{const a=+b.dataset.n===_trimpWeeks;b.style.background=a?'var(--lime)':'var(--surface)';b.style.color=a?'var(--on-lime)':'var(--text3)';b.style.borderColor=a?'var(--lime)':'var(--border)';});_drawTrimpChart();};
     if(n===_trimpWeeks){btn.style.background='var(--lime)';btn.style.color='var(--on-lime)';btn.style.borderColor='var(--lime)';}
     nav.appendChild(btn);
@@ -2028,7 +2034,7 @@ function drawTrendCharts(){
     phn.dataset.built='1';
     [[90,'90 nap'],[365,'1 év'],[0,'Összes']].forEach(([d,lbl])=>{
       const btn=document.createElement('button');btn.dataset.d=d;btn.textContent=lbl;
-      btn.style.cssText='font-size:10px;font-weight:700;letter-spacing:.3px;font-family:"Montserrat",sans-serif;border-radius:20px;padding:4px 12px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text3);transition:all .15s';
+      btn.style.cssText='font-size:10px;font-weight:700;letter-spacing:.3px;font-family:"Proxima Nova",sans-serif;border-radius:20px;padding:4px 12px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text3);transition:all .15s';
       btn.onclick=()=>_drawPaceHist(d);
       phn.appendChild(btn);
     });
@@ -2115,7 +2121,7 @@ function _drawPRProgression(){
     _PR_PROG_KEYS.forEach(({k,lbl})=>{
       const btn=document.createElement('button');
       btn.dataset.k=k;btn.textContent=lbl;
-      btn.style.cssText='font-size:10px;font-weight:700;letter-spacing:.3px;font-family:"Montserrat",sans-serif;border-radius:20px;padding:4px 12px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text3);transition:all .15s';
+      btn.style.cssText='font-size:10px;font-weight:700;letter-spacing:.3px;font-family:"Proxima Nova",sans-serif;border-radius:20px;padding:4px 12px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text3);transition:all .15s';
       btn.onclick=()=>{_prProgKey=k;_renderPRProg();nav.querySelectorAll('button').forEach(b=>{const a=b.dataset.k===k;b.style.background=a?'var(--lime)':'var(--surface)';b.style.color=a?'var(--on-lime)':'var(--text3)';b.style.borderColor=a?'var(--lime)':'var(--border)';});};
       if(k===_prProgKey){btn.style.background='var(--lime)';btn.style.color='var(--on-lime)';btn.style.borderColor='var(--lime)';}
       nav.appendChild(btn);
@@ -2162,7 +2168,7 @@ function _drawRecovery(){
     <circle cx="${_cx}" cy="${_cy}" r="${_r}" fill="none" stroke="${col}" stroke-width="8"
       stroke-dasharray="${_dash} ${_circ}" stroke-linecap="round" transform="rotate(-90 ${_cx} ${_cy})"/>
     <text x="${_cx}" y="${_cy}" text-anchor="middle" dominant-baseline="central"
-      fill="${col}" font-size="19" font-weight="900" font-family="DINPro,Montserrat,sans-serif">${forma}</text>
+      fill="${col}" font-size="19" font-weight="900" font-family="DINPro,Proxima Nova,sans-serif">${forma}</text>
   </svg>`;
   el.innerHTML=`<div class="stat-box">
     <div class="stat-lbl">Edzéskészség</div>
