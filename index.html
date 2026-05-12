@@ -1577,11 +1577,25 @@ function initOverview(){
       const week=PLAN_DATA[cwIdx],pd=week.days[pdi];
       const done=_sessionDone(cwIdx,pdi,pd.type);
       const col=_planTypeColor(pd.type);
+      // tomorrow lookup
+      let tmrHtml='';
+      if(done||pd.type==='rest'){
+        const tmrPdi=pdi===6?0:pdi+1;
+        const tmrCwIdx=pdi===6?cwIdx+1:cwIdx;
+        if(tmrCwIdx<PLAN_DATA.length){
+          const tmrWeek=PLAN_DATA[tmrCwIdx],tmrPd=tmrWeek.days[tmrPdi];
+          if(tmrPd&&tmrPd.type!=='rest'){
+            const tmrCol=_planTypeColor(tmrPd.type);
+            tmrHtml=`<div class="stat-unit" style="margin-top:6px;border-top:1px solid var(--border);padding-top:5px"><span style="color:var(--text3)">Holnap:</span> <span style="color:${tmrCol}">${tmrPd.lbl}</span></div>`;
+          }
+        }
+      }
       if(pd.type==='rest'){
         todayPlanEl.innerHTML=`<div class="stat-box" style="border-left:3px solid var(--text3);opacity:.65">
           <div class="stat-lbl">Mai edzés</div>
           <div class="stat-num" style="font-size:20px;color:var(--text3)">Pihenő</div>
           <div class="stat-unit">${cwIdx+1}. hét · ${week.phase}</div>
+          ${tmrHtml}
         </div>`;
       } else {
         todayPlanEl.innerHTML=`<div class="stat-box" style="border-left:3px solid ${col}${done?';opacity:.55':''}">
@@ -1589,6 +1603,7 @@ function initOverview(){
           <div class="stat-num" style="font-size:18px;color:${col};line-height:1.3">${pd.lbl}</div>
           ${pd.det?`<div class="stat-unit" style="margin-top:5px;line-height:1.5">${pd.det}</div>`:''}
           <div class="stat-unit" style="margin-top:4px">${cwIdx+1}. hét · ${week.phase}</div>
+          ${tmrHtml}
         </div>`;
       }
     }
@@ -1601,6 +1616,9 @@ function initOverview(){
   const twKm=thisW?thisW.km:0,twRuns=thisW?thisW.runs:0,twTrimp=thisW?Math.round(thisW.trimp):0;
   const kmDelta=thisW&&prevW?+(twKm-prevW.km).toFixed(1):null;
   const kmDeltaStr=kmDelta===null?'':`<div class="stat-unit" style="color:${kmDelta>=0?'var(--lime)':'var(--orange)'}">${kmDelta>=0?'+':''}${kmDelta} km az előző héthez képest</div>`;
+  const _cwI2=_planCurrentWeekIdx();
+  const _planKm2=_cwI2>=0&&_cwI2<PLAN_DATA.length?PLAN_DATA[_cwI2].km:null;
+  const planKmStr=_planKm2?`<div class="stat-unit" style="margin-top:3px;color:var(--text3)">/ ${_planKm2} km tervezett</div>`:'';
   // TRIMP vs 8-week rolling avg
   const twIdx=thisW?WEEKLY.indexOf(thisW):-1;
   const ref8=twIdx>0?WEEKLY.slice(Math.max(0,twIdx-8),twIdx):[];
@@ -1613,7 +1631,7 @@ function initOverview(){
     trimpCtx=`<div class="stat-unit" style="color:${col}">${lbl} · ${pct>=0?'+':''}${pct}% az átlagodhoz képest</div>`;
   }
   document.getElementById('thisweek-stats').innerHTML=`
-    <div class="stat-box"><div class="stat-lbl">Km ezen a héten</div><div class="stat-num lime">${twKm.toFixed(1)}</div>${kmDeltaStr}</div>
+    <div class="stat-box"><div class="stat-lbl">Km ezen a héten</div><div class="stat-num lime">${twKm.toFixed(1)}</div>${kmDeltaStr}${planKmStr}</div>
     <div class="stat-box"><div class="stat-lbl">Futások</div><div class="stat-num">${twRuns}</div><div class="stat-unit">ezen a héten</div></div>
     <div class="stat-box"><div class="stat-lbl">Terhelés (TRIMP)</div><div class="stat-num">${twTrimp}</div>${trimpCtx}</div>`;
 
