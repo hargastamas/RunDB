@@ -1371,7 +1371,8 @@ function renderCalendar(){
       if(dayRuns.length===0){
         const pe=_planForDate(dateStr);
         if(pe&&pe.day.type!=='rest'){
-          const col=_planTypeColor(pe.day.type);
+          let col=_planTypeColor(pe.day.type);
+          if(col.startsWith('var('))col=isLight?'#00C853':'#C8F135';
           const isPast=dateStr<_calToday;
           const pill=document.createElement('div');
           pill.className='cal-plan-pill';
