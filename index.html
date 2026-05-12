@@ -69,13 +69,14 @@ nav{background:var(--bg);border-bottom:1px solid var(--border);transition:backgr
 .page.active{display:block}
 
 /* SECTION LABEL */
-.slabel{font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:14px;margin-top:32px;padding-top:28px;border-top:1px solid var(--border)}
+.slabel{font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text2);margin-bottom:16px;margin-top:36px;padding-top:28px;border-top:1px solid var(--border)}
 .slabel:first-child{border-top:none;padding-top:0;margin-top:0}
 
 /* STAT ROW */
-.stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:0}
+.stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:0}
 .race-pred-grid{grid-template-columns:repeat(4,1fr)}
-.stat-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;transition:background .25s,border-color .25s}
+#today-stats,#thisweek-stats{grid-template-columns:repeat(3,1fr)}
+.stat-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px 20px;transition:background .25s,border-color .25s}
 #today-stats>div{display:flex}#today-stats .stat-box{flex:1}
 .stat-lbl{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
 .stat-num{font-size:32px;font-weight:900;color:var(--text);line-height:1;letter-spacing:-1px}
@@ -83,8 +84,8 @@ nav{background:var(--bg);border-bottom:1px solid var(--border);transition:backgr
 .stat-unit{font-size:12px;color:var(--text3);margin-top:4px}
 
 /* PR GRID */
-.pr-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.pr-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 22px;cursor:pointer;transition:border-color .2s,background .2s,box-shadow .2s;position:relative;overflow:hidden}
+.pr-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.pr-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px 22px;cursor:pointer;transition:border-color .2s,background .2s,box-shadow .2s;position:relative;overflow:hidden}
 .pr-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--lime);opacity:0;transition:opacity .2s}
 .pr-card:hover{border-color:var(--lime);background:var(--surface2)}
 .pr-card:hover::before{opacity:1}
@@ -1474,26 +1475,31 @@ function drawOverviewCharts(){
       hmPred=`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
     }
     const cwI=_planCurrentWeekIdx(),planW=cwI>=0&&cwI<PLAN_DATA.length?PLAN_DATA[cwI]:null;
-    rbEl.innerHTML=`<div class="stat-box" style="border-left:3px solid var(--lime)">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
+    rbEl.innerHTML=`<div class="stat-box" style="border-top:3px solid var(--lime)">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px">
         <div>
           <div class="stat-lbl">Wizzair Félmaraton · 2026.09.06.</div>
           <div style="display:flex;align-items:baseline;gap:8px">
             <span class="stat-num lime">${daysLeft}</span>
             <span style="font-size:15px;color:var(--text3)">nap</span>
           </div>
-          <div class="stat-unit">${planW?`${cwI+1}. hét · ${planW.phase} fázis · ${planW.km} km tervezett`:''}</div>
+          <div class="stat-unit" style="margin-top:5px">${planW?`${cwI+1}. hét · ${planW.phase} fázis`:''}</div>
         </div>
         <div style="text-align:right">
           <div class="stat-lbl">Becsült félmaraton idő</div>
-          <div style="font-size:26px;font-weight:900;font-family:'DM Mono',monospace;letter-spacing:-1px;color:var(--text)">${hmPred||'—'}</div>
-          <div class="stat-unit">A-cél: 1:35:00</div>
+          <div style="font-size:28px;font-weight:900;font-family:'DM Mono',monospace;letter-spacing:-1px;color:var(--text)">${hmPred||'—'}</div>
+          <div style="font-size:12px;margin-top:3px"><span style="color:var(--text3)">A-cél: </span><span style="color:var(--lime);font-weight:700">1:35:00</span></div>
         </div>
       </div>
-      <div style="width:100%;height:4px;background:var(--surface2);border-radius:2px;margin-top:14px">
-        <div style="height:100%;border-radius:2px;background:var(--lime);width:${donePct}%"></div>
+      <div style="margin-top:16px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:7px">
+          <span style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3)">${donePct}% felkészülés</span>
+          <span style="font-size:11px;color:var(--text3)">${doneDays} / ${totalDays} nap</span>
+        </div>
+        <div style="width:100%;height:8px;background:var(--surface2);border-radius:4px">
+          <div style="height:100%;border-radius:4px;background:var(--lime);width:${donePct}%"></div>
+        </div>
       </div>
-      <div style="font-size:11px;color:var(--text3);margin-top:5px">${donePct}% felkészülés · ${doneDays} / ${totalDays} nap</div>
     </div>`;
   }
 
@@ -1598,8 +1604,11 @@ function initOverview(){
           ${tmrHtml}
         </div>`;
       } else {
-        todayPlanEl.innerHTML=`<div class="stat-box" style="border-left:3px solid ${col}${done?';opacity:.55':''}">
-          <div class="stat-lbl">Mai edzés${done?' · ✓ kész':''}</div>
+        todayPlanEl.innerHTML=`<div class="stat-box" style="border-left:3px solid ${col}">
+          <div class="stat-lbl" style="display:flex;justify-content:space-between;align-items:center">
+            <span>Mai edzés</span>
+            ${done?`<span style="font-size:10px;font-weight:700;background:${col};color:#111;padding:2px 9px;border-radius:20px;letter-spacing:.5px">✓ KÉSZ</span>`:''}
+          </div>
           <div class="stat-num" style="font-size:18px;color:${col};line-height:1.3">${pd.lbl}</div>
           ${pd.det?`<div class="stat-unit" style="margin-top:5px;line-height:1.5">${pd.det}</div>`:''}
           <div class="stat-unit" style="margin-top:4px">${cwIdx+1}. hét · ${week.phase}</div>
@@ -2139,11 +2148,24 @@ function _drawRecovery(){
   if(forma>=70){status='Jó forma';col='var(--lime)';advice='Kemény edzés mehet';}
   else if(forma>=45){status='Átlagos forma';col='var(--orange)';advice='Könnyű edzés javasolt';}
   else{status='Fáradt';col='var(--red)';advice='Pihenj ma';}
-  el.innerHTML=`<div class="stat-box" style="border-left:3px solid ${col}">
+  const _r=34,_cx=44,_cy=44,_circ=+(2*Math.PI*_r).toFixed(1),_dash=+(_circ*forma/100).toFixed(1);
+  const _ring=`<svg width="88" height="88" viewBox="0 0 88 88" style="flex-shrink:0">
+    <circle cx="${_cx}" cy="${_cy}" r="${_r}" fill="none" stroke="var(--surface2)" stroke-width="8"/>
+    <circle cx="${_cx}" cy="${_cy}" r="${_r}" fill="none" stroke="${col}" stroke-width="8"
+      stroke-dasharray="${_dash} ${_circ}" stroke-linecap="round" transform="rotate(-90 ${_cx} ${_cy})"/>
+    <text x="${_cx}" y="${_cy}" text-anchor="middle" dominant-baseline="central"
+      fill="${col}" font-size="19" font-weight="900" font-family="Inter,sans-serif">${forma}</text>
+  </svg>`;
+  el.innerHTML=`<div class="stat-box">
     <div class="stat-lbl">Edzéskészség</div>
-    <div class="stat-num" style="color:${col}">${forma}</div>
-    <div class="stat-unit">${status} — ${advice}</div>
-    <div class="stat-unit" style="margin-top:3px;font-size:10px">HRV: ${lastHRV.hrv}ms · HR: ${lastHR.resting_hr}bpm · ${lastHRV.date}</div>
+    <div style="display:flex;align-items:center;gap:14px;margin-top:6px">
+      ${_ring}
+      <div>
+        <div style="font-size:16px;font-weight:700;color:${col};line-height:1.2">${status}</div>
+        <div style="font-size:13px;color:var(--text2);margin-top:3px">${advice}</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:8px;line-height:1.7">HRV: ${lastHRV.hrv}ms · HR: ${lastHR.resting_hr}bpm<br>${lastHRV.date}</div>
+      </div>
+    </div>
   </div>`;
 }
 
