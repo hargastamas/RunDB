@@ -1618,7 +1618,7 @@ function initOverview(){
   const kmDeltaStr=kmDelta===null?'':`<div class="stat-unit" style="color:${kmDelta>=0?'var(--lime)':'var(--orange)'}">${kmDelta>=0?'+':''}${kmDelta} km az előző héthez képest</div>`;
   const _cwI2=_planCurrentWeekIdx();
   const _planKm2=_cwI2>=0&&_cwI2<PLAN_DATA.length?PLAN_DATA[_cwI2].km:null;
-  const planKmStr=_planKm2?`<div class="stat-unit" style="margin-top:3px;color:var(--text3)">/ ${_planKm2} km tervezett</div>`:'';
+  const planKmInline=_planKm2?`<span style="font-size:15px;font-weight:500;color:var(--text3);margin-left:5px">/ ${_planKm2}km tervezett</span>`:'';
   // TRIMP vs 8-week rolling avg
   const twIdx=thisW?WEEKLY.indexOf(thisW):-1;
   const ref8=twIdx>0?WEEKLY.slice(Math.max(0,twIdx-8),twIdx):[];
@@ -1631,7 +1631,7 @@ function initOverview(){
     trimpCtx=`<div class="stat-unit" style="color:${col}">${lbl} · ${pct>=0?'+':''}${pct}% az átlagodhoz képest</div>`;
   }
   document.getElementById('thisweek-stats').innerHTML=`
-    <div class="stat-box"><div class="stat-lbl">Km ezen a héten</div><div class="stat-num lime">${twKm.toFixed(1)}</div>${kmDeltaStr}${planKmStr}</div>
+    <div class="stat-box"><div class="stat-lbl">Km ezen a héten</div><div class="stat-num lime">${twKm.toFixed(1)}${planKmInline}</div>${kmDeltaStr}</div>
     <div class="stat-box"><div class="stat-lbl">Futások</div><div class="stat-num">${twRuns}</div><div class="stat-unit">ezen a héten</div></div>
     <div class="stat-box"><div class="stat-lbl">Terhelés (TRIMP)</div><div class="stat-num">${twTrimp}</div>${trimpCtx}</div>`;
 
