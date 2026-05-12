@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Barlow+Condensed:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Barlow+Condensed:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
 
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -56,7 +56,7 @@
 }
 
 html{background:linear-gradient(160deg,#1e2d35 0%,#101518 100%);min-height:100%}
-body{background:transparent;color:var(--text);font-family:'Nunito','Inter',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
+body{background:transparent;color:var(--text);font-family:'Montserrat',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
 
 /* NAV */
 nav{background:var(--surface);border-bottom:1px solid var(--border);transition:background .25s,border-color .25s;height:54px;display:flex;align-items:center;padding:0 28px;gap:4px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.3)}
@@ -228,19 +228,19 @@ canvas{display:block;width:100%!important}
 .cal-plan-pill{font-size:7px;font-weight:700;padding:1px 5px;border-radius:3px;text-align:center;margin-top:2px;text-transform:uppercase;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* stats sub-nav */
-.stats-sub-btn{font-size:13px;font-weight:700;letter-spacing:.3px;font-family:'Inter',sans-serif;border-radius:20px;padding:6px 16px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text3);transition:all .15s}
+.stats-sub-btn{font-size:13px;font-weight:700;letter-spacing:.3px;font-family:'Montserrat',sans-serif;border-radius:20px;padding:6px 16px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text3);transition:all .15s}
 .stats-sub-btn.active{background:var(--lime);color:var(--on-lime);border-color:var(--lime)}
 /* info button */
-.info-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;border:1.5px solid var(--text3);color:var(--text3);font-size:8px;font-weight:700;font-style:normal;cursor:pointer;background:none;padding:0;margin-left:7px;vertical-align:middle;transition:border-color .15s,color .15s;outline:none;font-family:'Inter',sans-serif;letter-spacing:0;text-transform:none;line-height:1;flex-shrink:0}
+.info-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;border:1.5px solid var(--text3);color:var(--text3);font-size:8px;font-weight:700;font-style:normal;cursor:pointer;background:none;padding:0;margin-left:7px;vertical-align:middle;transition:border-color .15s,color .15s;outline:none;font-family:'Montserrat',sans-serif;letter-spacing:0;text-transform:none;line-height:1;flex-shrink:0}
 .info-btn:hover,.info-btn:focus{border-color:var(--lime);color:var(--lime)}
-.info-tip{position:absolute;left:0;top:calc(100% + 8px);background:var(--tip-bg);border:1px solid var(--tip-border);color:var(--tip-text);border-radius:10px;padding:11px 14px;font-size:13px;line-height:1.65;width:290px;z-index:500;display:none;font-weight:400;letter-spacing:0;text-transform:none;font-family:'Inter',sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.25);pointer-events:none}
+.info-tip{position:absolute;left:0;top:calc(100% + 8px);background:var(--tip-bg);border:1px solid var(--tip-border);color:var(--tip-text);border-radius:10px;padding:11px 14px;font-size:13px;line-height:1.65;width:290px;z-index:500;display:none;font-weight:400;letter-spacing:0;text-transform:none;font-family:'Montserrat',sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.25);pointer-events:none}
 .info-btn:hover .info-tip,.info-btn:focus .info-tip{display:block}
 @media(max-width:640px){.info-tip{width:220px}}
 /* gap badge */
 .cal-gap-badge{font-size:7px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--orange);background:rgba(255,140,0,.12);border:1px solid rgba(255,140,0,.25);border-radius:4px;padding:1px 5px;margin-top:3px;line-height:1.4;text-align:center}
 /* intensity donut period pills */
 .int-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.int-pill{font-size:12px;font-weight:700;letter-spacing:.5px;font-family:'Inter',sans-serif;border-radius:20px;padding:4px 12px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text3);transition:all .15s}
+.int-pill{font-size:12px;font-weight:700;letter-spacing:.5px;font-family:'Montserrat',sans-serif;border-radius:20px;padding:4px 12px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text3);transition:all .15s}
 
 /* ── MOBILE ── */
 @media(max-width:640px){
@@ -368,7 +368,7 @@ canvas{display:block;width:100%!important}
   <button class="tab-btn" onclick="showTab('health',this)">Egészség</button>
   <button class="tab-btn" onclick="showTab('plan',this)">Terv</button>
   <div style="margin-left:auto;flex-shrink:0">
-    <button id="theme-toggle" onclick="toggleTheme()" style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 12px;cursor:pointer;display:flex;align-items:center;gap:7px;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:var(--text2);transition:all .2s">
+    <button id="theme-toggle" onclick="toggleTheme()" style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 12px;cursor:pointer;display:flex;align-items:center;gap:7px;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:600;color:var(--text2);transition:all .2s">
       <span id="theme-icon" style="font-size:13px">☀️</span>
       <span id="theme-label">Light</span>
     </button>
@@ -919,6 +919,8 @@ const MONTHS_HU=['jan','feb','már','ápr','máj','jún','júl','aug','szep','ok
 const LIME='#00F19F';
 function getLime(){return document.documentElement.classList.contains('light')?'#00B896':'#00F19F';}
 function getLimeDim(){return document.documentElement.classList.contains('light')?'rgba(0,184,150,.15)':'rgba(0,241,159,.08)';}
+function getStrain(){return '#0093E7';}
+function getStrainDim(a){return `rgba(0,147,231,${a||0.35})`;};
 function _hmCellColor(cell,alpha){const isLight=document.documentElement.classList.contains('light');cell.style.background=isLight?`rgba(0,184,150,${alpha})`:`rgba(0,241,159,${alpha})`;}
 function _refreshHeatmap(){document.querySelectorAll('.hm-cell[data-alpha]').forEach(c=>_hmCellColor(c,c.dataset.alpha));}
 function gv(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
@@ -1416,7 +1418,7 @@ function _buildVo2Nav(){
     const r=rangeFor(yr);
     const btn=document.createElement('button');
     btn.dataset.yr=yr;
-    btn.style.cssText='font-family:"Inter",sans-serif;border-radius:12px;padding:5px 11px;cursor:pointer;border:1px solid var(--border);transition:all .15s;background:var(--surface);color:var(--text3);display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.2';
+    btn.style.cssText='font-family:"Montserrat",sans-serif;border-radius:12px;padding:5px 11px;cursor:pointer;border:1px solid var(--border);transition:all .15s;background:var(--surface);color:var(--text3);display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.2';
     const top=document.createElement('span');
     top.textContent=p;
     top.style.cssText='font-size:10px;font-weight:700;letter-spacing:.5px';
@@ -1508,7 +1510,7 @@ function drawOverviewCharts(){
   const wk52=WEEKLY.slice(-52);
   const isLight=document.documentElement.classList.contains('light');
   drawBar('weeklyKmChart',wk52.map(w=>w.date.slice(5)),
-    [{data:wk52.map(w=>w.km),color:wk52.map(w=>w.km>=50?getLime():w.km>=25?(isLight?'rgba(0,184,150,.45)':'rgba(0,241,159,.45)'):(isLight?'rgba(0,184,150,.2)':'rgba(0,241,159,.2)')),label:'km'}],
+    [{data:wk52.map(w=>w.km),color:wk52.map(w=>w.km>=50?getStrain():w.km>=25?getStrainDim(.6):getStrainDim(.3)),label:'km'}],
     {rotateLabels:true,yFmt:v=>Math.round(v)+'km',extraTip:i=>(wk52[i].runs||'?')+' futás'});
   _drawRacePredictions();
 }
@@ -1873,7 +1875,7 @@ function filterAndShowRuns(ym){
 
 // ── YEARLY ──
 function drawYearlyCharts(){
-  drawBar('yearlyKmChart',YEARLY.map(y=>y.year+''),[{data:YEARLY.map(y=>y.km),color:YEARLY.map(y=>y.km===Math.max(...YEARLY.map(y=>y.km))?getLime():(document.documentElement.classList.contains('light')?'rgba(0,184,150,.3)':'rgba(0,241,159,.3)'))}],{yFmt:v=>Math.round(v)+'km'});
+  drawBar('yearlyKmChart',YEARLY.map(y=>y.year+''),[{data:YEARLY.map(y=>y.km),color:YEARLY.map(y=>y.km===Math.max(...YEARLY.map(y=>y.km))?getStrain():getStrainDim(.4))}],{yFmt:v=>Math.round(v)+'km'});
   const a=YEARLY.filter(y=>y.avg_aei);
   drawLine('yearlyAEIChart',a.map(y=>y.year+''),[{data:a.map(y=>y.avg_aei),color:getLime(),fill:true,fillColor:getLimeDim()}],{yFmt:v=>v.toFixed(2)});
 }
@@ -1943,7 +1945,7 @@ function _buildYearNav(navId,getCurrent,setCurrent,onDraw,source){
     const yr=p==='Teljes'?'':String(p);
     const btn=document.createElement('button');
     btn.dataset.yr=yr;btn.textContent=p;
-    btn.style.cssText='font-size:10px;font-weight:700;letter-spacing:.5px;font-family:"Inter",sans-serif;border-radius:20px;padding:4px 12px;cursor:pointer;border:1px solid var(--border);transition:all .15s;background:var(--surface);color:var(--text3)';
+    btn.style.cssText='font-size:10px;font-weight:700;letter-spacing:.5px;font-family:"Montserrat",sans-serif;border-radius:20px;padding:4px 12px;cursor:pointer;border:1px solid var(--border);transition:all .15s;background:var(--surface);color:var(--text3)';
     btn.onclick=()=>{setCurrent(btn.dataset.yr);nav.querySelectorAll('button').forEach(b=>{const a=b.dataset.yr===getCurrent();b.style.background=a?'var(--lime)':'var(--surface)';b.style.color=a?'var(--on-lime)':'var(--text3)';b.style.borderColor=a?'var(--lime)':'var(--border)';});onDraw();};
     const active=yr===getCurrent();
     if(active){btn.style.background='var(--lime)';btn.style.color='var(--on-lime)';btn.style.borderColor='var(--lime)';}
@@ -1966,7 +1968,7 @@ function _buildTrimpNav(){
   [12,26,52,0].forEach(n=>{
     const btn=document.createElement('button');
     btn.dataset.n=n;btn.textContent=n===0?'Összes':n+' hét';
-    btn.style.cssText='font-size:10px;font-weight:700;letter-spacing:.5px;font-family:"Inter",sans-serif;border-radius:20px;padding:4px 12px;cursor:pointer;border:1px solid var(--border);transition:all .15s;background:var(--surface);color:var(--text3)';
+    btn.style.cssText='font-size:10px;font-weight:700;letter-spacing:.5px;font-family:"Montserrat",sans-serif;border-radius:20px;padding:4px 12px;cursor:pointer;border:1px solid var(--border);transition:all .15s;background:var(--surface);color:var(--text3)';
     btn.onclick=()=>{_trimpWeeks=+btn.dataset.n;nav.querySelectorAll('button').forEach(b=>{const a=+b.dataset.n===_trimpWeeks;b.style.background=a?'var(--lime)':'var(--surface)';b.style.color=a?'var(--on-lime)':'var(--text3)';b.style.borderColor=a?'var(--lime)':'var(--border)';});_drawTrimpChart();};
     if(n===_trimpWeeks){btn.style.background='var(--lime)';btn.style.color='var(--on-lime)';btn.style.borderColor='var(--lime)';}
     nav.appendChild(btn);
@@ -1975,7 +1977,7 @@ function _buildTrimpNav(){
 function _drawTrimpChart(){
   const isLight=document.documentElement.classList.contains('light');
   const wk=_trimpWeeks===0?WEEKLY:WEEKLY.slice(-_trimpWeeks);
-  drawBar('weeklyTRIMPChart',wk.map(w=>w.date.slice(2)),[{data:wk.map(w=>w.trimp),color:wk.map(w=>w.trimp>300?getLime():w.trimp>150?(isLight?'rgba(0,184,150,.45)':'rgba(0,241,159,.5)'):(isLight?'rgba(0,184,150,.2)':'rgba(0,241,159,.2)'))}],{rotateLabels:true,yFmt:v=>Math.round(v)});
+  drawBar('weeklyTRIMPChart',wk.map(w=>w.date.slice(2)),[{data:wk.map(w=>w.trimp),color:wk.map(w=>w.trimp>300?getStrain():w.trimp>150?getStrainDim(.6):getStrainDim(.3))}],{rotateLabels:true,yFmt:v=>Math.round(v)});
 }
 
 // ── TRENDS ──
@@ -2022,7 +2024,7 @@ function drawTrendCharts(){
     phn.dataset.built='1';
     [[90,'90 nap'],[365,'1 év'],[0,'Összes']].forEach(([d,lbl])=>{
       const btn=document.createElement('button');btn.dataset.d=d;btn.textContent=lbl;
-      btn.style.cssText='font-size:10px;font-weight:700;letter-spacing:.3px;font-family:"Inter",sans-serif;border-radius:20px;padding:4px 12px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text3);transition:all .15s';
+      btn.style.cssText='font-size:10px;font-weight:700;letter-spacing:.3px;font-family:"Montserrat",sans-serif;border-radius:20px;padding:4px 12px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text3);transition:all .15s';
       btn.onclick=()=>_drawPaceHist(d);
       phn.appendChild(btn);
     });
@@ -2089,7 +2091,7 @@ function drawHealthCharts(){
   // Steps (last 60 days)
   const stepsD=HEALTH.filter(h=>h.date>=c60&&h.steps>0);
   if(stepsD.length)drawBar('stepsChart',stepsD.map(h=>h.date.slice(5)),
-    [{data:stepsD.map(h=>h.steps),color:stepsD.map(h=>h.steps>=10000?getLime():isLight?'rgba(0,184,150,.3)':'rgba(0,241,159,.3)'),label:'lépés'}],
+    [{data:stepsD.map(h=>h.steps),color:stepsD.map(h=>h.steps>=10000?getStrain():getStrainDim(.35)),label:'lépés'}],
     {rotateLabels:true,yFmt:v=>Math.round(v/1000)+'k'});
 
 }
@@ -2109,7 +2111,7 @@ function _drawPRProgression(){
     _PR_PROG_KEYS.forEach(({k,lbl})=>{
       const btn=document.createElement('button');
       btn.dataset.k=k;btn.textContent=lbl;
-      btn.style.cssText='font-size:10px;font-weight:700;letter-spacing:.3px;font-family:"Inter",sans-serif;border-radius:20px;padding:4px 12px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text3);transition:all .15s';
+      btn.style.cssText='font-size:10px;font-weight:700;letter-spacing:.3px;font-family:"Montserrat",sans-serif;border-radius:20px;padding:4px 12px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text3);transition:all .15s';
       btn.onclick=()=>{_prProgKey=k;_renderPRProg();nav.querySelectorAll('button').forEach(b=>{const a=b.dataset.k===k;b.style.background=a?'var(--lime)':'var(--surface)';b.style.color=a?'var(--on-lime)':'var(--text3)';b.style.borderColor=a?'var(--lime)':'var(--border)';});};
       if(k===_prProgKey){btn.style.background='var(--lime)';btn.style.color='var(--on-lime)';btn.style.borderColor='var(--lime)';}
       nav.appendChild(btn);
@@ -2156,7 +2158,7 @@ function _drawRecovery(){
     <circle cx="${_cx}" cy="${_cy}" r="${_r}" fill="none" stroke="${col}" stroke-width="8"
       stroke-dasharray="${_dash} ${_circ}" stroke-linecap="round" transform="rotate(-90 ${_cx} ${_cy})"/>
     <text x="${_cx}" y="${_cy}" text-anchor="middle" dominant-baseline="central"
-      fill="${col}" font-size="19" font-weight="900" font-family="Inter,sans-serif">${forma}</text>
+      fill="${col}" font-size="19" font-weight="900" font-family="Montserrat,sans-serif">${forma}</text>
   </svg>`;
   el.innerHTML=`<div class="stat-box">
     <div class="stat-lbl">Edzéskészség</div>
