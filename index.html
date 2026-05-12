@@ -1552,13 +1552,6 @@ function initOverview(){
   const totCal=RUNS.reduce((s,r)=>s+(r.calories||0),0);
   const totElev=RUNS.reduce((s,r)=>s+(r.elevation||0),0);
   const curYear=new Date().getFullYear();
-  const elevYear=RUNS.filter(r=>r.year===curYear).reduce((s,r)=>s+(r.elevation||0),0);
-  document.getElementById('overview-stats').innerHTML=`
-    <div class="stat-box"><div class="stat-lbl">Összes km</div><div class="stat-num lime">${Math.round(totKm).toLocaleString()}</div><div class="stat-unit">km · 2020–${curYear}</div></div>
-    <div class="stat-box"><div class="stat-lbl">Futások</div><div class="stat-num">${RUNS.length}</div><div class="stat-unit">edzés</div></div>
-    <div class="stat-box"><div class="stat-lbl">Átl. tempó</div><div class="stat-num">${fmtPace(avgPace)}</div><div class="stat-unit">min/km</div></div>
-    <div class="stat-box"><div class="stat-lbl">Összes TRIMP</div><div class="stat-num">${Math.round(totTrimp).toLocaleString()}</div><div class="stat-unit">terhelési pont</div></div>
-    <div class="stat-box"><div class="stat-lbl">Szintemelkedés ${curYear}</div><div class="stat-num">${Math.round(elevYear).toLocaleString()}</div><div class="stat-unit">méter · össz: ${Math.round(totElev/1000).toFixed(1)}k m</div></div>`;
 
   // Utolsó futás
   const lastRun=RUNS[RUNS.length-1];
