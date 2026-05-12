@@ -381,23 +381,26 @@ canvas{display:block;width:100%!important}
 
 <!-- ═══ OVERVIEW ═══ -->
 <div class="page active" id="page-overview">
+  <!-- VERSENY BANNER -->
+  <div id="race-banner" style="margin-bottom:20px"></div>
   <!-- MA -->
   <div class="slabel" style="border-top:none;padding-top:0;margin-top:0">Ma</div>
   <div class="stat-row" id="today-stats">
     <div id="today-plan"></div>
     <div id="today-forma"></div>
+    <div id="today-tsb"></div>
     <div id="today-vo2"></div>
     <div id="today-lastrun"></div>
   </div>
   <!-- EZEN A HÉTEN -->
   <div class="slabel">Ezen a héten</div>
   <div class="stat-row" id="thisweek-stats"></div>
-  <!-- EZ A HÓNAP -->
-  <div class="slabel">Ez a hónap vs. tavaly ilyenkor</div>
-  <div class="stat-row" id="vsly-stats"></div>
   <!-- JELENLEGI FITNESZ -->
   <div class="slabel">Becsült versenyidők<button class="info-btn" tabindex="0">i<span class="info-tip">Riegel-formula alapján számított becslés a legutóbbi 180 nap legjobb edzésfutásaiból (T₂ = T₁ × (D₂/D₁)^1.06). Ha nincs elegendő adat az adott távhoz, VO₂ Max alapú becslés jelenik meg felső határként.</span></button></div>
   <div class="stat-row race-pred-grid" id="race-pred-stats"></div>
+  <!-- EZ A HÓNAP -->
+  <div class="slabel">Ez a hónap vs. tavaly ilyenkor</div>
+  <div class="stat-row" id="vsly-stats"></div>
   <div class="slabel">Heti km — futási volumen (utolsó 52 hét)</div>
   <div class="chart-card"><canvas id="weeklyKmChart" height="160"></canvas></div>
   <!-- ALL-TIME -->
@@ -1291,9 +1294,15 @@ function renderCalendar(){
   const weekSet=new Set(dates.map(monOf));
   const sortedRunWeeks=[...weekSet].sort();
 
-  // generate every consecutive week from first to last run-week
+  // generate every consecutive week from first to last run-week + future plan weeks
   const firstWeek=sortedRunWeeks[0];
-  const lastWeek=sortedRunWeeks[sortedRunWeeks.length-1];
+  let lastWeek=sortedRunWeeks[sortedRunWeeks.length-1];
+  // extend to show current + 3 ahead plan weeks
+  const _cwI=_planCurrentWeekIdx();
+  if(_cwI>=0){
+    const futureMon=_planWeekStart(Math.min(_cwI+3,PLAN_DATA.length-1));
+    if(futureMon>lastWeek)lastWeek=futureMon;
+  }
   const weeks=[];
   for(let d=new Date(lastWeek);d>=new Date(firstWeek);d.setDate(d.getDate()-7))
     weeks.push(d.toISOString().slice(0,10));
@@ -1451,6 +1460,69 @@ function drawVo2Chart(){
 function drawOverviewCharts(){
   _refreshHeatmap();
   _drawRecovery();
+
+  // ── RACE BANNER ──
+  const rbEl=document.getElementById('race-banner');
+  if(rbEl&&typeof PLAN_RACE!=='undefined'){
+    const raceDate=new Date(PLAN_RACE);
+    const todayD=new Date();todayD.setHours(0,0,0,0);
+    const daysLeft=Math.ceil((raceDate-todayD)/86400000);
+    const totalDays=Math.ceil((raceDate-new Date(PLAN_START))/86400000);
+    const donePct=Math.round((1-daysLeft/totalDays)*100);
+    // Riegel HM prediction
+    const cutoff180=new Date(new Date().setDate(new Date().getDate()-180)).toISOString().slice(0,10);
+    const hmPool=RUNS.filter(r=>r.date>=cutoff180&&r.dist>=10&&r.pace>0&&r.pace<9.5);
+    let hmPred='';
+    if(hmPool.length){
+      const ref=hmPool.reduce((a,r)=>r.pace<a.pace?r:a);
+      const t2=ref.pace*ref.dist*Math.pow(21.097/ref.dist,1.06);
+      const h=Math.floor(t2/60),m=Math.floor(t2%60),s=Math.round((t2%1)*60);
+      hmPred=`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }
+    const cwI=_planCurrentWeekIdx(),planW=cwI>=0&&cwI<PLAN_DATA.length?PLAN_DATA[cwI]:null;
+    rbEl.innerHTML=`<div class="stat-box" style="border-left:3px solid var(--lime)">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
+        <div>
+          <div class="stat-lbl">Budapest Félmaraton · 2026.09.06.</div>
+          <div style="display:flex;align-items:baseline;gap:8px">
+            <span class="stat-num lime">${daysLeft}</span>
+            <span style="font-size:15px;color:var(--text3)">nap</span>
+          </div>
+          <div class="stat-unit">${planW?`${cwI+1}. hét · ${planW.phase} fázis · ${planW.km} km tervezett`:''}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="stat-lbl">Becsült félmaraton idő</div>
+          <div style="font-size:26px;font-weight:900;font-family:'DM Mono',monospace;letter-spacing:-1px;color:var(--text)">${hmPred||'—'}</div>
+          <div class="stat-unit">A-cél: 1:35:00</div>
+        </div>
+      </div>
+      <div style="width:100%;height:4px;background:var(--surface2);border-radius:2px;margin-top:14px">
+        <div style="height:100%;border-radius:2px;background:var(--lime);width:${donePct}%"></div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:5px">${donePct}% felkészülés · ${totalDays-daysLeft} / ${totalDays} nap</div>
+    </div>`;
+  }
+
+  // ── TSB CARD ──
+  const tsbEl=document.getElementById('today-tsb');
+  if(tsbEl&&RUNS.length>7){
+    const ctl=_computeCTL();
+    if(ctl.length>1){
+      const last=ctl[ctl.length-1],prev=ctl[ctl.length-2];
+      const tsb=last.tsb,delta=+(tsb-prev.tsb).toFixed(1);
+      let tsbLbl,tsbCol;
+      if(tsb>10){tsbLbl='Pihent';tsbCol='var(--lime)';}
+      else if(tsb>0){tsbLbl='Jó forma';tsbCol='var(--lime)';}
+      else if(tsb>-10){tsbLbl='Terhelés alatt';tsbCol='var(--orange)';}
+      else{tsbLbl='Fáradt';tsbCol='var(--red)';}
+      tsbEl.innerHTML=`<div class="stat-box">
+        <div class="stat-lbl">TSB — Terhelés</div>
+        <div class="stat-num" style="color:${tsbCol}">${tsb>0?'+':''}${tsb}</div>
+        <div class="stat-unit">${tsbLbl}</div>
+        <div class="stat-unit" style="margin-top:3px">CTL ${last.ctl} · ${delta>=0?'+':''}${delta} vs előző hét</div>
+      </div>`;
+    }
+  }
   const wk52=WEEKLY.slice(-52);
   const isLight=document.documentElement.classList.contains('light');
   drawBar('weeklyKmChart',wk52.map(w=>w.date.slice(5)),
@@ -2481,6 +2553,30 @@ function renderPlan(){
       <div class="plan-goal-box"><div class="pg-lbl">Verseny</div><div class="pg-val" style="font-size:15px">szept. 6.</div><div class="pg-sub">Budapest HM</div></div>
       <div class="plan-goal-box"><div class="pg-lbl">Heti km csúcs</div><div class="pg-val">42<span style="font-size:13px"> km</span></div><div class="pg-sub">11. hét</div></div>
     </div>`;
+
+  // ── EDZÉSKÉSZSÉG A TERV TABBAN ──
+  const phEl=document.getElementById('plan-header');
+  if(phEl){
+    const allHRV=HEALTH.filter(h=>h.hrv>0),allHR=HEALTH.filter(h=>h.resting_hr>0);
+    if(allHRV.length&&allHR.length){
+      const avgHRV=allHRV.reduce((s,h)=>s+h.hrv,0)/allHRV.length;
+      const avgHR=allHR.reduce((s,h)=>s+h.resting_hr,0)/allHR.length;
+      const lastHRV=allHRV[allHRV.length-1],lastHR=allHR[allHR.length-1];
+      const forma=Math.min(100,Math.max(0,Math.round(50+(lastHRV.hrv-avgHRV)/avgHRV*40-(lastHR.resting_hr-avgHR)/avgHR*20)));
+      let fLbl,fCol;
+      if(forma>=70){fLbl='Kemény edzés mehet';fCol='var(--lime)';}
+      else if(forma>=45){fLbl='Könnyű edzés javasolt';fCol='var(--orange)';}
+      else{fLbl='Pihenj ma';fCol='var(--red)';}
+      phEl.innerHTML=`<div class="stat-box" style="border-left:3px solid ${fCol};margin-bottom:16px">
+        <div class="stat-lbl">Edzéskészség ma</div>
+        <div style="display:flex;align-items:baseline;gap:10px">
+          <span class="stat-num" style="color:${fCol}">${forma}</span>
+          <span style="font-size:14px;color:${fCol}">${fLbl}</span>
+        </div>
+        <div class="stat-unit" style="margin-top:3px">HRV: ${lastHRV.hrv}ms · HR: ${lastHR.resting_hr}bpm · ${lastHRV.date}</div>
+      </div>`;
+    }
+  }
 
   // ── THIS WEEK ──
   const twEl = document.getElementById('plan-thisweek');
