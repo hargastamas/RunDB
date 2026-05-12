@@ -1469,7 +1469,7 @@ function drawOverviewCharts(){
     const todayD=new Date();todayD.setHours(0,0,0,0);
     const daysLeft=Math.round((raceDate-todayD)/86400000);
     const totalDays=Math.round((raceDate-startDate)/86400000);
-    const doneDays=Math.min(totalDays,totalDays-daysLeft+1);
+    const doneDays=totalDays-daysLeft;
     const donePct=Math.round(doneDays/totalDays*100);
     // Riegel HM prediction
     const cutoff180=new Date(new Date().setDate(new Date().getDate()-180)).toISOString().slice(0,10);
