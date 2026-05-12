@@ -222,6 +222,7 @@ canvas{display:block;width:100%!important}
 .cal-bubble:hover{transform:scale(1.12);box-shadow:0 4px 20px rgba(0,0,0,.35)}
 .cal-bubble-label{font-size:8px;color:var(--text3);text-align:center;line-height:1.3;max-width:72px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cal-empty{width:6px;height:6px;border-radius:50%;background:var(--border);margin:20px auto 0}
+.cal-plan-pill{font-size:7px;font-weight:700;padding:1px 5px;border-radius:3px;text-align:center;margin-top:2px;text-transform:uppercase;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* stats sub-nav */
 .stats-sub-btn{font-size:13px;font-weight:700;letter-spacing:.3px;font-family:'Inter',sans-serif;border-radius:20px;padding:6px 16px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text3);transition:all .15s}
@@ -383,6 +384,7 @@ canvas{display:block;width:100%!important}
   <!-- MA -->
   <div class="slabel" style="border-top:none;padding-top:0;margin-top:0">Ma</div>
   <div class="stat-row" id="today-stats">
+    <div id="today-plan"></div>
     <div id="today-forma"></div>
     <div id="today-vo2"></div>
     <div id="today-lastrun"></div>
@@ -1257,6 +1259,14 @@ function initCalendarTab(){
   renderCalendar();
 }
 
+function _planForDate(dateStr){
+  const diffDays=Math.floor((new Date(dateStr)-new Date(PLAN_START))/86400000);
+  if(diffDays<0)return null;
+  const wIdx=Math.floor(diffDays/7),dIdx=diffDays%7;
+  if(wIdx>=PLAN_DATA.length)return null;
+  return{weekIdx:wIdx,dayIdx:dIdx,day:PLAN_DATA[wIdx].days[dIdx],week:PLAN_DATA[wIdx]};
+}
+
 function renderCalendar(){
   const yr=document.getElementById('cal-year').value;
   const runs=yr?RUNS.filter(r=>r.year==yr):RUNS;
@@ -1320,6 +1330,7 @@ function renderCalendar(){
       +(weekKm>0?'<div class="cal-week-km'+(isLight?' light-lime':'')+'">'+weekKm.toFixed(1)+' km</div>':'');
     row.appendChild(info);
 
+    const _calToday=new Date().toISOString().slice(0,10);
     // day cells
     days.forEach(dateStr=>{
       const cell=document.createElement('div');
@@ -1355,6 +1366,22 @@ function renderCalendar(){
           cell.appendChild(lbl);
         });
       }
+
+      // Plan overlay pill (only on days without a run)
+      if(dayRuns.length===0){
+        const pe=_planForDate(dateStr);
+        if(pe&&pe.day.type!=='rest'){
+          const col=_planTypeColor(pe.day.type);
+          const isPast=dateStr<_calToday;
+          const pill=document.createElement('div');
+          pill.className='cal-plan-pill';
+          pill.style.cssText=`background:${col}${isPast?'18':'28'};color:${col};border:1px solid ${col}${isPast?'30':'50'};opacity:${isPast?'.5':'1'}`;
+          pill.title=pe.day.det||pe.day.lbl;
+          pill.textContent=pe.day.lbl;
+          cell.appendChild(pill);
+        }
+      }
+
       row.appendChild(cell);
     });
 
@@ -1502,6 +1529,32 @@ function initOverview(){
     </div>`;
   }
 
+  // Mai edzés a tervből
+  const todayPlanEl=document.getElementById('today-plan');
+  if(todayPlanEl){
+    const cwIdx=_planCurrentWeekIdx();
+    if(cwIdx>=0&&cwIdx<PLAN_DATA.length){
+      const dow=new Date().getDay(),pdi=dow===0?6:dow-1;
+      const week=PLAN_DATA[cwIdx],pd=week.days[pdi];
+      const done=_sessionDone(cwIdx,pdi,pd.type);
+      const col=_planTypeColor(pd.type);
+      if(pd.type==='rest'){
+        todayPlanEl.innerHTML=`<div class="stat-box" style="border-left:3px solid var(--text3);opacity:.65">
+          <div class="stat-lbl">Mai edzés</div>
+          <div class="stat-num" style="font-size:20px;color:var(--text3)">Pihenő</div>
+          <div class="stat-unit">${cwIdx+1}. hét · ${week.phase}</div>
+        </div>`;
+      } else {
+        todayPlanEl.innerHTML=`<div class="stat-box" style="border-left:3px solid ${col}${done?';opacity:.55':''}">
+          <div class="stat-lbl">Mai edzés${done?' · ✓ kész':''}</div>
+          <div class="stat-num" style="font-size:18px;color:${col};line-height:1.3">${pd.lbl}</div>
+          ${pd.det?`<div class="stat-unit" style="margin-top:5px;line-height:1.5">${pd.det}</div>`:''}
+          <div class="stat-unit" style="margin-top:4px">${cwIdx+1}. hét · ${week.phase}</div>
+        </div>`;
+      }
+    }
+  }
+
   // Ezen a héten
   const today=new Date().toISOString().slice(0,10);
   const thisW=WEEKLY.find(w=>{const[s,e]=w.w.split('/');return today>=s&&today<=e;});
@@ -1521,11 +1574,26 @@ function initOverview(){
     trimpCtx=`<div class="stat-unit" style="color:${col}">${lbl} · ${pct>=0?'+':''}${pct}% az átlagodhoz képest</div>`;
   }
   const{current,longest}=_computeStreaks();
+  // Terv haladás ezen a héten
+  const _cwI=_planCurrentWeekIdx(),_planW=_cwI>=0&&_cwI<PLAN_DATA.length?PLAN_DATA[_cwI]:null;
+  const _planKm=_planW?_planW.km:null,_kmPct=_planKm?Math.min(100,Math.round(twKm/_planKm*100)):null;
+  const _todPdi=(new Date().getDay()===0?6:new Date().getDay()-1);
+  let _remCount=0;
+  if(_planW)_planW.days.forEach((d,i)=>{if(i>=_todPdi&&d.type!=='rest'&&!_sessionDone(_cwI,i,d.type))_remCount++;});
+  const _remStr=_remCount>0?`Hátralevő: ${_remCount} edzés`:'<span style="color:var(--lime)">Hét kész ✓</span>';
+  const _planBox=_planW?`<div class="stat-box">
+    <div class="stat-lbl">Terv haladás</div>
+    <div class="stat-num">${_kmPct}%</div>
+    <div style="width:100%;height:4px;background:var(--surface2);border-radius:2px;margin-top:6px"><div style="height:100%;border-radius:2px;background:var(--lime);width:${_kmPct}%"></div></div>
+    <div class="stat-unit" style="margin-top:4px">${twKm.toFixed(1)} / ${_planKm} km</div>
+    <div class="stat-unit" style="margin-top:3px">${_remStr}</div>
+  </div>`:'';
   document.getElementById('thisweek-stats').innerHTML=`
     <div class="stat-box"><div class="stat-lbl">Km ezen a héten</div><div class="stat-num lime">${twKm.toFixed(1)}</div>${kmDeltaStr}</div>
     <div class="stat-box"><div class="stat-lbl">Futások</div><div class="stat-num">${twRuns}</div><div class="stat-unit">ezen a héten</div></div>
     <div class="stat-box"><div class="stat-lbl">Terhelés (TRIMP)</div><div class="stat-num">${twTrimp}</div>${trimpCtx}</div>
-    <div class="stat-box"><div class="stat-lbl">Heti sorozat</div><div class="stat-num lime">${current}</div><div class="stat-unit">egymást követő hét</div><div class="stat-unit" style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border)">Leghosszabb: <strong style="color:var(--text)">${longest} hét</strong></div></div>`;
+    <div class="stat-box"><div class="stat-lbl">Heti sorozat</div><div class="stat-num lime">${current}</div><div class="stat-unit">egymást követő hét</div><div class="stat-unit" style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border)">Leghosszabb: <strong style="color:var(--text)">${longest} hét</strong></div></div>
+    ${_planBox}`;
 
   const p=PRS;
   function prCard(label,numHtml,meta,run){
