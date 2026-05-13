@@ -92,7 +92,8 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);transition:b
 /* STAT ROW */
 .stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:0}
 .race-pred-grid{grid-template-columns:repeat(4,1fr)}
-#today-stats,#thisweek-stats{grid-template-columns:repeat(3,1fr)}
+#today-stats{grid-template-columns:repeat(2,1fr)}
+#thisweek-stats{grid-template-columns:repeat(3,1fr)}
 .stat-box{background:var(--surface);border:1px solid var(--card-border);border-radius:16px;padding:18px 20px;transition:background .25s,border-color .25s;box-shadow:var(--card-shadow)}
 #today-stats>div{display:flex}#today-stats .stat-box{flex:1}
 .stat-lbl{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
@@ -412,7 +413,6 @@ canvas{display:block;width:100%!important}
   <div class="stat-row" id="today-stats">
     <div id="today-plan"></div>
     <div id="today-forma"></div>
-    <div id="today-lastrun"></div>
   </div>
   <!-- EZEN A HÉTEN -->
   <div class="slabel">Ezen a héten</div>
@@ -1584,20 +1584,6 @@ function initOverview(){
   const totElev=RUNS.reduce((s,r)=>s+(r.elevation||0),0);
   const curYear=new Date().getFullYear();
 
-  // Utolsó futás
-  const lastRun=RUNS[RUNS.length-1];
-  if(lastRun){
-    const today=new Date().toISOString().slice(0,10);
-    const diffDays=Math.round((new Date(today)-new Date(lastRun.date))/(1000*60*60*24));
-    const whenStr=diffDays===0?'Ma':diffDays===1?'Tegnap':`${diffDays} napja`;
-    const elr=document.getElementById('today-lastrun');
-    if(elr)elr.innerHTML=`<div class="stat-box stat-box-link" onclick='showRunDetail(${JSON.stringify(lastRun)})'>
-      <div class="stat-lbl">Utolsó futás</div>
-      <div class="stat-num">${lastRun.dist.toFixed(1)}<span style="font-size:14px;font-weight:500;color:var(--text3);margin-left:3px">km</span></div>
-      <div class="stat-unit">${whenStr} · ${fmtPace(lastRun.pace)}/km</div>
-      <div class="stat-unit" style="margin-top:3px">${lastRun.date}</div>
-    </div>`;
-  }
 
   // Mai edzés a tervből
   const todayPlanEl=document.getElementById('today-plan');
