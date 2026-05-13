@@ -1496,12 +1496,10 @@ function drawOverviewCharts(){
     }
     const cwI=_planCurrentWeekIdx(),planW=cwI>=0&&cwI<PLAN_DATA.length?PLAN_DATA[cwI]:null;
     rbEl.innerHTML=`<div style="position:relative;overflow:hidden;border-radius:16px;background:#0a0a0a">
-      <div style="position:absolute;top:-60px;right:-1px;bottom:-60px;left:-1px;pointer-events:none;overflow:hidden">
-        <iframe src="https://www.youtube-nocookie.com/embed/2JcolLok5ho?autoplay=1&mute=1&loop=1&playlist=2JcolLok5ho&controls=0&disablekb=1&fs=0&rel=0&playsinline=1&modestbranding=1&iv_load_policy=3"
-          frameborder="0" allow="autoplay; fullscreen"
-          style="position:absolute;top:50%;left:50%;width:100%;height:56.25vw;min-height:100%;transform:translate(-50%,-50%);border:0;opacity:.85">
-        </iframe>
-      </div>
+      <video autoplay muted loop playsinline
+        style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none">
+        <source src="banner.mp4" type="video/mp4">
+      </video>
       <div style="position:absolute;inset:0;background:rgba(0,0,0,.58)"></div>
       <div style="position:relative;z-index:1;padding:18px 20px">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px">
