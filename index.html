@@ -1667,7 +1667,11 @@ function initOverview(){
   }
   document.getElementById('thisweek-stats').innerHTML=`
     ${kmCard}
-    <div class="stat-box"><div class="stat-lbl">Futások</div><div class="stat-num">${twRuns}${_planRuns2?`<span style="font-size:16px;color:var(--text3);font-weight:400">/${_planRuns2}</span>`:''}</div>${runsDeltaStr}</div>
+    ${_planRuns2?`<div class="stat-box" style="text-align:center">
+      <div class="stat-lbl" style="text-align:left;margin-bottom:8px">Futások</div>
+      ${_ringsvg(twRuns,'/ '+_planRuns2+' FUTÁS','var(--lime)',Math.min(1,twRuns/_planRuns2),30)}
+      <div style="margin-top:6px">${runsDeltaStr}</div>
+    </div>`:`<div class="stat-box"><div class="stat-lbl">Futások</div><div class="stat-num">${twRuns}</div>${runsDeltaStr}</div>`}
     <div class="stat-box"><div class="stat-lbl">Terhelés (TRIMP)</div><div class="stat-num">${twTrimp}</div>${trimpCtx}</div>`;
 
   const p=PRS;
