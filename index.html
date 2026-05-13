@@ -1495,29 +1495,38 @@ function drawOverviewCharts(){
       hmPred=`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
     }
     const cwI=_planCurrentWeekIdx(),planW=cwI>=0&&cwI<PLAN_DATA.length?PLAN_DATA[cwI]:null;
-    rbEl.innerHTML=`<div class="stat-box">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px">
-        <div>
-          <div class="stat-lbl">Wizzair Félmaraton · 2026.09.06.</div>
-          <div style="display:flex;align-items:baseline;gap:8px">
-            <span class="stat-num lime">${daysLeft}</span>
-            <span style="font-size:15px;color:var(--text3)">nap</span>
-          </div>
-          <div class="stat-unit" style="margin-top:5px">${planW?`${cwI+1}. hét · ${planW.phase} fázis`:''}</div>
-        </div>
-        <div class="race-time-block" style="text-align:right">
-          <div class="stat-lbl">Becsült félmaraton idő</div>
-          <div style="font-size:28px;font-weight:900;font-family:DINPro,sans-serif;letter-spacing:-1px;color:var(--text)">${hmPred||'—'}</div>
-          <div style="font-size:12px;margin-top:3px"><span style="color:var(--text3)">A-cél: </span><span style="color:var(--lime);font-weight:700">1:35:00</span></div>
-        </div>
+    rbEl.innerHTML=`<div style="position:relative;overflow:hidden;border-radius:16px;background:#0a0a0a">
+      <div style="position:absolute;inset:0;pointer-events:none;overflow:hidden">
+        <iframe src="https://www.youtube-nocookie.com/embed/2JcolLok5ho?autoplay=1&mute=1&loop=1&playlist=2JcolLok5ho&controls=0&disablekb=1&fs=0&rel=0&playsinline=1&modestbranding=1&iv_load_policy=3"
+          frameborder="0" allow="autoplay; fullscreen"
+          style="position:absolute;top:50%;left:50%;width:100%;height:56.25vw;min-height:100%;transform:translate(-50%,-50%);border:0;opacity:.85">
+        </iframe>
       </div>
-      <div style="margin-top:16px">
-        <div style="display:flex;justify-content:space-between;margin-bottom:7px">
-          <span style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3)">${donePct}% felkészülés</span>
-          <span style="font-size:11px;color:var(--text3)">${doneDays} / ${totalDays} nap</span>
+      <div style="position:absolute;inset:0;background:rgba(0,0,0,.58)"></div>
+      <div style="position:relative;z-index:1;padding:18px 20px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px">
+          <div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:8px">Wizzair Félmaraton · 2026.09.06.</div>
+            <div style="display:flex;align-items:baseline;gap:8px">
+              <span style="font-family:DINPro,sans-serif;font-size:36px;font-weight:700;color:var(--lime);line-height:1;letter-spacing:-.5px">${daysLeft}</span>
+              <span style="font-size:15px;color:rgba(255,255,255,.5)">nap</span>
+            </div>
+            <div style="font-size:12px;color:rgba(255,255,255,.45);margin-top:4px">${planW?`${cwI+1}. hét · ${planW.phase} fázis`:''}</div>
+          </div>
+          <div class="race-time-block" style="text-align:right">
+            <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:8px">Becsült félmaraton idő</div>
+            <div style="font-size:28px;font-weight:900;font-family:DINPro,sans-serif;letter-spacing:-1px;color:#fff">${hmPred||'—'}</div>
+            <div style="font-size:12px;margin-top:3px"><span style="color:rgba(255,255,255,.45)">A-cél: </span><span style="color:var(--lime);font-weight:700">1:35:00</span></div>
+          </div>
         </div>
-        <div style="width:100%;height:8px;background:var(--surface2);border-radius:4px">
-          <div style="height:100%;border-radius:4px;background:var(--lime);width:${donePct}%"></div>
+        <div style="margin-top:16px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:7px">
+            <span style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.5)">${donePct}% felkészülés</span>
+            <span style="font-size:11px;color:rgba(255,255,255,.45)">${doneDays} / ${totalDays} nap</span>
+          </div>
+          <div style="width:100%;height:8px;background:rgba(255,255,255,.15);border-radius:4px">
+            <div style="height:100%;border-radius:4px;background:var(--lime);width:${donePct}%"></div>
+          </div>
         </div>
       </div>
     </div>`;
