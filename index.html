@@ -316,6 +316,8 @@ canvas{display:block;width:100%!important}
   #theme-toggle{padding:4px 8px;font-size:10px}
   #theme-icon{font-size:11px}
   #theme-label{display:none}
+  /* Race banner: predicted time left-aligned on mobile */
+  .race-time-block{text-align:left!important;width:100%}
 }
 
 /* ── PLAN TAB ── */
@@ -1504,7 +1506,7 @@ function drawOverviewCharts(){
           </div>
           <div class="stat-unit" style="margin-top:5px">${planW?`${cwI+1}. hét · ${planW.phase} fázis`:''}</div>
         </div>
-        <div style="text-align:right">
+        <div class="race-time-block" style="text-align:right">
           <div class="stat-lbl">Becsült félmaraton idő</div>
           <div style="font-size:28px;font-weight:900;font-family:DINPro,sans-serif;letter-spacing:-1px;color:var(--text)">${hmPred||'—'}</div>
           <div style="font-size:12px;margin-top:3px"><span style="color:var(--text3)">A-cél: </span><span style="color:var(--lime);font-weight:700">1:35:00</span></div>
@@ -1623,7 +1625,7 @@ function initOverview(){
           ${tmrHtml}
         </div>`;
       } else {
-        todayPlanEl.innerHTML=`<div class="stat-box" style="border-left:3px solid ${col}">
+        todayPlanEl.innerHTML=`<div class="stat-box" style="border-left:3px solid ${col}${done?';opacity:.6':''}">
           <div class="stat-lbl" style="display:flex;justify-content:space-between;align-items:center">
             <span>Mai edzés</span>
             ${done?`<span style="font-size:10px;font-weight:700;background:${col};color:#111;padding:2px 9px;border-radius:20px;letter-spacing:.5px">✓ KÉSZ</span>`:''}
@@ -1655,7 +1657,7 @@ function initOverview(){
   if(avgTrimp8>0){
     const pct=Math.round((twTrimp/avgTrimp8-1)*100);
     const ratio=twTrimp/avgTrimp8;
-    const [lbl,col]=ratio<0.7?['Könnyű hét','var(--lime)']:ratio<1.2?['Átlagos hét','var(--text2)']:ratio<1.6?['Kemény hét','var(--orange)']:['Nagyon kemény','var(--red)'];
+    const [lbl,col]=ratio<0.7?['Könnyű hét','var(--lime)']:ratio<1.2?['Átlagos hét','var(--orange)']:ratio<1.6?['Kemény hét','var(--orange)']:['Nagyon kemény','var(--red)'];
     trimpCtx=`<div class="stat-unit" style="color:${col}">${lbl} · ${pct>=0?'+':''}${pct}% az átlagodhoz képest</div>`;
   }
   document.getElementById('thisweek-stats').innerHTML=`
