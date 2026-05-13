@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(powershell -command \"Select-String -Path index.html -Pattern '_planTypeColor' | Select-Object\")",
+      "Bash(git add *)",
+      "Bash(git commit -m 'Add training plan integration to Overview and Calendar *)",
+      "Bash(git push *)",
+      "Bash(powershell -command \"Select-String -Path index.html -Pattern 'today-tsb|race-countdown|versenyvisszaszaml|_drawRecovery|_drawRace' | Select-Object -First 10\")",
+      "Bash(git commit -m 'Add race banner, TSB card, future calendar weeks, readiness in Terv tab *)",
+      "Bash(git commit -m 'Fix race banner timezone bug: parse dates as local time *)",
+      "Bash(git commit -m 'Fix race banner: include today in done days count *)",
+      "Bash(git commit -m 'Race banner: count done days only after day ends \\(no +1\\) *)",
+      "Bash(git commit -m 'Rename Budapest Félmaraton to Wizzair Félmaraton *)",
+      "Bash(git commit -m 'Declutter Overview: remove TSB, VO2, Összesítő, Ez a hónap, Terv haladás, Heti sorozat *)",
+      "Bash(git commit -m 'Fix crash: remove overview-stats JS render after HTML element removed *)",
+      "Bash(git commit -m ' *)",
+      "WebFetch(domain:www.budapestfelmaraton.hu)"
+    ]
+  }
+}
