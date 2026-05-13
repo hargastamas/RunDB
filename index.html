@@ -1658,7 +1658,7 @@ function initOverview(){
     const pct=Math.round((twTrimp/avgTrimp8-1)*100);
     const ratio=twTrimp/avgTrimp8;
     const [lbl,col]=ratio<0.7?['Könnyű hét','var(--lime)']:ratio<1.2?['Átlagos hét','var(--orange)']:ratio<1.6?['Kemény hét','var(--orange)']:['Nagyon kemény','var(--red)'];
-    trimpCtx=`<div class="stat-unit" style="color:${col}">${lbl} · ${pct>=0?'+':''}${pct}% az átlagodhoz képest</div>`;
+    trimpCtx=`<div class="stat-unit" style="color:${col}">${pct>=0?'+':''}${pct}% az átlagodhoz képest</div>`;
   }
   document.getElementById('thisweek-stats').innerHTML=`
     <div class="stat-box"><div class="stat-lbl">Km ezen a héten</div><div class="stat-num lime">${twKm.toFixed(1)}${planKmInline}</div>${kmDeltaStr}</div>
