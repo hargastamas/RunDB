@@ -92,9 +92,10 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);transition:b
 /* STAT ROW */
 .stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:0}
 .race-pred-grid{grid-template-columns:repeat(4,1fr)}
-#today-stats,#thisweek-stats{grid-template-columns:repeat(3,1fr)}
+#daily-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+#today-plan,#today-forma,#thisweek-stats{display:contents}
+.daily-week-label{grid-column:1/-1;font-size:15px;font-weight:700;letter-spacing:-.2px;color:var(--text);margin-bottom:0;margin-top:8px;padding-top:16px;border-top:1px solid var(--border);border-radius:0;background:none;box-shadow:none;padding-left:0;padding-right:0}
 .stat-box{background:var(--surface);border:1px solid var(--card-border);border-radius:16px;padding:18px 20px;transition:background .25s,border-color .25s;box-shadow:var(--card-shadow)}
-#today-stats>div{display:flex}#today-stats .stat-box{flex:1}
 .stat-lbl{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
 .stat-num{font-family:DINPro,"Proxima Nova",sans-serif;font-size:36px;font-weight:700;color:var(--text);line-height:1;letter-spacing:-0.5px}
 .stat-num.lime{color:var(--lime)}
@@ -273,8 +274,7 @@ canvas{display:block;width:100%!important}
   /* Stats: 2 oszlop; ID-selectors need explicit override */
   .stat-row{grid-template-columns:repeat(2,1fr)}
   .race-pred-grid{grid-template-columns:repeat(2,1fr)}
-  #today-stats,#thisweek-stats{grid-template-columns:1fr}
-  #today-stats>div{flex-wrap:wrap}
+  #daily-stats{grid-template-columns:1fr}
   .stat-num{font-size:26px}
 
   /* PR grid: 1 oszlop (2 too tight for large numbers) */
@@ -407,15 +407,14 @@ canvas{display:block;width:100%!important}
 <div class="page active" id="page-overview">
   <!-- VERSENY BANNER -->
   <div id="race-banner" style="margin-bottom:20px"></div>
-  <!-- MA -->
+  <!-- MA + EZEN A HÉTEN -->
   <div class="slabel" style="border-top:none;padding-top:0;margin-top:0">Ma</div>
-  <div class="stat-row" id="today-stats">
+  <div id="daily-stats">
     <div id="today-plan"></div>
     <div id="today-forma"></div>
+    <div class="slabel daily-week-label">Ezen a héten</div>
+    <div id="thisweek-stats"></div>
   </div>
-  <!-- EZEN A HÉTEN -->
-  <div class="slabel">Ezen a héten</div>
-  <div class="stat-row" id="thisweek-stats"></div>
   <!-- JELENLEGI FITNESZ -->
   <div class="slabel">Becsült versenyidők<button class="info-btn" tabindex="0">i<span class="info-tip">Riegel-formula alapján számított becslés a legutóbbi 180 nap legjobb edzésfutásaiból (T₂ = T₁ × (D₂/D₁)^1.06). Ha nincs elegendő adat az adott távhoz, VO₂ Max alapú becslés jelenik meg felső határként.</span></button></div>
   <div class="stat-row race-pred-grid" id="race-pred-stats"></div>
@@ -2207,7 +2206,6 @@ function _drawRecovery(){
     <div style="margin-top:6px">
       <div style="font-size:15px;font-weight:700;color:${col}">${status}</div>
       <div style="font-size:12px;color:var(--text2);margin-top:3px">${advice}</div>
-      <div style="font-size:10px;color:var(--text3);margin-top:8px">HRV: ${lastHRV.hrv}ms · HR: ${lastHR.resting_hr}bpm · ${lastHRV.date}</div>
     </div>
   </div>`;
 }
