@@ -2080,8 +2080,6 @@
       </div>
       <div id="plan-progress-wrap"></div>
       <div id="plan-goals"></div>
-      <div class="slabel" id="plan-thisweek-lbl" style="margin-top: 24px">Ezen a héten</div>
-      <div id="plan-thisweek"></div>
       <div class="slabel" style="margin-top: 24px">Teljes terv</div>
       <div id="plan-full"></div>
     </div>
@@ -13619,41 +13617,6 @@
       <div class="plan-goal-box"><div class="pg-lbl">Heti km csúcs</div><div class="pg-val">42<span style="font-size:13px"> km</span></div><div class="pg-sub">11. hét</div></div>
     </div>`;
 
-        // ── THIS WEEK ──
-        const twEl = document.getElementById("plan-thisweek");
-        if (cwIdx < 0 || cwIdx >= PLAN_DATA.length) {
-          twEl.innerHTML =
-            '<div style="color:var(--text2);font-size:13px;padding:8px 0">A terv még nem kezdődött el.</div>';
-        } else {
-          const week = PLAN_DATA[cwIdx];
-          const dayOfWeek = new Date().getDay(); // 0=Sun,1=Mon...5=Fri,6=Sat
-          const planDayIdx = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // map JS day (0=Sun) to plan idx (0=Mon…6=Sun)
-          twEl.innerHTML = `
-      <div style="font-size:12px;color:var(--text2);margin-bottom:10px">
-        ${cwIdx + 1}. hét · <span style="color:${week.phaseColor}">${week.phase} fázis</span> · ${week.km} km tervezett
-      </div>
-      <div class="plan-day-grid">
-        ${week.days
-          .map((d, i) => {
-            const dateStr = _planDayDate(cwIdx, i);
-            const done = _sessionDone(cwIdx, i, d.type);
-            const isToday = dateStr === today;
-            const isPast = dateStr < today;
-            const isRest = d.type === "rest";
-            const checkMark = done ? "✓" : isPast && !isRest && !done ? "○" : "";
-            const classes = ["plan-day", isToday ? "is-today" : "", done ? "is-done" : "", isRest ? "is-rest" : ""]
-              .filter(Boolean)
-              .join(" ");
-            const borderStyle = isRest ? "" : `border-left:3px solid ${_planTypeColor(d.type)}`;
-            return `<div class="${classes}" style="${borderStyle}">
-            <div class="pd-dow">${_PLAN_FULL_DAYS_HU[i]} · ${_fmtPlanDate(dateStr)}${isToday ? " · Ma" : ""}</div>
-            <div class="pd-type">${checkMark ? `<span style="color:var(--lime)">${checkMark}</span> ` : ""}${d.lbl}</div>
-            ${d.det && !isRest ? `<div class="pd-detail">${d.det}</div>` : ""}
-          </div>`;
-          })
-          .join("")}
-      </div>`;
-        }
 
         // ── FULL PLAN ──
         _renderPlanFull(cwIdx, today);
