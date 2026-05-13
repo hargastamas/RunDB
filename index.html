@@ -1652,7 +1652,34 @@ function initOverview(){
   const kmDeltaStr=kmDelta===null?'':`<div class="stat-unit" style="color:${kmDelta>=0?'var(--lime)':'var(--orange)'}">${kmDelta>=0?'+':''}${kmDelta} km az előző héthez képest</div>`;
   const _cwI2=_planCurrentWeekIdx();
   const _planKm2=_cwI2>=0&&_cwI2<PLAN_DATA.length?PLAN_DATA[_cwI2].km:null;
-  const planKmInline=_planKm2?`<span style="font-size:15px;font-weight:500;color:var(--text3);margin-left:5px">/ ${_planKm2}km tervezett</span>`:'';
+  // km ring card
+  let kmCard;
+  if(_planKm2){
+    const kmPct=Math.min(1,twKm/_planKm2);
+    const _r=34,_cx=44,_cy=44,_circ=+(2*Math.PI*_r).toFixed(1),_dash=+(_circ*kmPct).toFixed(1);
+    const kmRing=`<svg width="88" height="88" viewBox="0 0 88 88" style="flex-shrink:0">
+      <circle cx="${_cx}" cy="${_cy}" r="${_r}" fill="none" stroke="var(--surface2)" stroke-width="8"/>
+      <circle cx="${_cx}" cy="${_cy}" r="${_r}" fill="none" stroke="var(--lime)" stroke-width="8"
+        stroke-dasharray="${_dash} ${_circ}" stroke-linecap="round" transform="rotate(-90 ${_cx} ${_cy})"/>
+      <text x="${_cx}" y="${_cy-7}" text-anchor="middle" dominant-baseline="central"
+        fill="var(--lime)" font-size="14" font-weight="900" font-family="DINPro,sans-serif">${twKm.toFixed(1)}</text>
+      <text x="${_cx}" y="${_cy+8}" text-anchor="middle" dominant-baseline="central"
+        fill="var(--text3)" font-size="9" font-family="DINPro,sans-serif">km</text>
+    </svg>`;
+    kmCard=`<div class="stat-box">
+      <div class="stat-lbl">Km ezen a héten</div>
+      <div style="display:flex;align-items:center;gap:14px;margin-top:6px">
+        ${kmRing}
+        <div>
+          <div style="font-size:15px;font-weight:700;color:var(--lime);line-height:1.2">${twKm.toFixed(1)} / ${_planKm2} km</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:3px">${Math.round(kmPct*100)}% teljesítve</div>
+          ${kmDeltaStr}
+        </div>
+      </div>
+    </div>`;
+  } else {
+    kmCard=`<div class="stat-box"><div class="stat-lbl">Km ezen a héten</div><div class="stat-num lime">${twKm.toFixed(1)}</div>${kmDeltaStr}</div>`;
+  }
   // TRIMP vs 8-week rolling avg
   const twIdx=thisW?WEEKLY.indexOf(thisW):-1;
   const ref8=twIdx>0?WEEKLY.slice(Math.max(0,twIdx-8),twIdx):[];
@@ -1665,7 +1692,7 @@ function initOverview(){
     trimpCtx=`<div class="stat-unit" style="color:${col}">${pct>=0?'+':''}${pct}% az átlagodhoz képest</div>`;
   }
   document.getElementById('thisweek-stats').innerHTML=`
-    <div class="stat-box"><div class="stat-lbl">Km ezen a héten</div><div class="stat-num lime">${twKm.toFixed(1)}${planKmInline}</div>${kmDeltaStr}</div>
+    ${kmCard}
     <div class="stat-box"><div class="stat-lbl">Futások</div><div class="stat-num">${twRuns}</div><div class="stat-unit">ezen a héten</div></div>
     <div class="stat-box"><div class="stat-lbl">Terhelés (TRIMP)</div><div class="stat-num">${twTrimp}</div>${trimpCtx}</div>`;
 
