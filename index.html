@@ -1617,7 +1617,10 @@ function initOverview(){
           const tmrWeek=PLAN_DATA[tmrCwIdx],tmrPd=tmrWeek.days[tmrPdi];
           if(tmrPd&&tmrPd.type!=='rest'){
             const tmrCol=_planTypeColor(tmrPd.type);
-            tmrHtml=`<div class="stat-unit" style="margin-top:6px;border-top:1px solid var(--border);padding-top:5px"><span style="color:var(--text3)">Holnap:</span> <span style="color:${tmrCol}">${tmrPd.lbl}</span></div>`;
+            tmrHtml=`<div style="margin-top:6px;border-top:1px solid var(--border);padding-top:6px">
+              <div class="stat-unit"><span style="color:var(--text3)">Holnap:</span> <span style="color:${tmrCol};font-weight:700">${tmrPd.lbl}</span></div>
+              ${tmrPd.det?`<div class="stat-unit" style="margin-top:3px;line-height:1.5;color:var(--text2)">${tmrPd.det}</div>`:''}
+            </div>`;
           }
         }
       }
