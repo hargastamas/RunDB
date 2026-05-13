@@ -1618,8 +1618,9 @@ function initOverview(){
           if(tmrPd&&tmrPd.type!=='rest'){
             const tmrCol=_planTypeColor(tmrPd.type);
             tmrHtml=`<div style="margin-top:6px;border-top:1px solid var(--border);padding-top:6px">
-              <div class="stat-unit"><span style="color:var(--text3)">Holnap:</span> <span style="color:${tmrCol};font-weight:700">${tmrPd.lbl}</span></div>
-              ${tmrPd.det?`<div class="stat-unit" style="margin-top:3px;line-height:1.5;color:var(--text2)">${tmrPd.det}</div>`:''}
+              <div style="font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:3px">Holnap</div>
+              <div style="font-size:13px;font-weight:700;color:${tmrCol}">${tmrPd.lbl}</div>
+              ${tmrPd.det?`<div class="stat-unit" style="margin-top:2px;line-height:1.5">${tmrPd.det}</div>`:''}
             </div>`;
           }
         }
@@ -1628,7 +1629,6 @@ function initOverview(){
         todayPlanEl.innerHTML=`<div class="stat-box" style="opacity:.65">
           <div class="stat-lbl">Mai edzés</div>
           <div class="stat-num" style="font-size:20px;color:var(--text3)">Pihenő</div>
-          <div class="stat-unit">${cwIdx+1}. hét · ${week.phase}</div>
           ${tmrHtml}
         </div>`;
       } else {
@@ -1639,7 +1639,6 @@ function initOverview(){
           </div>
           <div class="stat-num" style="font-size:18px;color:${col};line-height:1.3">${pd.lbl}</div>
           ${pd.det?`<div class="stat-unit" style="margin-top:5px;line-height:1.5">${pd.det}</div>`:''}
-          <div class="stat-unit" style="margin-top:4px">${cwIdx+1}. hét · ${week.phase}</div>
           ${tmrHtml}
         </div>`;
       }
