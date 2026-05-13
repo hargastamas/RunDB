@@ -1701,7 +1701,7 @@ function initOverview(){
   const midRun=RUNS.find(r=>r.date===p.mid_10k?.date);
   const longRun=RUNS.find(r=>r.date===p.longest?.date);
   const trimpRun=RUNS.find(r=>r.date===p.highest_trimp?.date);
-  const vo2vals=HEALTH.filter(h=>h.vo2max>0);
+  const vo2vals=HEALTH.filter(h=>h.vo2max>0).sort((a,b)=>a.date<b.date?-1:1);
   const bestVo2=vo2vals.length?Math.max(...vo2vals.map(h=>h.vo2max)):null;
   const curVo2=vo2vals.length?vo2vals[vo2vals.length-1].vo2max:null;
   document.getElementById('pr-grid').innerHTML=
@@ -2233,7 +2233,7 @@ function _drawRacePredictions(){
   if(!el)return;
 
   // VO₂ Max card
-  const vo2vals=HEALTH.filter(h=>h.vo2max>0);
+  const vo2vals=HEALTH.filter(h=>h.vo2max>0).sort((a,b)=>a.date<b.date?-1:1);
   const vo2=vo2vals.length?vo2vals[vo2vals.length-1].vo2max:null;
   const bestVo2=vo2vals.length?Math.max(...vo2vals.map(h=>h.vo2max)):null;
   const vsel=document.getElementById('today-vo2');
