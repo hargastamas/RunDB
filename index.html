@@ -11659,11 +11659,12 @@
         // generate every consecutive week from first to last run-week + future plan weeks
         const firstWeek = sortedRunWeeks[0];
         let lastWeek = sortedRunWeeks[sortedRunWeeks.length - 1];
-        // extend to show current + 3 ahead plan weeks
+        // extend to show current + 3 ahead plan weeks (only when not filtering a past year)
         const _cwI = _planCurrentWeekIdx();
         if (_cwI >= 0) {
           const futureMon = _planWeekStart(Math.min(_cwI + 3, PLAN_DATA.length - 1));
-          if (futureMon > lastWeek) lastWeek = futureMon;
+          const futureYr = futureMon.slice(0, 4);
+          if (futureMon > lastWeek && (!yr || yr == futureYr)) lastWeek = futureMon;
         }
         const weeks = [];
         for (let d = new Date(lastWeek); d >= new Date(firstWeek); d.setDate(d.getDate() - 7))
