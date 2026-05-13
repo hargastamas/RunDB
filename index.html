@@ -1671,7 +1671,7 @@ function initOverview(){
       <div class="pr-lbl">${label}</div>
       <div class="pr-num">${numHtml}</div>
       <div class="pr-meta">${meta}</div>
-      <div class="pr-link">Futáshoz ugrás</div>
+      ${run?`<div class="pr-link">Futáshoz ugrás</div>`:''}
     </div>`;
   }
   const halfRun=RUNS.find(r=>r.date===p.half?.date);
