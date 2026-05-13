@@ -1659,8 +1659,8 @@ function initOverview(){
     const _r=34,_cx=44,_cy=44,_circ=+(2*Math.PI*_r).toFixed(1),_dash=+(_circ*kmPct).toFixed(1);
     kmCard=`<div class="stat-box" style="text-align:center">
       <div class="stat-lbl" style="text-align:left;margin-bottom:8px">Km ezen a héten</div>
-      ${_ringsvg(twKm.toFixed(1),'/ '+_planKm2+' KM','var(--lime)',kmPct,42)}
-      <div style="margin-top:14px">
+      ${_ringsvg(twKm.toFixed(1),'/ '+_planKm2+' KM','var(--lime)',kmPct,30)}
+      <div style="margin-top:6px">
         <div style="font-size:13px;color:var(--text3)">${Math.round(kmPct*100)}% teljesítve</div>
         ${kmDeltaStr}
       </div>
@@ -2173,20 +2173,20 @@ function _renderPRProg(){
 }
 
 // ── WHOOP-STYLE RING SVG ──
-function _ringsvg(valStr,sublbl,col,pct,fs=52){
-  const r=76,cx=90,cy=90,C=+(2*Math.PI*r).toFixed(2);
+function _ringsvg(valStr,sublbl,col,pct,fs=38){
+  const r=54,cx=65,cy=65,C=+(2*Math.PI*r).toFixed(2);
   const arc=+(C*.75).toFixed(2),dash=+(arc*Math.min(1,pct)).toFixed(2);
-  return`<svg width="180" height="180" viewBox="0 0 180 180" style="display:block;margin:0 auto">
-    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--surface2)" stroke-width="10"
+  return`<svg width="130" height="130" viewBox="0 0 130 130" style="display:block;margin:0 auto">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--surface2)" stroke-width="8"
       stroke-dasharray="${arc} ${+(C*.25).toFixed(2)}" stroke-linecap="round"
       transform="rotate(135 ${cx} ${cy})"/>
-    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${col}" stroke-width="10"
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${col}" stroke-width="8"
       stroke-dasharray="${dash} ${C}" stroke-linecap="round"
       transform="rotate(135 ${cx} ${cy})"/>
-    <text x="${cx}" y="82" text-anchor="middle" dominant-baseline="central"
+    <text x="${cx}" y="59" text-anchor="middle" dominant-baseline="central"
       style="fill:var(--text)" font-size="${fs}" font-weight="900" font-family="DINPro,sans-serif">${valStr}</text>
-    <text x="${cx}" y="112" text-anchor="middle" dominant-baseline="central"
-      fill="var(--text3)" font-size="11" font-weight="700" letter-spacing="1"
+    <text x="${cx}" y="82" text-anchor="middle" dominant-baseline="central"
+      fill="var(--text3)" font-size="9" font-weight="700" letter-spacing="1"
       font-family="Proxima Nova,sans-serif">${sublbl}</text>
   </svg>`;
 }
@@ -2216,7 +2216,7 @@ function _drawRecovery(){
   el.innerHTML=`<div class="stat-box" style="text-align:center">
     <div class="stat-lbl" style="text-align:left;margin-bottom:8px">Edzéskészség</div>
     ${_ringsvg(forma,'EDZÉSKÉSZSÉG',col,forma/100)}
-    <div style="margin-top:14px">
+    <div style="margin-top:6px">
       <div style="font-size:15px;font-weight:700;color:${col}">${status}</div>
       <div style="font-size:12px;color:var(--text2);margin-top:3px">${advice}</div>
       <div style="font-size:10px;color:var(--text3);margin-top:8px">HRV: ${lastHRV.hrv}ms · HR: ${lastHR.resting_hr}bpm · ${lastHRV.date}</div>
