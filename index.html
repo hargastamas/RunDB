@@ -647,7 +647,6 @@ canvas{display:block;width:100%!important}
 <div class="page" id="page-plan">
   <div class="slabel" style="border-top:none;padding-top:0;margin-top:0">Edzésterv — Wizzair Félmaraton 2026.09.06.</div>
   <div id="plan-progress-wrap"></div>
-  <div id="plan-header"></div>
   <div id="plan-goals"></div>
   <div class="slabel" id="plan-thisweek-lbl" style="margin-top:24px">Ezen a héten</div>
   <div id="plan-thisweek"></div>
@@ -2582,34 +2581,10 @@ function renderPlan(){
   document.getElementById('plan-goals').innerHTML = `
     <div class="plan-goal-grid">
       <div class="plan-goal-box"><div class="pg-lbl">Célpace</div><div class="pg-val" style="color:var(--lime)">4:30<span style="font-size:13px">/km</span></div><div class="pg-sub">halfmaraton</div></div>
-      <div class="plan-goal-box"><div class="pg-lbl">Céleredmény</div><div class="pg-val">1:35<span style="font-size:13px">:00</span></div><div class="pg-sub">A-cél</div></div>
+      <div class="plan-goal-box"><div class="pg-lbl">Céleredmény</div><div class="pg-val">1:35:00</div><div class="pg-sub">A-cél</div></div>
       <div class="plan-goal-box"><div class="pg-lbl">Verseny</div><div class="pg-val">szept. 6.</div><div class="pg-sub">Wizzair HM</div></div>
       <div class="plan-goal-box"><div class="pg-lbl">Heti km csúcs</div><div class="pg-val">42<span style="font-size:13px"> km</span></div><div class="pg-sub">11. hét</div></div>
     </div>`;
-
-  // ── EDZÉSKÉSZSÉG A TERV TABBAN ──
-  const phEl=document.getElementById('plan-header');
-  if(phEl){
-    const allHRV=HEALTH.filter(h=>h.hrv>0),allHR=HEALTH.filter(h=>h.resting_hr>0);
-    if(allHRV.length&&allHR.length){
-      const avgHRV=allHRV.reduce((s,h)=>s+h.hrv,0)/allHRV.length;
-      const avgHR=allHR.reduce((s,h)=>s+h.resting_hr,0)/allHR.length;
-      const lastHRV=allHRV[allHRV.length-1],lastHR=allHR[allHR.length-1];
-      const forma=Math.min(100,Math.max(0,Math.round(50+(lastHRV.hrv-avgHRV)/avgHRV*40-(lastHR.resting_hr-avgHR)/avgHR*20)));
-      let fLbl,fCol;
-      if(forma>=70){fLbl='Kemény edzés mehet';fCol='var(--lime)';}
-      else if(forma>=45){fLbl='Könnyű edzés javasolt';fCol='var(--orange)';}
-      else{fLbl='Pihenj ma';fCol='var(--red)';}
-      phEl.innerHTML=`<div class="stat-box" style="border-left:3px solid ${fCol};margin-bottom:16px">
-        <div class="stat-lbl">Edzéskészség ma</div>
-        <div style="display:flex;align-items:baseline;gap:10px">
-          <span class="stat-num" style="color:${fCol}">${forma}</span>
-          <span style="font-size:14px;color:${fCol}">${fLbl}</span>
-        </div>
-        <div class="stat-unit" style="margin-top:3px">HRV: ${lastHRV.hrv}ms · HR: ${lastHR.resting_hr}bpm · ${lastHRV.date}</div>
-      </div>`;
-    }
-  }
 
   // ── THIS WEEK ──
   const twEl = document.getElementById('plan-thisweek');
