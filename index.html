@@ -1652,6 +1652,8 @@ function initOverview(){
   const twKm=thisW?thisW.km:0,twRuns=thisW?thisW.runs:0,twTrimp=thisW?Math.round(thisW.trimp):0;
   const kmDelta=thisW&&prevW?+(twKm-prevW.km).toFixed(1):null;
   const kmDeltaStr=kmDelta===null?'':`<div class="stat-unit" style="color:${kmDelta>=0?'var(--lime)':'var(--orange)'}">${kmDelta>=0?'+':''}${kmDelta} km az előző héthez képest</div>`;
+  const runsDelta=thisW&&prevW?twRuns-prevW.runs:null;
+  const runsDeltaStr=runsDelta===null?'':`<div class="stat-unit" style="color:${runsDelta>=0?'var(--lime)':'var(--orange)'}">${runsDelta>=0?'+':''}${runsDelta} futás az előző héthez képest</div>`;
   const _cwI2=_planCurrentWeekIdx();
   const _planKm2=_cwI2>=0&&_cwI2<PLAN_DATA.length?PLAN_DATA[_cwI2].km:null;
   // km ring card
@@ -1682,7 +1684,7 @@ function initOverview(){
   }
   document.getElementById('thisweek-stats').innerHTML=`
     ${kmCard}
-    <div class="stat-box"><div class="stat-lbl">Futások</div><div class="stat-num">${twRuns}</div><div class="stat-unit">ezen a héten</div></div>
+    <div class="stat-box"><div class="stat-lbl">Futások</div><div class="stat-num">${twRuns}</div><div class="stat-unit">ezen a héten</div>${runsDeltaStr}</div>
     <div class="stat-box"><div class="stat-lbl">Terhelés (TRIMP)</div><div class="stat-num">${twTrimp}</div>${trimpCtx}</div>`;
 
   const p=PRS;
