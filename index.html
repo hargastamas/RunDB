@@ -28,8 +28,8 @@
   --lime-dim:rgba(0,241,159,.15);
   --on-lime:#111111;
   --bg:#101518;
-  --surface:#181f25;
-  --surface2:#1e2730;
+  --surface:#232c35;
+  --surface2:#2a3340;
   --border:#263040;
   --border2:#30404e;
   --text:#ffffff;
@@ -38,30 +38,35 @@
   --red:#FF0026;
   --orange:#FFDE00;
   --strain:#0093E7;
-  --grid-line:#1e2730;
+  --grid-line:#1c2530;
   --axis-text:#6b7380;
-  --tip-bg:#181f25;
-  --tip-border:#263040;
+  --tip-bg:#232c35;
+  --tip-border:#2a3340;
   --tip-text:#ffffff;
+  --card-border:transparent;
+  --card-shadow:none;
 }
 :root.light{
   --lime:#00B896;
   --lime-dim:rgba(0,184,150,.15);
-  --bg:#f4f4f4;
+  --bg:#eef0f3;
   --surface:#ffffff;
-  --surface2:#efefef;
-  --border:#e2e2e2;
-  --border2:#d4d4d4;
+  --surface2:#f0f2f5;
+  --border:#e0e3e8;
+  --border2:#d0d4db;
   --text:#0a0a0a;
-  --text2:#444444;
-  --text3:#999999;
+  --text2:#3a3a3a;
+  --text3:#6b7280;
   --red:#d92b2b;
   --orange:#c47000;
-  --grid-line:#eeeeee;
-  --axis-text:#aaaaaa;
+  --grid-line:#e8eaed;
+  --axis-text:#9ca3af;
   --tip-bg:#ffffff;
-  --tip-border:#d0d0d0;
+  --tip-border:#d0d4db;
   --tip-text:#0a0a0a;
+  --card-border:#e0e3e8;
+  --card-shadow:0 1px 8px rgba(0,0,0,.07);
+  background:#eef0f3;
 }
 
 html{background:linear-gradient(160deg,#1e2d35 0%,#101518 100%);min-height:100%}
@@ -88,7 +93,7 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);transition:b
 .stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:0}
 .race-pred-grid{grid-template-columns:repeat(4,1fr)}
 #today-stats,#thisweek-stats{grid-template-columns:repeat(3,1fr)}
-.stat-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px 20px;transition:background .25s,border-color .25s;box-shadow:0 2px 14px rgba(0,0,0,.35)}
+.stat-box{background:var(--surface);border:1px solid var(--card-border);border-radius:16px;padding:18px 20px;transition:background .25s,border-color .25s;box-shadow:var(--card-shadow)}
 #today-stats>div{display:flex}#today-stats .stat-box{flex:1}
 .stat-lbl{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
 .stat-num{font-family:DINPro,"Proxima Nova",sans-serif;font-size:36px;font-weight:700;color:var(--text);line-height:1;letter-spacing:-0.5px}
@@ -97,7 +102,7 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);transition:b
 
 /* PR GRID */
 .pr-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.pr-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px 22px;cursor:pointer;transition:border-color .2s,background .2s,box-shadow .2s;position:relative;overflow:hidden;box-shadow:0 2px 14px rgba(0,0,0,.35)}
+.pr-card{background:var(--surface);border:1px solid var(--card-border);border-radius:16px;padding:20px 22px;cursor:pointer;transition:border-color .2s,background .2s,box-shadow .2s;position:relative;overflow:hidden;box-shadow:var(--card-shadow)}
 .pr-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--lime);opacity:0;transition:opacity .2s}
 .pr-card:hover{border-color:var(--lime);background:var(--surface2)}
 .pr-card:hover::before{opacity:1}
@@ -124,7 +129,7 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);transition:b
 .result-count{font-size:10px;color:var(--text3);font-family:DINPro,"Proxima Nova",sans-serif;margin-left:auto}
 
 /* RUNS TABLE */
-.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 2px 14px rgba(0,0,0,.35)}
+.table-wrap{background:var(--surface);border:1px solid var(--card-border);border-radius:16px;overflow:hidden;box-shadow:var(--card-shadow)}
 .data-table{width:100%;border-collapse:collapse}
 .data-table thead th{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);padding:12px 12px;text-align:left;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;white-space:nowrap;background:var(--surface)}
 .data-table thead th:hover{color:var(--text)}
@@ -201,16 +206,15 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);transition:b
 
 /* CHARTS */
 canvas{display:block;width:100%!important}
-.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:0 2px 14px rgba(0,0,0,.35)}
+.chart-card{background:var(--surface);border:1px solid var(--card-border);border-radius:16px;padding:20px;box-shadow:var(--card-shadow)}
 .chart-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
 .chart-sub{font-size:12px;color:var(--text3);font-family:DINPro,"Proxima Nova",sans-serif;margin-bottom:16px}
 
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 
-:root.light .pr-card:hover,:root.light .stat-box-link:hover{box-shadow:0 2px 12px rgba(0,0,0,.08)}
+:root.light .pr-card:hover,:root.light .stat-box-link:hover{box-shadow:0 2px 12px rgba(0,0,0,.1)}
 :root.light .modal{box-shadow:0 8px 32px rgba(0,0,0,.12)}
-:root.light .table-wrap{box-shadow:0 1px 4px rgba(0,0,0,.04)}
-:root.light .chart-card{box-shadow:0 1px 4px rgba(0,0,0,.04)}
+:root.light nav{box-shadow:0 1px 6px rgba(0,0,0,.08)}
 :root.light .winner-b{background:rgba(0,184,150,.18);color:#00B896}
 :root.light .best-badge{background:rgba(0,184,150,.2);color:#00B896}
 :root.light .pr-tag{background:rgba(0,184,150,.2);color:#00B896}
@@ -327,12 +331,12 @@ canvas{display:block;width:100%!important}
 .plan-phase-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px}
 .plan-phase-pill{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid transparent}
 .plan-goal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:8px}
-.plan-goal-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 12px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.plan-goal-box{background:var(--surface);border:1px solid var(--card-border);border-radius:14px;padding:14px 12px;text-align:center;box-shadow:var(--card-shadow)}
 .plan-goal-box .pg-lbl{font-size:11px;color:var(--text2);margin-bottom:4px}
 .plan-goal-box .pg-val{font-size:20px;font-weight:700;font-family:DINPro,"Proxima Nova",sans-serif;letter-spacing:-1px}
 .plan-goal-box .pg-sub{font-size:12px;color:var(--text3);margin-top:2px}
 .plan-day-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:4px}
-.plan-day{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 12px;cursor:default;transition:border-color .15s;box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.plan-day{background:var(--surface);border:1px solid var(--card-border);border-radius:14px;padding:14px 12px;cursor:default;transition:border-color .15s;box-shadow:var(--card-shadow)}
 .plan-day.is-today{border-color:var(--lime)}
 .plan-day.is-done{opacity:.6}
 .plan-day.is-rest{opacity:.5}
@@ -343,13 +347,13 @@ canvas{display:block;width:100%!important}
 .plan-day .pd-detail{font-size:13px;color:var(--text2);line-height:1.4}
 .plan-day .pd-check{font-size:18px;float:right;margin-top:-2px}
 .plan-insight-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:8px}
-.plan-insight{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 12px;box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.plan-insight{background:var(--surface);border:1px solid var(--card-border);border-radius:14px;padding:14px 12px;box-shadow:var(--card-shadow)}
 .plan-insight .pi-lbl{font-size:12px;color:var(--text2);margin-bottom:6px}
 .plan-insight .pi-val{font-size:22px;font-weight:700;font-family:DINPro,"Proxima Nova",sans-serif;letter-spacing:-1px}
 .plan-insight .pi-sub{font-size:12px;color:var(--text3);margin-top:4px}
 .plan-insight .pi-bar{height:6px;background:var(--surface2);border-radius:3px;margin-top:8px;overflow:hidden}
 .plan-insight .pi-bar-fill{height:100%;border-radius:3px;background:var(--lime)}
-.plan-week-acc{border:1px solid var(--border);border-radius:14px;margin-bottom:8px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.plan-week-acc{border:1px solid var(--card-border);border-radius:14px;margin-bottom:8px;overflow:hidden;box-shadow:var(--card-shadow)}
 .plan-week-hdr{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;user-select:none;background:var(--surface)}
 .plan-week-hdr:hover{background:var(--surface2)}
 .plan-week-hdr .pwh-num{font-size:13px;color:var(--text3);min-width:52px}
