@@ -382,12 +382,12 @@ canvas{display:block;width:100%!important}
 <nav>
   <div class="nav-brand">Run<span>DB</span></div>
   <button class="tab-btn active" onclick="showTab('overview',this)">Áttekintés</button>
+  <button class="tab-btn" onclick="showTab('plan',this)">Terv</button>
   <button class="tab-btn" onclick="showTab('runs',this)">Futások</button>
   <button class="tab-btn" onclick="showTab('calendar',this)">Naptár</button>
-  <button class="tab-btn" onclick="showTab('stats',this)">Statisztikák</button>
   <button class="tab-btn" onclick="showTab('trends',this)">Trendek</button>
+  <button class="tab-btn" onclick="showTab('stats',this)">Statisztikák</button>
   <button class="tab-btn" onclick="showTab('health',this)">Egészség</button>
-  <button class="tab-btn" onclick="showTab('plan',this)">Terv</button>
   <div style="margin-left:auto;flex-shrink:0">
     <button id="theme-toggle" onclick="toggleTheme()" style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 12px;cursor:pointer;display:flex;align-items:center;gap:7px;font-family:'Proxima Nova',sans-serif;font-size:11px;font-weight:600;color:var(--text2);transition:all .2s">
       <span id="theme-icon" style="font-size:13px">☀️</span>
@@ -420,8 +420,6 @@ canvas{display:block;width:100%!important}
   <div class="stat-row race-pred-grid" id="race-pred-stats"></div>
   <div class="slabel">Heti km — futási volumen (utolsó 52 hét)</div>
   <div class="chart-card"><canvas id="weeklyKmChart" height="160"></canvas></div>
-  <div class="slabel">Personal Records — kattints a futáshoz</div>
-  <div class="pr-grid" id="pr-grid"></div>
   <div class="slabel">Havi km heatmap</div>
   <div class="chart-card">
     <div class="month-names" id="month-names"></div>
@@ -472,6 +470,8 @@ canvas{display:block;width:100%!important}
     <span id="page-info"></span>
     <button class="page-btn" id="next-btn" onclick="changePage(1)">Következő →</button>
   </div>
+  <div class="slabel">Personal Records — kattints a futáshoz</div>
+  <div class="pr-grid" id="pr-grid"></div>
 </div>
 
 <!-- ═══ CALENDAR ═══ -->
@@ -626,7 +626,7 @@ canvas{display:block;width:100%!important}
       <canvas id="hrvChart" height="160"></canvas>
     </div>
   </div>
-  <div class="slabel">Edzéskészség<button class="info-btn" tabindex="0">i<span class="info-tip">HRV (60% súly) és nyugalmi HR (40% súly) kombinációja, személyes átlagtól való eltérés alapján. 50 = teljesen átlagos nap. 70 felett az átlagnál jobb regeneráció, kemény edzés mehet. 30 alatt pihenjél vagy csak könnyű edzés.</span></button></div>
+  <div class="slabel">Edzéskészség — trend (90 nap)<button class="info-btn" tabindex="0">i<span class="info-tip">HRV (60% súly) és nyugalmi HR (40% súly) kombinációja, személyes átlagtól való eltérés alapján. 50 = teljesen átlagos nap. 70 felett az átlagnál jobb regeneráció, kemény edzés mehet. 30 alatt pihenjél vagy csak könnyű edzés.</span></button></div>
   <div class="chart-card">
     <div class="chart-sub">HRV + nyugalmi HR kombinációja a személyes átlaghoz képest · 50 = átlagos · &gt;70 = edzéskész</div>
     <canvas id="formaChart" height="150"></canvas>
@@ -1592,21 +1592,19 @@ function initOverview(){
       const week=PLAN_DATA[cwIdx],pd=week.days[pdi];
       const done=_sessionDone(cwIdx,pdi,pd.type);
       const col=_planTypeColor(pd.type);
-      // tomorrow lookup
+      // tomorrow lookup — always shown
+      const tmrPdi=pdi===6?0:pdi+1;
+      const tmrCwIdx=pdi===6?cwIdx+1:cwIdx;
       let tmrHtml='';
-      if(done||pd.type==='rest'){
-        const tmrPdi=pdi===6?0:pdi+1;
-        const tmrCwIdx=pdi===6?cwIdx+1:cwIdx;
-        if(tmrCwIdx<PLAN_DATA.length){
-          const tmrWeek=PLAN_DATA[tmrCwIdx],tmrPd=tmrWeek.days[tmrPdi];
-          if(tmrPd&&tmrPd.type!=='rest'){
-            const tmrCol=_planTypeColor(tmrPd.type);
-            tmrHtml=`<div style="margin-top:6px;border-top:1px solid var(--border);padding-top:6px">
-              <div style="font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:3px">Holnap</div>
-              <div style="font-size:13px;font-weight:700;color:${tmrCol}">${tmrPd.lbl}</div>
-              ${tmrPd.det?`<div class="stat-unit" style="margin-top:2px;line-height:1.5">${tmrPd.det}</div>`:''}
-            </div>`;
-          }
+      if(tmrCwIdx<PLAN_DATA.length){
+        const tmrWeek=PLAN_DATA[tmrCwIdx],tmrPd=tmrWeek.days[tmrPdi];
+        if(tmrPd&&tmrPd.type!=='rest'){
+          const tmrCol=_planTypeColor(tmrPd.type);
+          tmrHtml=`<div style="margin-top:6px;border-top:1px solid var(--border);padding-top:6px">
+            <div style="font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:3px">Holnap</div>
+            <div style="font-size:13px;font-weight:700;color:${tmrCol}">${tmrPd.lbl}</div>
+            ${tmrPd.det?`<div class="stat-unit" style="margin-top:2px;line-height:1.5">${tmrPd.det}</div>`:''}
+          </div>`;
         }
       }
       if(pd.type==='rest'){
@@ -1640,6 +1638,7 @@ function initOverview(){
   const runsDeltaStr=runsDelta===null?'':`<div class="stat-unit" style="color:${runsDelta>=0?'var(--lime)':'var(--orange)'}">${runsDelta>=0?'+':''}${runsDelta} futás az előző héthez képest</div>`;
   const _cwI2=_planCurrentWeekIdx();
   const _planKm2=_cwI2>=0&&_cwI2<PLAN_DATA.length?PLAN_DATA[_cwI2].km:null;
+  const _planRuns2=_cwI2>=0&&_cwI2<PLAN_DATA.length?PLAN_DATA[_cwI2].days.filter(d=>d.type!=='rest'&&d.type!=='gym').length:null;
   // km ring card
   let kmCard;
   if(_planKm2){
@@ -1668,7 +1667,7 @@ function initOverview(){
   }
   document.getElementById('thisweek-stats').innerHTML=`
     ${kmCard}
-    <div class="stat-box"><div class="stat-lbl">Futások</div><div class="stat-num">${twRuns}</div>${runsDeltaStr}</div>
+    <div class="stat-box"><div class="stat-lbl">Futások</div><div class="stat-num">${twRuns}${_planRuns2?`<span style="font-size:16px;color:var(--text3);font-weight:400">/${_planRuns2}</span>`:''}</div>${runsDeltaStr}</div>
     <div class="stat-box"><div class="stat-lbl">Terhelés (TRIMP)</div><div class="stat-num">${twTrimp}</div>${trimpCtx}</div>`;
 
   const p=PRS;
