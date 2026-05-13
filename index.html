@@ -1500,7 +1500,7 @@ function drawOverviewCharts(){
       hmPred=`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
     }
     const cwI=_planCurrentWeekIdx(),planW=cwI>=0&&cwI<PLAN_DATA.length?PLAN_DATA[cwI]:null;
-    rbEl.innerHTML=`<div class="stat-box" style="border-top:3px solid var(--lime)">
+    rbEl.innerHTML=`<div class="stat-box">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px">
         <div>
           <div class="stat-lbl">Wizzair Félmaraton · 2026.09.06.</div>
@@ -1622,14 +1622,14 @@ function initOverview(){
         }
       }
       if(pd.type==='rest'){
-        todayPlanEl.innerHTML=`<div class="stat-box" style="border-left:3px solid var(--text3);opacity:.65">
+        todayPlanEl.innerHTML=`<div class="stat-box" style="opacity:.65">
           <div class="stat-lbl">Mai edzés</div>
           <div class="stat-num" style="font-size:20px;color:var(--text3)">Pihenő</div>
           <div class="stat-unit">${cwIdx+1}. hét · ${week.phase}</div>
           ${tmrHtml}
         </div>`;
       } else {
-        todayPlanEl.innerHTML=`<div class="stat-box" style="border-left:3px solid ${col}${done?';opacity:.6':''}">
+        todayPlanEl.innerHTML=`<div class="stat-box" style="${done?'opacity:.6':''}">
           <div class="stat-lbl" style="display:flex;justify-content:space-between;align-items:center">
             <span>Mai edzés</span>
             ${done?`<span style="font-size:10px;font-weight:700;background:${col};color:#111;padding:2px 9px;border-radius:20px;letter-spacing:.5px">✓ KÉSZ</span>`:''}
