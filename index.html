@@ -1514,6 +1514,50 @@
         border-radius: 3px;
         background: var(--lime);
       }
+      .thisweek-ai-card {
+        margin-top: 10px;
+        background: var(--surface);
+        border: 1px solid var(--card-border);
+        border-left: 3px solid var(--lime);
+        border-radius: 10px;
+        padding: 12px 14px;
+        box-shadow: var(--card-shadow);
+      }
+      .thisweek-ai-card .ai-label {
+        font-size: 11px;
+        color: var(--lime);
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+      }
+      .thisweek-ai-card .ai-text {
+        font-size: 13px;
+        color: var(--text2);
+        line-height: 1.65;
+      }
+      .thisweek-ai-card .ai-meta {
+        margin-top: 8px;
+        font-size: 11px;
+        color: var(--text3);
+      }
+      .plan-ai-summary {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid var(--border);
+      }
+      .plan-ai-summary .pas-lbl {
+        font-size: 11px;
+        color: var(--text3);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 6px;
+      }
+      .plan-ai-summary .pas-text {
+        font-size: 12px;
+        color: var(--text2);
+        line-height: 1.65;
+      }
       .plan-week-acc {
         border: 1px solid var(--card-border);
         border-radius: 14px;
@@ -1672,6 +1716,7 @@
         <div id="today-forma"></div>
         <div class="slabel daily-week-label">Ezen a héten</div>
         <div id="thisweek-stats"></div>
+        <div id="thisweek-summary"></div>
       </div>
       <!-- JELENLEGI FITNESZ -->
       <div class="slabel">
@@ -12253,6 +12298,20 @@
       return `<div class="stat-box"><div class="stat-lbl">Kalória</div><div class="stat-num lime">${calThis != null ? Math.round(calThis).toLocaleString() : "—"}</div><div class="stat-unit">kcal futásból</div>${calDeltaStr}</div>`;
     })()}`;
 
+        // AI summary for current week
+        const _sumEl = document.getElementById("thisweek-summary");
+        if (_sumEl) {
+          const _wsDate = thisW ? thisW.w.split("/")[0] : null;
+          const _weekSum = _wsDate ? SUMMARIES.find((s) => s.week_start === _wsDate) : null;
+          _sumEl.innerHTML = _weekSum
+            ? `<div class="thisweek-ai-card">
+                <div class="ai-label">✦ AI Összefoglaló</div>
+                <div class="ai-text">${_weekSum.summary.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>")}</div>
+                <div class="ai-meta">Generálva: ${_weekSum.generated_at ? _weekSum.generated_at.slice(0, 10) : "—"}</div>
+              </div>`
+            : "";
+        }
+
         const p = PRS;
         function prCard(label, numHtml, meta, run) {
           return `<div class="pr-card" onclick='${run ? `showRunDetail(${JSON.stringify(run)})` : ""}'>
@@ -13862,6 +13921,14 @@
               ? `<span style="color:var(--lime)">${completedSessions}/${totalSessions} ✓</span>`
               : "";
 
+          const weekSum = (isPast || isCurrent) ? SUMMARIES.find((s) => s.week_start === wkStart) : null;
+          const summaryBlock = weekSum
+            ? `<div class="plan-ai-summary">
+                <div class="pas-lbl">✦ AI Összefoglaló</div>
+                <div class="pas-text">${weekSum.summary.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>")}</div>
+              </div>`
+            : "";
+
           return `<div class="plan-week-acc">
       <div class="${hdrClass}" onclick="this.classList.toggle('is-open');this.nextElementSibling.classList.toggle('is-open')">
         <span class="pwh-num">${wi + 1}. hét</span>
@@ -13886,6 +13953,7 @@
             })
             .join("")}
         </div>
+        ${summaryBlock}
       </div>
     </div>`;
         }).join("");
