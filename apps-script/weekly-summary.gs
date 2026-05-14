@@ -89,7 +89,8 @@ function generateWeeklySummary() {
   const prompt  = buildPrompt(wsStr, weStr, thisWeekRuns, ctl, atl, tsb, weeklyHistory, bestPaces, plan);
   const summary = callGroq(apiKey, prompt);
 
-  outSheet.appendRow([new Date().toISOString(), wsStr, weStr, summary]);
+  const genAt = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm');
+  outSheet.appendRow([genAt, wsStr, weStr, summary]);
   Logger.log('✓ Összefoglaló generálva: ' + wsStr + ' – ' + weStr);
 }
 
