@@ -414,21 +414,22 @@ ${bpLines || '  Nincs adat.'}
 FITTSÉG:
   CTL: ${ctl} · ATL: ${atl} · TSB: ${tsb} (${tsbCtx})
 
+Hangnem: személyes, közvetlen coach — nem riport, nem körülírás. Minden bekezdésben legalább egy konkrét számot idézz az adatokból.
+
 Írj pontosan 4 bekezdést, max. 250 szó összesen:
 
-1. HETI TELJESÍTÉS — Hogyan sikerült a km-terv teljesítése? Ha az aktuális km a terv 85%-a alatt van, ezt egyértelműen jelezd (pl. "jelentősen elmaradt a tervtől"). Ne mondd "sikeresen teljesítetted", ha a km < 85% a tervnek. Volt-e kulcsedzés (tempó/intervall/hosszú)? Ha igen, milyen tempón.
+1. HETI TELJESÍTÉS — Mondd ki a tényleges km-t és a tervezett km-t számmal (pl. "17,5 km a tervezett 28-ból"). Ha < 85% a teljesítés, egyértelműen jelezd az elmaradást. Ha ≥ 85%, értékeld pozitívan. Volt kulcsedzés? Ha igen, milyen tempón ment.
 
-2. TREND & FITTSÉG — CTL épül-e a tervnek megfelelően? Hogyan alakul a km-volumen az előző hetekhez képest?
+2. TREND & FITTSÉG — Egy konkrét következtetés a CTL/TRIMP adatokból (nem metrika-magyarázat). Pl.: "A CTL egyelőre alacsony (14), az első hetekben ez normális — az építési ütem a 3–5. héttől gyorsul." Hasonlítsd az előző heti TRIMP/km adatokhoz ha van.
 
-3. CÉLELEMZÉS — On track-e a 4:30/km célra? CSAK tempó- vagy intervalledzések tempóját hasonlítsd a 4:30 célhoz. Ha még nem volt ilyen, jelezd, hogy az alapfázisban ez várható és a cél értékelése csak a tempófázistól lesz releváns. Mi a fő kockázat vagy biztatójel?
+3. CÉLELEMZÉS — Csak tempó- vagy intervalledzések tempóját hasonlítsd a 4:30 célhoz. Ha még nem volt ilyen (alapfázis), egy mondatban jelezd miért nem értékelhető még, majd térj rá arra, mi biztat vagy mi a kockázat az eddigi km-teljesítés alapján.
 
-4. FÓKUSZ — Mit érdemes figyelni a jövő héten (${nextWeekCtx})? Ne adj edzéstervet, adj kontextust.
+4. FÓKUSZ — Egy konkrét, actionable dolog a jövő hétre: mi a legfontosabb (km-volumen, egy adott edzés minősége, egészségi jel stb.)? Max 2 mondat.
 
-SZIGORÚ SZABÁLYOK:
-- TSB > -20: TILOS pihenést vagy recovery hetet javasolni
-- Alap Z1 tempók (5:30–6:30/km): TILOS ezt a 4:30 célhoz hasonlítani
-- Ha km < 85% terv: kötelező explicit jelezni az elmaradást
-- Kerüld: bevezető frázisokat, általánosságokat`;
+SZABÁLYOK:
+- TSB > -20: ne javasolj pihenést
+- Z1/alap tempók: ne hasonlítsd a 4:30 versenytemóhoz
+- Kerüld: bevezető frázisokat ("A heti km-terv teljesítése..."), körülírást, metrikai definíciókat`;
 }
 
 // ── Groq API hívás (ingyenes) ─────────────────────────────────────────────────
