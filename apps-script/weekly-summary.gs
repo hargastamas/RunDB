@@ -16,7 +16,7 @@
 
 const SPREADSHEET_ID = '192YsNtDn7y6VpjMWKDlWUaA_A6scMiqP3DIDLS3Pfeg';
 const RUNS_GID       = 1;
-const MODEL          = 'gemini-1.5-flash-latest';
+const MODEL          = 'gemini-2.0-flash-lite';
 
 // ── Fő függvény ───────────────────────────────────────────────────────────────
 
