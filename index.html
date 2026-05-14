@@ -1921,6 +1921,8 @@
         </div>
         <canvas id="weeklyTRIMPChart" height="160"></canvas>
       </div>
+      <div class="slabel">Heti kalória (utolsó 52 hét)</div>
+      <div class="chart-card"><canvas id="weeklyCalChart" height="160"></canvas></div>
       <div class="slabel">
         Lépésszám trend<button class="info-btn" tabindex="0">
           i<span class="info-tip"
@@ -10754,10 +10756,12 @@
           .sort()
           .map((ws) => {
             const rs = wM[ws];
+            const calV = rs.filter((r) => r.calories).map((r) => r.calories);
             return {
               w: ws + "/" + _wEnd(ws),
               km: +rs.reduce((s, r) => s + r.dist, 0).toFixed(1),
               trimp: +rs.reduce((s, r) => s + r.trimp, 0).toFixed(1),
+              calories: calV.length ? +calV.reduce((s, v) => s + v, 0).toFixed(0) : null,
               runs: rs.length,
               date: rs[0].date,
             };
@@ -12133,7 +12137,17 @@
     </div>`
         : `<div class="stat-box"><div class="stat-lbl">Futások</div><div class="stat-num">${twRuns}</div>${runsDeltaStr}</div>`
     }
-    <div class="stat-box"><div class="stat-lbl">Terhelés (TRIMP)</div><div class="stat-num">${twTrimp}</div>${trimpCtx}</div>`;
+    <div class="stat-box"><div class="stat-lbl">Terhelés (TRIMP)</div><div class="stat-num">${twTrimp}</div>${trimpCtx}</div>
+    ${(() => {
+      const calThis = thisW?.calories ?? null;
+      const calPrev = prevW?.calories ?? null;
+      let calDeltaStr = "";
+      if (calThis != null && calPrev != null) {
+        const d = calThis - calPrev, sign = d >= 0 ? "+" : "";
+        calDeltaStr = `<div class="stat-unit" style="color:${d >= 0 ? "var(--lime)" : "var(--orange)"}">${sign}${Math.round(d).toLocaleString()} kcal az előző héthez képest</div>`;
+      }
+      return `<div class="stat-box"><div class="stat-lbl">Kalória</div><div class="stat-num lime">${calThis != null ? Math.round(calThis).toLocaleString() : "—"}</div><div class="stat-unit">kcal futásból</div>${calDeltaStr}</div>`;
+    })()}`;
 
         const p = PRS;
         function prCard(label, numHtml, meta, run) {
@@ -12726,6 +12740,29 @@
         _drawZoneChart();
         _buildTrimpNav();
         _drawTrimpChart();
+        // Weekly calories
+        const wkCal = WEEKLY.filter((w) => w.calories != null).slice(-52);
+        if (wkCal.length) {
+          const maxCal = Math.max(...wkCal.map((w) => w.calories));
+          const isLight2 = document.documentElement.classList.contains("light");
+          drawBar(
+            "weeklyCalChart",
+            wkCal.map((w) => w.date.slice(2)),
+            [
+              {
+                data: wkCal.map((w) => w.calories),
+                color: wkCal.map((w) =>
+                  w.calories === maxCal
+                    ? getLime()
+                    : w.calories > 1500
+                      ? isLight2 ? "rgba(100,140,0,.45)" : "rgba(200,241,53,.5)"
+                      : isLight2 ? "rgba(100,140,0,.2)" : "rgba(200,241,53,.2)",
+                ),
+              },
+            ],
+            { rotateLabels: true, yFmt: (v) => Math.round(v) + "kcal" },
+          );
+        }
         // Cadence trend
         const cadM = MONTHLY.map((m) => {
           const rs = RUNS.filter((r) => r.ym === m.ym && r.cadence > 0);
