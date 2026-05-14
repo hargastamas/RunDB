@@ -238,6 +238,8 @@ canvas{display:block;width:100%!important}
 <div class="page active" id="page-overview">
   <div class="slabel">Összesítő</div>
   <div class="stat-row" id="overview-stats"></div>
+  <div class="slabel">Ezen a héten</div>
+  <div class="stat-row" id="weekly-cal-stats" style="grid-template-columns:repeat(4,1fr)"></div>
   <div class="slabel">Personal Records — kattints a futáshoz</div>
   <div class="pr-grid" id="pr-grid"></div>
   <div class="slabel">Havi km — teljes history</div>
@@ -401,6 +403,8 @@ canvas{display:block;width:100%!important}
   <div class="chart-card"><canvas id="zoneTimeChart" height="160"></canvas></div>
   <div class="slabel">Heti TRIMP</div>
   <div class="chart-card"><canvas id="weeklyTRIMPChart" height="160"></canvas></div>
+  <div class="slabel">Heti kalória (utolsó 52 hét)</div>
+  <div class="chart-card"><canvas id="weeklyCalChart" height="160"></canvas></div>
 </div>
 
 <script>
@@ -526,10 +530,12 @@ function _compute(runs){
   const wM={};runs.forEach(r=>{const ws=_wStart(r.date);(wM[ws]=wM[ws]||[]).push(r)});
   const WEEKLY=Object.keys(wM).sort().map(ws=>{
     const rs=wM[ws];
+    const calV=rs.filter(r=>r.calories).map(r=>r.calories);
     return{w:ws+'/'+_wEnd(ws),
       km:+rs.reduce((s,r)=>s+r.dist,0).toFixed(1),
       trimp:+rs.reduce((s,r)=>s+r.trimp,0).toFixed(1),
-      runs:rs.length,date:rs[0].date};
+      calories:calV.length?+calV.reduce((s,v)=>s+v,0).toFixed(0):null,
+      runs:rs.length,date:rs[0].date,weekStart:ws};
   });
   const bp=arr=>arr.length?arr.reduce((a,r)=>r.pace<a.pace?r:a):null;
   const p5=bp(runs.filter(r=>r.dist>=4.5&&r.dist<=7));
@@ -986,6 +992,26 @@ function initOverview(){
     <div class="stat-box"><div class="stat-lbl">Összes TRIMP</div><div class="stat-num">${Math.round(totTrimp).toLocaleString()}</div><div class="stat-unit">terhelési pont</div></div>
     <div class="stat-box"><div class="stat-lbl">Kalória</div><div class="stat-num">${Math.round(totCal/1000)}k</div><div class="stat-unit">aktív kcal</div></div>`;
 
+  // weekly calorie widget
+  const todayStr=new Date().toISOString().slice(0,10);
+  const thisWeekStart=_wStart(todayStr);
+  const prevWeekStart=_wStart(new Date(new Date(thisWeekStart)-7*86400000).toISOString().slice(0,10));
+  const wThis=WEEKLY.find(w=>w.weekStart===thisWeekStart);
+  const wPrev=WEEKLY.find(w=>w.weekStart===prevWeekStart);
+  const calThis=wThis?.calories??null;
+  const calPrev=wPrev?.calories??null;
+  let diffHtml='—';
+  if(calThis!=null&&calPrev!=null){
+    const d=calThis-calPrev,sign=d>=0?'+':'';
+    const col=d>=0?'var(--lime)':'var(--red)';
+    diffHtml=`<span style="color:${col}">${sign}${Math.round(d).toLocaleString()} kcal</span>`;
+  }
+  document.getElementById('weekly-cal-stats').innerHTML=`
+    <div class="stat-box"><div class="stat-lbl">Héten égett</div><div class="stat-num lime">${calThis!=null?Math.round(calThis).toLocaleString():'—'}</div><div class="stat-unit">kcal futásból</div></div>
+    <div class="stat-box"><div class="stat-lbl">Előző héten</div><div class="stat-num">${calPrev!=null?Math.round(calPrev).toLocaleString():'—'}</div><div class="stat-unit">kcal futásból</div></div>
+    <div class="stat-box"><div class="stat-lbl">Változás</div><div class="stat-num" style="font-size:22px">${diffHtml}</div><div class="stat-unit">vs. előző hét</div></div>
+    <div class="stat-box"><div class="stat-lbl">Héten futott</div><div class="stat-num">${wThis?.km??0}</div><div class="stat-unit">km · ${wThis?.runs??0} futás</div></div>`;
+
   const p=PRS;
   function prCard(label,numHtml,meta,run){
     return`<div class="pr-card" onclick='${run?`showRunDetail(${JSON.stringify(run)})`:""}'>
@@ -1253,6 +1279,11 @@ function drawTrendCharts(){
   ],{rotateLabels:true,yFmt:v=>Math.round(v)+'%',maxVal:100});
   const wk=WEEKLY.slice(-60);
   drawBar('weeklyTRIMPChart',wk.map(w=>w.date.slice(5)),[{data:wk.map(w=>w.trimp),color:wk.map(w=>w.trimp>300?getLime():w.trimp>150?(document.documentElement.classList.contains('light')?'rgba(100,140,0,.45)':'rgba(200,241,53,.5)'):(document.documentElement.classList.contains('light')?'rgba(100,140,0,.2)':'rgba(200,241,53,.2)'))}],{rotateLabels:true,yFmt:v=>Math.round(v)});
+  const wkCal=WEEKLY.filter(w=>w.calories!=null).slice(-52);
+  if(wkCal.length){
+    const maxCal=Math.max(...wkCal.map(w=>w.calories));
+    drawBar('weeklyCalChart',wkCal.map(w=>w.date.slice(5)),[{data:wkCal.map(w=>w.calories),color:wkCal.map(w=>w.calories===maxCal?getLime():w.calories>1500?(document.documentElement.classList.contains('light')?'rgba(100,140,0,.45)':'rgba(200,241,53,.5)'):(document.documentElement.classList.contains('light')?'rgba(100,140,0,.2)':'rgba(200,241,53,.2)'))}],{rotateLabels:true,yFmt:v=>Math.round(v)+'kcal',tooltipFmt:v=>Math.round(v).toLocaleString()+' kcal'});
+  }
 }
 
 // ── INIT ──
