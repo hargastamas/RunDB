@@ -16,7 +16,7 @@
 
 const SPREADSHEET_ID = '192YsNtDn7y6VpjMWKDlWUaA_A6scMiqP3DIDLS3Pfeg';
 const RUNS_GID       = 1;
-const MODEL          = 'gemini-1.5-flash';
+const MODEL          = 'gemini-1.5-flash-latest';
 
 // ── Fő függvény ───────────────────────────────────────────────────────────────
 
@@ -230,7 +230,7 @@ Kerüld a bevezető frázisokat ("Szia!", "Ezen a héten..."). Kezdj azonnal az 
 // ── Gemini API hívás (ingyenes) ───────────────────────────────────────────────
 
 function callGemini(apiKey, prompt) {
-  const url  = 'https://generativelanguage.googleapis.com/v1beta/models/' + MODEL + ':generateContent?key=' + apiKey;
+  const url  = 'https://generativelanguage.googleapis.com/v1/models/' + MODEL + ':generateContent?key=' + apiKey;
   const resp = UrlFetchApp.fetch(url, {
     method:  'post',
     headers: { 'content-type': 'application/json' },
