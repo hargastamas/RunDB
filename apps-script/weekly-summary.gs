@@ -205,7 +205,12 @@ function buildPrompt(wsStr, weStr, thisWeek, prev4, ctl, atl, tsb) {
     (avgPaceStr(thisWeek) ? ', átl. tempó: ' + avgPaceStr(thisWeek) + '/km' : '');
 
   return `Te egy személyes futóedző vagy. Írj tömör, személyes hangvételű heti elemzést magyarul Tamásnak.
-Tamas tapasztalt futó, félmaratoni cél: sub-1:35 (4:30/km). Ismer minden futós fogalmat, nem kell magyarázni az alapokat.
+
+KONTEXTUS:
+- Tamas tapasztalt futó, félmaratoni cél: sub-1:35 (4:30/km átlagtempó)
+- Strukturált 17 hetes edzésterv szerint edz (Wizzair Félmaraton, 2026.09.06.)
+- Ismer minden futós fogalmat, nem kell magyarázni az alapokat
+- TSB -15-ig normális edzésterhelés egy tervezett blokkban — ne minősítsd automatikusan negatívnak
 
 EZEN A HÉTEN (${wsStr} – ${weStr}):
 ${runLines}
@@ -215,16 +220,19 @@ ELŐZŐ 4 HÉT (összehasonlításhoz):
 ${prevLines}
 
 JELENLEGI FITNESZ:
-- CTL (edzettség): ${ctl}
-- ATL (fáradtság): ${atl}
+- CTL (edzettség): ${ctl} — magasabb = edzettebb alap
+- ATL (fáradtság): ${atl} — magasabb = több friss terhelés
 - TSB (forma): ${tsb} → ${tsbCtx}
 
-Írj pontosan 3 bekezdést, összesen max. 180 szó:
-1. Az aheti edzések értékelése — intenzitás, volumen, figyelemre méltó futás
-2. Trend az elmúlt hetekhez képest — fejlődés vagy visszaesés, CTL/TSB kontextus
-3. Egy konkrét javaslat a jövő hétre — ne általánosságot mondj, legyen specifikus
+Írj pontosan 3 bekezdést, összesen max. 200 szó:
 
-Kerüld a bevezető frázisokat ("Szia!", "Ezen a héten..."). Kezdj azonnal az értékeléssel.`;
+1. HETI ÉRTÉKELÉS — Mit sikerült jól? Mi volt a hét legjobb futása és miért? Hogyan alakult az intenzitás-megoszlás (könnyű/tempó/hosszú)?
+
+2. TREND — Hogyan viszonyul ez a hét az előző 4 héthez volumen és terhelés szempontjából? Mit mutat a CTL alakulása — épül a fittség?
+
+3. FÓKUSZ A JÖVŐ HÉTRE — Ne adj konkrét edzéstervet (Tamasnak már van). Adj kontextust: mit érdemes figyelni a következő héten a mostani állapot alapján? (pl. alvás, táplálkozás, bemelegítés, adott futástípus minősége)
+
+Kerüld: általános tanácsokat, bevezető frázisokat ("Szia!", "Ezen a héten..."), pihenési javaslatokat hacsak a TSB nem romlik -20 alá.`;
 }
 
 // ── Groq API hívás (ingyenes) ─────────────────────────────────────────────────
@@ -307,3 +315,21 @@ function onRunAdded(e) {
 
 // Teszteléshez: azonnal lefuttat egyet (bármely napon)
 function testNow() { generateWeeklySummary(); }
+
+// Diagnosztika: megnézi az első néhány sor nyers cellaértékeit
+function diagnoseCols() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheets().find(s => s.getSheetId() === RUNS_GID);
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i <= Math.min(3, data.length - 1); i++) {
+    const c = data[i];
+    Logger.log('--- Sor ' + i + ' ---');
+    Logger.log('c[0] (dátum):    ' + JSON.stringify(c[0]) + ' [' + typeof c[0] + ']');
+    Logger.log('c[2] (típus):    ' + JSON.stringify(c[2]) + ' [' + typeof c[2] + ']');
+    Logger.log('c[3] (időtart.): ' + JSON.stringify(c[3]) + ' [' + typeof c[3] + ']');
+    Logger.log('c[8] (távolság): ' + JSON.stringify(c[8]) + ' [' + typeof c[8] + ']');
+    Logger.log('c[10] (kalória): ' + JSON.stringify(c[10]) + ' [' + typeof c[10] + ']');
+    Logger.log('c[12] (avg HR):  ' + JSON.stringify(c[12]) + ' [' + typeof c[12] + ']');
+    Logger.log('c[14] (TRIMP):   ' + JSON.stringify(c[14]) + ' [' + typeof c[14] + ']');
+  }
+}
