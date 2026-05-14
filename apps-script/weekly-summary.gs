@@ -4,7 +4,7 @@
 //   1. Nyisd meg a futásokat tartalmazó Google Sheetet
 //   2. Bővítmények → Apps Script → illeszd be ezt a kódot
 //   3. Project Settings → Script Properties → Add property:
-//      GEMINI_API_KEY = AIza...   (aistudio.google.com → Get API key → ingyenes)
+//      GROQ_API_KEY = gsk_...   (console.groq.com → Create API Key → ingyenes)
 //   4. Futtasd le a setupTrigger() függvényt egyszer (Futtatás menü)
 //   5. Az első tesztet a testNow() függvénnyel futtathatod
 //
@@ -16,13 +16,13 @@
 
 const SPREADSHEET_ID = '192YsNtDn7y6VpjMWKDlWUaA_A6scMiqP3DIDLS3Pfeg';
 const RUNS_GID       = 1;
-const MODEL          = 'gemini-2.0-flash-lite';
+const MODEL          = 'llama-3.3-70b-versatile';
 
 // ── Fő függvény ───────────────────────────────────────────────────────────────
 
 function generateWeeklySummary() {
-  const apiKey = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
-  if (!apiKey) throw new Error('Nincs GEMINI_API_KEY beállítva a Script Properties-ben');
+  const apiKey = PropertiesService.getScriptProperties().getProperty('GROQ_API_KEY');
+  if (!apiKey) throw new Error('Nincs GROQ_API_KEY beállítva a Script Properties-ben');
 
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const runsSheet = ss.getSheets().find(s => s.getSheetId() === RUNS_GID);
@@ -49,7 +49,7 @@ function generateWeeklySummary() {
   const { ctl, atl, tsb } = computeCTL(runs);
 
   const prompt  = buildPrompt(wsStr, weStr, thisWeekRuns, prev4, ctl, atl, tsb);
-  const summary = callGemini(apiKey, prompt);
+  const summary = callGroq(apiKey, prompt);
 
   outSheet.appendRow([new Date().toISOString(), wsStr, weStr, summary]);
   Logger.log('✓ Összefoglaló generálva: ' + wsStr + ' – ' + weStr);
@@ -227,22 +227,26 @@ JELENLEGI FITNESZ:
 Kerüld a bevezető frázisokat ("Szia!", "Ezen a héten..."). Kezdj azonnal az értékeléssel.`;
 }
 
-// ── Gemini API hívás (ingyenes) ───────────────────────────────────────────────
+// ── Groq API hívás (ingyenes) ─────────────────────────────────────────────────
 
-function callGemini(apiKey, prompt) {
-  const url  = 'https://generativelanguage.googleapis.com/v1/models/' + MODEL + ':generateContent?key=' + apiKey;
-  const resp = UrlFetchApp.fetch(url, {
+function callGroq(apiKey, prompt) {
+  const resp = UrlFetchApp.fetch('https://api.groq.com/openai/v1/chat/completions', {
     method:  'post',
-    headers: { 'content-type': 'application/json' },
+    headers: {
+      'Authorization': 'Bearer ' + apiKey,
+      'content-type':  'application/json'
+    },
     payload: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { maxOutputTokens: 650, temperature: 0.7 }
+      model:       MODEL,
+      messages:    [{ role: 'user', content: prompt }],
+      max_tokens:  650,
+      temperature: 0.7
     }),
     muteHttpExceptions: true
   });
   const code = resp.getResponseCode();
-  if (code !== 200) throw new Error('Gemini API hiba (' + code + '): ' + resp.getContentText());
-  return JSON.parse(resp.getContentText()).candidates[0].content.parts[0].text;
+  if (code !== 200) throw new Error('Groq API hiba (' + code + '): ' + resp.getContentText());
+  return JSON.parse(resp.getContentText()).choices[0].message.content;
 }
 
 // ── Trigger beállítás (egyszer futtatandó) ────────────────────────────────────
