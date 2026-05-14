@@ -374,12 +374,18 @@ function buildPrompt(wsStr, weStr, thisWeek, ctl, atl, tsb, weeklyHistory, bestP
   const tsbCtx = tsb > 10  ? 'pihent, versenyképes forma' :
                  tsb > 0   ? 'kiegyensúlyozott' :
                  tsb > -10 ? 'normális edzésterhelés' :
-                 tsb > -20 ? 'fáradt, figyelj a regenerációra' : 'túlterhelés kockázata';
+                 tsb > -20 ? 'normális terhelés (tervezett blokk), recovery NEM szükséges' : 'túlterhelés kockázata';
+
+  const kmPct = planKm ? Math.round(actualKm / planKm * 100) : null;
+  const kmStatus = kmDiff !== null
+    ? (kmDiff >= 0 ? '+' : '') + kmDiff + ' km (' + kmPct + '% a tervből)' +
+      (kmPct !== null && kmPct < 85 ? ' ← JELENTŐS ELMARADÁS' : '')
+    : '—';
 
   const thisWeekHeader = currentW
     ? 'EZEN A HÉTEN — H' + currentW.w + '/' + plan.length + ' (' + currentW.phase + ' fázis), ' + wsStr + '–' + weStr + ':\n' +
       '  Terv: ' + planKm + ' km · ' + currentW.key + '\n' +
-      '  Teljesítve: ' + actualKm + ' km (' + (kmDiff !== null ? (kmDiff >= 0 ? '+' : '') + kmDiff + ' km a tervhez képest' : '—') + ')'
+      '  Teljesítve: ' + actualKm + ' km (' + kmStatus + ')'
     : 'EZEN A HÉTEN (' + wsStr + '–' + weStr + '):';
 
   const nextWeekCtx = planNextW
@@ -391,7 +397,8 @@ function buildPrompt(wsStr, weStr, thisWeek, ctl, atl, tsb, weeklyHistory, bestP
 KONTEXTUS:
 - Tapasztalt futó, HM-cél: sub-1:35 (4:30/km átlagtempó) — Wizzair Félmaraton, 2026-09-06
 - 17 hetes strukturált edzésterv, kezdet: ${PLAN_START}
-- TSB -15-ig normális edzésterhelés egy tervezett blokkban; ne javasolj az edzéstervtől eltérő edzéseket
+- TEMPÓ ÉRTELMEZÉS: Alap/Z1 futásoknál a 5:30–6:30/km tempó szándékosan lassú és HELYES. Ne hasonlítsd az alap futások tempóját a 4:30 célhoz — az irreleváns. Csak tempó- és intervalledzések tempóját értékeld a célhoz képest.
+- TSB SZABÁLY: TSB > -20 = normális tervezett terhelés, NE javasolj pihenést vagy recovery hetet. Csak TSB < -20 esetén jelezz túlterhelést.
 
 ${thisWeekHeader}
 ${runLines}
@@ -402,21 +409,26 @@ ${historyLines || '  Nincs még elegendő adat.'}
 
 LEGJOBB TEMPÓK AZ EDZÉSTERV KEZDETE ÓTA:
 ${bpLines || '  Nincs adat.'}
+  (Megjegyzés: ha nincs még tempó- vagy hosszú futás, az overall tempó alap Z1 futásból van — ez nem versenyspecifikus teljesítmény)
 
 FITTSÉG:
   CTL: ${ctl} · ATL: ${atl} · TSB: ${tsb} (${tsbCtx})
 
 Írj pontosan 4 bekezdést, max. 250 szó összesen:
 
-1. HETI TELJESÍTÉS — Hogyan sikerült a tervhez képest? Volt-e kulcsedzés (tempó/intervall/hosszú)? Ha igen, milyen tempón — az elváráshoz képest?
+1. HETI TELJESÍTÉS — Hogyan sikerült a km-terv teljesítése? Ha az aktuális km a terv 85%-a alatt van, ezt egyértelműen jelezd (pl. "jelentősen elmaradt a tervtől"). Ne mondd "sikeresen teljesítetted", ha a km < 85% a tervnek. Volt-e kulcsedzés (tempó/intervall/hosszú)? Ha igen, milyen tempón.
 
-2. TREND & FITTSÉG — CTL épül-e? Hogyan alakult a km-volumen és a tempók az előző hetekhez képest? Van-e javulás a legjobb tempókban a terv előrehaladásával?
+2. TREND & FITTSÉG — CTL épül-e a tervnek megfelelően? Hogyan alakul a km-volumen az előző hetekhez képest?
 
-3. CÉLELEMZÉS — On track-e a 4:30/km célra az eddigi legjobb tempók és a CTL-épülés alapján? Mi a fő kockázat vagy biztatójel? Hivatkozz konkrét adatokra (pl. jelenlegi legjobb tempó vs. 4:30 cél).
+3. CÉLELEMZÉS — On track-e a 4:30/km célra? CSAK tempó- vagy intervalledzések tempóját hasonlítsd a 4:30 célhoz. Ha még nem volt ilyen, jelezd, hogy az alapfázisban ez várható és a cél értékelése csak a tempófázistól lesz releváns. Mi a fő kockázat vagy biztatójel?
 
-4. FÓKUSZ — Mit érdemes figyelni a jövő héten (${nextWeekCtx})? Ne adj edzéstervet, adj kontextust (regeneráció, tempó minősége, egészségügyi jelek stb.)
+4. FÓKUSZ — Mit érdemes figyelni a jövő héten (${nextWeekCtx})? Ne adj edzéstervet, adj kontextust.
 
-Kerüld: bevezető frázisokat ("Tamás, ez a hét..."), általánosságokat, pihenési javaslatot ha TSB > -20.`;
+SZIGORÚ SZABÁLYOK:
+- TSB > -20: TILOS pihenést vagy recovery hetet javasolni
+- Alap Z1 tempók (5:30–6:30/km): TILOS ezt a 4:30 célhoz hasonlítani
+- Ha km < 85% terv: kötelező explicit jelezni az elmaradást
+- Kerüld: bevezető frázisokat, általánosságokat`;
 }
 
 // ── Groq API hívás (ingyenes) ─────────────────────────────────────────────────
