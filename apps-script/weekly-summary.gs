@@ -10,8 +10,9 @@
 //   6. Az első tesztet a testNow() függvénnyel futtathatod
 //
 // MŰKÖDÉS:
-//   A trigger akkor fut le, amikor új sor kerül a sheetbe (Garmin szinkron).
-//   Ha az nap szombat ÉS van aznap rögzített futás → generálja az összefoglalót.
+//   Adatforrás: HealthFit (Apple Health → Google Sheets szinkron)
+//   onChange trigger: azonnal generál ha szombaton szinkronizálja a futást a HealthFit
+//   Fallback trigger: szombaton 20:00-kor generál, ha a HealthFit szinkron elmaradt
 //   Duplikátumvédelem: ugyanarra a hétre csak egyszer generál.
 // ─────────────────────────────────────────────────────────────────────────────
 
