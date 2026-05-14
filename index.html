@@ -252,9 +252,17 @@
         gap: 12px;
       }
       #today-plan,
-      #today-forma,
-      #thisweek-stats {
+      #today-forma {
         display: contents;
+      }
+      #thisweek-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        grid-column: 1 / -1;
+      }
+      #thisweek-summary {
+        grid-column: 1 / -1;
       }
       .daily-week-label {
         grid-column: 1/-1;
@@ -1237,6 +1245,9 @@
         #daily-stats {
           grid-template-columns: 1fr;
         }
+        #thisweek-stats {
+          grid-template-columns: repeat(2, 1fr);
+        }
         .stat-num {
           font-size: 26px;
         }
@@ -1515,7 +1526,6 @@
         background: var(--lime);
       }
       .thisweek-ai-card {
-        margin-top: 10px;
         background: var(--surface);
         border: 1px solid var(--card-border);
         border-left: 3px solid var(--lime);
