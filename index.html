@@ -1627,6 +1627,7 @@
       <button class="tab-btn" onclick="showTab('trends', this)">Trendek</button>
       <button class="tab-btn" onclick="showTab('stats', this)">Statisztikák</button>
       <button class="tab-btn" onclick="showTab('health', this)">Egészség</button>
+      <button class="tab-btn" onclick="showTab('summaries', this)">AI Összefoglaló</button>
       <div style="margin-left: auto; flex-shrink: 0">
         <button
           id="theme-toggle"
@@ -2073,6 +2074,14 @@
         </button>
       </div>
       <div class="chart-card"><canvas id="stepsChart" height="150"></canvas></div>
+    </div>
+
+    <!-- ═══ AI ÖSSZEFOGLALÓK ═══ -->
+    <div class="page" id="page-summaries">
+      <div class="slabel" style="border-top: none; padding-top: 0; margin-top: 0">Legutóbbi heti összefoglaló</div>
+      <div id="summaries-latest"></div>
+      <div class="slabel" id="summaries-history-label">Korábbi hetek</div>
+      <div id="summaries-history"></div>
     </div>
 
     <!-- ═══ TERV ═══ -->
@@ -10528,6 +10537,8 @@
         "https://docs.google.com/spreadsheets/d/1V8XlThjn4eSIjU06WDeuPVFQ24G30di4rNzHgHOGUB0/export?format=csv&gid=0";
       const HRV_LIVE_CSV =
         "https://docs.google.com/spreadsheets/d/1V8XlThjn4eSIjU06WDeuPVFQ24G30di4rNzHgHOGUB0/gviz/tq?tqx=out:csv&sheet=HRV%20Live";
+      const SUMMARIES_CSV =
+        "https://docs.google.com/spreadsheets/d/192YsNtDn7y6VpjMWKDlWUaA_A6scMiqP3DIDLS3Pfeg/gviz/tq?tqx=out:csv&sheet=Summaries";
       let RUNS = [],
         MONTHLY = [],
         YEARLY = [],
@@ -10535,7 +10546,8 @@
         PRS = {},
         PR_DATES = {},
         HEALTH = [],
-        GYM_DATES = [];
+        GYM_DATES = [],
+        SUMMARIES = [];
 
       function _tMin(s) {
         if (!s) return null;
@@ -10847,6 +10859,48 @@
         return map;
       }
 
+      function _parseSummaries(text) {
+        // Full CSV parser supporting quoted fields with embedded newlines/commas
+        const records = [];
+        const s = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+        let i = 0;
+        function field() {
+          if (s[i] === '"') {
+            i++;
+            let v = "";
+            while (i < s.length) {
+              if (s[i] === '"' && s[i + 1] === '"') { v += '"'; i += 2; }
+              else if (s[i] === '"') { i++; break; }
+              else v += s[i++];
+            }
+            return v;
+          }
+          let v = "";
+          while (i < s.length && s[i] !== "," && s[i] !== "\n") v += s[i++];
+          return v;
+        }
+        // skip header row
+        while (i < s.length && s[i] !== "\n") i++;
+        i++;
+        while (i < s.length) {
+          const row = [];
+          while (i < s.length) {
+            row.push(field());
+            if (i < s.length && s[i] === ",") i++;
+            else break;
+          }
+          if (i < s.length && s[i] === "\n") i++;
+          if (row.length >= 4 && row[1] && row[1].match(/^\d{4}-\d{2}-\d{2}$/))
+            records.push({ generated_at: row[0], week_start: row[1], week_end: row[2], summary: row[3] });
+        }
+        return records;
+      }
+      async function _fetchSummaries() {
+        const r = await fetch(SUMMARIES_CSV);
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return _parseSummaries(await r.text());
+      }
+
       function _clearDOM() {
         ["heatmap", "month-names"].forEach((id) => {
           const el = document.getElementById(id);
@@ -10873,6 +10927,7 @@
         initRunsTab();
         initCalendarTab();
         initMonthlyTab();
+        initSummariesTab();
       }
 
       function _parseWorkoutCSV(text) {
@@ -10924,14 +10979,16 @@
       }
 
       async function _bootstrap() {
-        const [runsResult, healthResult, workoutsResult, hrvLiveResult] = await Promise.allSettled([
+        const [runsResult, healthResult, workoutsResult, hrvLiveResult, summariesResult] = await Promise.allSettled([
           _fetchSheet(),
           _fetchHealth(),
           _fetchWorkouts(),
           _fetchHrvLive(),
+          _fetchSummaries(),
         ]);
         HEALTH = healthResult.status === "fulfilled" ? healthResult.value : [];
         GYM_DATES = workoutsResult.status === "fulfilled" ? workoutsResult.value : [];
+        SUMMARIES = summariesResult.status === "fulfilled" ? summariesResult.value : [];
         if (healthResult.status !== "fulfilled")
           console.warn("RunDB: health fetch failed:", healthResult.reason?.message);
         if (workoutsResult.status !== "fulfilled")
@@ -11598,6 +11655,53 @@
         if (id === "plan") {
           renderPlan();
         }
+        if (id === "summaries") {
+          initSummariesTab();
+        }
+      }
+
+      // ── AI ÖSSZEFOGLALÓK ──
+      function _summaryCard(s, isLatest) {
+        const paragraphs = s.summary
+          .split(/\n\n+/)
+          .filter((p) => p.trim())
+          .map((p) => `<p style="margin:0 0 12px;last-child{margin:0}">${p.replace(/\n/g, "<br>")}</p>`)
+          .join("");
+        const genDate = s.generated_at
+          ? new Date(s.generated_at).toLocaleString("hu-HU", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })
+          : "";
+        return `<div class="chart-card" style="margin-bottom:14px${isLatest ? ";border-color:var(--lime)" : ";opacity:.9"}">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;flex-wrap:wrap;gap:8px">
+            <div>
+              <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:${isLatest ? "var(--lime)" : "var(--text3)"};margin-bottom:5px">${isLatest ? "Legutóbbi" : "Korábbi hét"}</div>
+              <div style="font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.5px">${s.week_start} – ${s.week_end}</div>
+            </div>
+            <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;padding-top:4px">${genDate}</div>
+          </div>
+          <div style="font-size:14px;line-height:1.8;color:var(--text2)">${paragraphs}</div>
+        </div>`;
+      }
+      function initSummariesTab() {
+        const latestEl  = document.getElementById("summaries-latest");
+        const histEl    = document.getElementById("summaries-history");
+        const histLabel = document.getElementById("summaries-history-label");
+        if (!latestEl) return;
+        if (!SUMMARIES.length) {
+          latestEl.innerHTML = `<div class="chart-card" style="text-align:center;padding:40px 24px;color:var(--text3)">
+            <div style="font-size:32px;margin-bottom:12px">🤖</div>
+            <div style="font-weight:700;margin-bottom:8px">Még nincs összefoglaló</div>
+            <div style="font-size:13px;line-height:1.6">Telepítsd az Apps Script-et a <code>apps-script/weekly-summary.gs</code> fájlból,<br>és futtasd le a <code>setupTrigger()</code> függvényt egyszer.</div>
+          </div>`;
+          histLabel.style.display = "none";
+          histEl.innerHTML = "";
+          return;
+        }
+        const sorted = SUMMARIES.slice().sort((a, b) => a.week_start.localeCompare(b.week_start));
+        const latest = sorted[sorted.length - 1];
+        const older  = sorted.slice(0, -1).reverse();
+        latestEl.innerHTML  = _summaryCard(latest, true);
+        histLabel.style.display = older.length ? "" : "none";
+        histEl.innerHTML = older.map((s) => _summaryCard(s, false)).join("");
       }
 
       // ── CALENDAR ──
