@@ -255,6 +255,9 @@
       #today-forma {
         display: contents;
       }
+      #today-plan > .stat-box {
+        grid-column: span 2;
+      }
       #thisweek-stats {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
@@ -12250,7 +12253,7 @@
         const d = calThis - calPrev, sign = d >= 0 ? "+" : "";
         calDeltaStr = `<div class="stat-unit" style="color:${d >= 0 ? "var(--lime)" : "var(--orange)"}">${sign}${Math.round(d).toLocaleString()} kcal az előző héthez képest</div>`;
       }
-      return `<div class="stat-box"><div class="stat-lbl">Kalória</div><div class="stat-num lime">${calThis != null ? Math.round(calThis).toLocaleString() : "—"}</div><div class="stat-unit">kcal futásból</div>${calDeltaStr}</div>`;
+      return `<div class="stat-box"><div class="stat-lbl">Kalória</div><div class="stat-num">${calThis != null ? Math.round(calThis).toLocaleString() : "—"}</div><div class="stat-unit">kcal futásból</div>${calDeltaStr}</div>`;
     })()}`;
 
         // AI summary for current week
