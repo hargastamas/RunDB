@@ -4,7 +4,7 @@
 //   1. Nyisd meg a futásokat tartalmazó Google Sheetet
 //   2. Bővítmények → Apps Script → illeszd be ezt a kódot
 //   3. Project Settings → Script Properties → Add property:
-//      ANTHROPIC_API_KEY = sk-ant-api03-...   (console.anthropic.com → API Keys)
+//      GEMINI_API_KEY = AIza...   (aistudio.google.com → Get API key → ingyenes)
 //   4. Futtasd le a setupTrigger() függvényt egyszer (Futtatás menü)
 //   5. Az első tesztet a testNow() függvénnyel futtathatod
 //
@@ -16,13 +16,13 @@
 
 const SPREADSHEET_ID = '192YsNtDn7y6VpjMWKDlWUaA_A6scMiqP3DIDLS3Pfeg';
 const RUNS_GID       = 1;
-const MODEL          = 'claude-haiku-4-5-20251001';
+const MODEL          = 'gemini-2.0-flash';
 
 // ── Fő függvény ───────────────────────────────────────────────────────────────
 
 function generateWeeklySummary() {
-  const apiKey = PropertiesService.getScriptProperties().getProperty('ANTHROPIC_API_KEY');
-  if (!apiKey) throw new Error('Nincs ANTHROPIC_API_KEY beállítva a Script Properties-ben');
+  const apiKey = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
+  if (!apiKey) throw new Error('Nincs GEMINI_API_KEY beállítva a Script Properties-ben');
 
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const runsSheet = ss.getSheets().find(s => s.getSheetId() === RUNS_GID);
@@ -49,7 +49,7 @@ function generateWeeklySummary() {
   const { ctl, atl, tsb } = computeCTL(runs);
 
   const prompt  = buildPrompt(wsStr, weStr, thisWeekRuns, prev4, ctl, atl, tsb);
-  const summary = callClaude(apiKey, prompt);
+  const summary = callGemini(apiKey, prompt);
 
   outSheet.appendRow([new Date().toISOString(), wsStr, weStr, summary]);
   Logger.log('✓ Összefoglaló generálva: ' + wsStr + ' – ' + weStr);
@@ -227,26 +227,22 @@ JELENLEGI FITNESZ:
 Kerüld a bevezető frázisokat ("Szia!", "Ezen a héten..."). Kezdj azonnal az értékeléssel.`;
 }
 
-// ── Claude API hívás ──────────────────────────────────────────────────────────
+// ── Gemini API hívás (ingyenes) ───────────────────────────────────────────────
 
-function callClaude(apiKey, prompt) {
-  const resp = UrlFetchApp.fetch('https://api.anthropic.com/v1/messages', {
-    method: 'post',
-    headers: {
-      'x-api-key':          apiKey,
-      'anthropic-version':  '2023-06-01',
-      'content-type':       'application/json'
-    },
+function callGemini(apiKey, prompt) {
+  const url  = 'https://generativelanguage.googleapis.com/v1beta/models/' + MODEL + ':generateContent?key=' + apiKey;
+  const resp = UrlFetchApp.fetch(url, {
+    method:  'post',
+    headers: { 'content-type': 'application/json' },
     payload: JSON.stringify({
-      model:      MODEL,
-      max_tokens: 650,
-      messages:   [{ role: 'user', content: prompt }]
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { maxOutputTokens: 650, temperature: 0.7 }
     }),
     muteHttpExceptions: true
   });
   const code = resp.getResponseCode();
-  if (code !== 200) throw new Error('Claude API hiba (' + code + '): ' + resp.getContentText());
-  return JSON.parse(resp.getContentText()).content[0].text;
+  if (code !== 200) throw new Error('Gemini API hiba (' + code + '): ' + resp.getContentText());
+  return JSON.parse(resp.getContentText()).candidates[0].content.parts[0].text;
 }
 
 // ── Trigger beállítás (egyszer futtatandó) ────────────────────────────────────
