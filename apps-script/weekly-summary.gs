@@ -297,7 +297,7 @@ function getWeekStart(date) {
   const d   = new Date(date);
   const day = d.getDay();
   d.setDate(d.getDate() + (day === 0 ? -6 : 1 - day));
-  d.setHours(0, 0, 0, 0);
+  d.setUTCHours(12, 0, 0, 0); // noon UTC = correct calendar day in any ±12h timezone
   return d;
 }
 
