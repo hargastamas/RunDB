@@ -458,35 +458,34 @@ function callGroq(apiKey, prompt) {
 
 // ── Trigger beállítás (egyszer futtatandó) ────────────────────────────────────
 
-const SUMMARY_DAY = 6; // 0=vasárnap, 6=szombat
-
 function setupTrigger() {
   // Töröljük a meglévő managed triggereket
   ScriptApp.getProjectTriggers()
-    .filter(t => t.getHandlerFunction() === 'onRunAdded' || t.getHandlerFunction() === 'saturdayFallback')
+    .filter(t => ['onRunAdded', 'saturdayFallback', 'sundayFallback'].includes(t.getHandlerFunction()))
     .forEach(t => ScriptApp.deleteTrigger(t));
 
-  // 1. onChange: azonnal generál ha szombaton szinkronizál a Garmin
+  // 1. onChange: azonnal generál ha szombaton vagy vasárnap szinkronizál a HealthFit
   ScriptApp.newTrigger('onRunAdded')
     .forSpreadsheet(SpreadsheetApp.openById(SPREADSHEET_ID))
     .onChange()
     .create();
 
-  // 2. Időzített fallback: minden szombaton 20:00-kor fut, ha még nincs summary
-  //    (kihagyott utolsó edzés esetén is generál)
-  ScriptApp.newTrigger('saturdayFallback')
+  // 2. Vasárnap 20:00 fallback: ha a HealthFit szinkron elmaradt, vagy a hosszú futás
+  //    vasárnapra esett és nem szinkronizálódott (kihagyott edzés esetén is generál)
+  ScriptApp.newTrigger('sundayFallback')
     .timeBased()
-    .onWeekDay(ScriptApp.WeekDay.SATURDAY)
+    .onWeekDay(ScriptApp.WeekDay.SUNDAY)
     .atHour(20)
     .create();
 
-  Logger.log('✓ Triggerek beállítva: onChange (azonnali) + szombat 20:00 fallback');
+  Logger.log('✓ Triggerek beállítva: onChange (szombat+vasárnap, azonnali) + vasárnap 20:00 fallback');
 }
 
-// onChange trigger: szombaton fut, ha van aznapi futás
+// onChange trigger: szombaton VAGY vasárnap fut, ha van aznapi futás
 function onRunAdded(e) {
-  const today    = new Date();
-  if (today.getDay() !== SUMMARY_DAY) return;
+  const today     = new Date();
+  const dayOfWeek = today.getDay();
+  if (dayOfWeek !== 6 && dayOfWeek !== 0) return; // csak szombat (6) vagy vasárnap (0)
 
   const todayStr = Utilities.formatDate(today, Session.getScriptTimeZone(), 'yyyy-MM-dd');
   const ss       = SpreadsheetApp.openById(SPREADSHEET_ID);
@@ -499,8 +498,8 @@ function onRunAdded(e) {
   _generateIfMissing();
 }
 
-// Időzített fallback: szombaton 20:00-kor fut, akkor is ha nem volt aznapi futás
-function saturdayFallback() {
+// Időzített fallback: vasárnap 20:00-kor fut, akkor is ha nem volt HealthFit szinkron
+function sundayFallback() {
   _generateIfMissing();
 }
 
