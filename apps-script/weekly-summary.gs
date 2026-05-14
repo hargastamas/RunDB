@@ -251,6 +251,11 @@ function parseUnit(v, unit) {
 
 function tMin(v) {
   if (v == null || v === '') return null;
+  // getValues() returns Time/Duration cells as Date objects; use UTC to avoid timezone shift
+  if (v instanceof Date) {
+    const s = Utilities.formatDate(v, 'UTC', 'HH:mm:ss').split(':');
+    return +s[0] * 60 + +s[1] + +s[2] / 60;
+  }
   if (typeof v === 'number') return v < 1 ? v * 24 * 60 : null;
   const s  = String(v);
   const m1 = s.match(/(\d+)h:(\d+)m:(\d+)s/);
