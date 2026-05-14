@@ -4,13 +4,14 @@
 //   1. Nyisd meg a futásokat tartalmazó Google Sheetet
 //   2. Bővítmények → Apps Script → illeszd be ezt a kódot
 //   3. Project Settings → Script Properties → Add property:
-//      ANTHROPIC_API_KEY = sk-ant-...
+//      ANTHROPIC_API_KEY = sk-ant-api03-...   (console.anthropic.com → API Keys)
 //   4. Futtasd le a setupTrigger() függvényt egyszer (Futtatás menü)
 //   5. Az első tesztet a testNow() függvénnyel futtathatod
 //
 // MŰKÖDÉS:
-//   Minden szombat ~20:00-kor automatikusan fut, a "Summaries" sheet-fülre
-//   írja a heti összefoglalót. A dashboard felolvassa és megjeleníti.
+//   A trigger akkor fut le, amikor új sor kerül a sheetbe (Garmin szinkron).
+//   Ha az nap szombat ÉS van aznap rögzített futás → generálja az összefoglalót.
+//   Duplikátumvédelem: ugyanarra a hétre csak egyszer generál.
 // ─────────────────────────────────────────────────────────────────────────────
 
 const SPREADSHEET_ID = '192YsNtDn7y6VpjMWKDlWUaA_A6scMiqP3DIDLS3Pfeg';
@@ -250,16 +251,59 @@ function callClaude(apiKey, prompt) {
 
 // ── Trigger beállítás (egyszer futtatandó) ────────────────────────────────────
 
+// A SUMMARY_DAY meghatározza melyik napon generálunk (0=vasárnap, 6=szombat)
+const SUMMARY_DAY = 6;
+
 function setupTrigger() {
-  ScriptApp.getProjectTriggers().forEach(t => ScriptApp.deleteTrigger(t));
-  ScriptApp.newTrigger('generateWeeklySummary')
-    .timeBased()
-    .onWeekDay(ScriptApp.WeekDay.SATURDAY)
-    .atHour(20)
-    .nearMinute(0)
+  // Töröljük a meglévő onRunAdded triggereket
+  ScriptApp.getProjectTriggers()
+    .filter(t => t.getHandlerFunction() === 'onRunAdded')
+    .forEach(t => ScriptApp.deleteTrigger(t));
+
+  // onChange: akkor fut, ha bármilyen változás történik a sheetben (pl. Garmin szinkron)
+  ScriptApp.newTrigger('onRunAdded')
+    .forSpreadsheet(SpreadsheetApp.openById(SPREADSHEET_ID))
+    .onChange()
     .create();
-  Logger.log('✓ Trigger beállítva: minden szombat ~20:00');
+
+  Logger.log('✓ Trigger beállítva: sheet változáskor fut (szombati futás után generál)');
 }
 
-// Teszteléshez: azonnal lefuttat egyet
+// Ez hívódik meg minden sheet-változáskor
+function onRunAdded(e) {
+  const today = new Date();
+
+  // Csak a beállított napon (alapértelmezés: szombat)
+  if (today.getDay() !== SUMMARY_DAY) return;
+
+  const todayStr = Utilities.formatDate(today, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const runsSheet = ss.getSheets().find(s => s.getSheetId() === RUNS_GID);
+  if (!runsSheet) return;
+
+  const runs = parseRuns(runsSheet.getDataRange().getValues());
+
+  // Csak ha van aznap rögzített futás (azaz a szinkron már megtörtént)
+  if (!runs.some(r => r.date === todayStr)) return;
+
+  // Duplikátumvédelem: ha erre a hétre már van összefoglaló, kihagyjuk
+  const wsStr = fmtDate(getWeekStart(today));
+  const summarySheet = ss.getSheetByName('Summaries');
+  if (summarySheet) {
+    const data = summarySheet.getDataRange().getValues();
+    if (data.slice(1).some(r => r[1] === wsStr)) {
+      Logger.log('Erre a hétre (' + wsStr + ') már van összefoglaló, kihagyva.');
+      return;
+    }
+  }
+
+  try {
+    generateWeeklySummary();
+  } catch (err) {
+    Logger.log('Hiba a summary generálásakor: ' + err.message);
+  }
+}
+
+// Teszteléshez: azonnal lefuttat egyet (bármely napon)
 function testNow() { generateWeeklySummary(); }
