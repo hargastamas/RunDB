@@ -424,12 +424,13 @@ Hangnem: személyes, közvetlen coach — nem riport, nem körülírás. Minden 
 
 3. CÉLELEMZÉS — Csak tempó- vagy intervalledzések tempóját hasonlítsd a 4:30 célhoz. Ha még nem volt ilyen (alapfázis), egy mondatban jelezd miért nem értékelhető még, majd térj rá arra, mi biztat vagy mi a kockázat az eddigi km-teljesítés alapján.
 
-4. FÓKUSZ — Egy konkrét, actionable dolog a jövő hétre: mi a legfontosabb (km-volumen, egy adott edzés minősége, egészségi jel stb.)? Max 2 mondat.
+4. FÓKUSZ — A KÖVETKEZŐ HÉT konkrét terve: ${nextWeekCtx}. Ebből kiindulva: mi a legfontosabb egy mondatban (pl. km-volumen elérése, kulcsedzés minősége, regeneráció)? Ne a jelenlegi hét tervezett km-jét ismételd — a következő hétre fókuszálj.
 
 SZABÁLYOK:
 - TSB > -20: ne javasolj pihenést
 - Z1/alap tempók: ne hasonlítsd a 4:30 versenytemóhoz
-- Kerüld: bevezető frázisokat ("A heti km-terv teljesítése..."), körülírást, metrikai definíciókat`;
+- Kerüld: bevezető frázisokat ("A heti km-terv teljesítése..."), körülírást, metrikai definíciókat
+- A summary a hét LEZÁRTA után generálódik (utolsó edzés szinkron után), tehát a heti teljesítés végleges`;
 }
 
 // ── Groq API hívás (ingyenes) ─────────────────────────────────────────────────
@@ -459,18 +460,29 @@ function callGroq(apiKey, prompt) {
 const SUMMARY_DAY = 6; // 0=vasárnap, 6=szombat
 
 function setupTrigger() {
+  // Töröljük a meglévő managed triggereket
   ScriptApp.getProjectTriggers()
-    .filter(t => t.getHandlerFunction() === 'onRunAdded')
+    .filter(t => t.getHandlerFunction() === 'onRunAdded' || t.getHandlerFunction() === 'saturdayFallback')
     .forEach(t => ScriptApp.deleteTrigger(t));
 
+  // 1. onChange: azonnal generál ha szombaton szinkronizál a Garmin
   ScriptApp.newTrigger('onRunAdded')
     .forSpreadsheet(SpreadsheetApp.openById(SPREADSHEET_ID))
     .onChange()
     .create();
 
-  Logger.log('✓ Trigger beállítva: sheet változáskor fut (szombati futás után generál)');
+  // 2. Időzített fallback: minden szombaton 20:00-kor fut, ha még nincs summary
+  //    (kihagyott utolsó edzés esetén is generál)
+  ScriptApp.newTrigger('saturdayFallback')
+    .timeBased()
+    .onWeekDay(ScriptApp.WeekDay.SATURDAY)
+    .atHour(20)
+    .create();
+
+  Logger.log('✓ Triggerek beállítva: onChange (azonnali) + szombat 20:00 fallback');
 }
 
+// onChange trigger: szombaton fut, ha van aznapi futás
 function onRunAdded(e) {
   const today    = new Date();
   if (today.getDay() !== SUMMARY_DAY) return;
@@ -483,7 +495,18 @@ function onRunAdded(e) {
   const runs = parseRuns(runsSheet.getDataRange().getValues());
   if (!runs.some(r => r.date === todayStr)) return;
 
-  const wsStr       = fmtDate(getWeekStart(today));
+  _generateIfMissing();
+}
+
+// Időzített fallback: szombaton 20:00-kor fut, akkor is ha nem volt aznapi futás
+function saturdayFallback() {
+  _generateIfMissing();
+}
+
+// Közös logika: csak generál ha erre a hétre még nincs summary
+function _generateIfMissing() {
+  const wsStr = fmtDate(getWeekStart(new Date()));
+  const ss    = SpreadsheetApp.openById(SPREADSHEET_ID);
   const summarySheet = ss.getSheetByName('Summaries');
   if (summarySheet) {
     const data = summarySheet.getDataRange().getValues();
@@ -492,7 +515,6 @@ function onRunAdded(e) {
       return;
     }
   }
-
   try {
     generateWeeklySummary();
   } catch (err) {
