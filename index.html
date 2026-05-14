@@ -89,26 +89,26 @@
       }
       :root {
         --lime: #00f19f;
-        --lime-dim: rgba(0, 241, 159, 0.15);
-        --on-lime: #111111;
-        --bg: #111214;
-        --surface: #1d1f22;
-        --surface2: #26282c;
-        --border: #2e3035;
-        --border2: #383b40;
+        --lime-dim: rgba(0, 241, 159, 0.12);
+        --on-lime: #0a1a12;
+        --bg: #12151d;
+        --surface: #191e2c;
+        --surface2: #212840;
+        --border: #272f44;
+        --border2: #2e384f;
         --text: #ffffff;
-        --text2: #c5c8ce;
-        --text3: #8a909e;
-        --red: #ff0026;
-        --orange: #ffde00;
+        --text2: #8891a8;
+        --text3: #4e5a72;
+        --red: #ff4455;
+        --orange: #ffb800;
         --strain: #0093e7;
-        --grid-line: #1a1c1f;
-        --axis-text: #6b7380;
-        --tip-bg: #1d1f22;
-        --tip-border: #26282c;
+        --grid-line: #171d2d;
+        --axis-text: #4e5a72;
+        --tip-bg: #191e2c;
+        --tip-border: #272f44;
         --tip-text: #ffffff;
         --card-border: transparent;
-        --card-shadow: none;
+        --card-shadow: 0 2px 16px rgba(0, 0, 0, 0.45);
       }
       :root.light {
         --lime: #00b896;
@@ -134,7 +134,7 @@
       }
 
       html {
-        background: linear-gradient(160deg, #181a1e 0%, #111214 100%);
+        background: linear-gradient(160deg, #191e2c 0%, #12151d 100%);
         min-height: 100%;
       }
       body {
@@ -220,14 +220,14 @@
 
       /* SECTION LABEL */
       .slabel {
-        font-size: 15px;
+        font-size: 11px;
         font-weight: 700;
-        letter-spacing: -0.2px;
-        text-transform: none;
-        color: var(--text);
-        margin-bottom: 16px;
-        margin-top: 40px;
-        padding-top: 30px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--text3);
+        margin-bottom: 14px;
+        margin-top: 36px;
+        padding-top: 28px;
         border-top: 1px solid var(--border);
       }
       .slabel:first-child {
