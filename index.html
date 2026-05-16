@@ -12200,21 +12200,17 @@
           _cwI2 >= 0 && _cwI2 < PLAN_DATA.length
             ? PLAN_DATA[_cwI2].days.filter((d) => d.type !== "rest" && d.type !== "gym").length
             : null;
-        // km ring card
+        // km card
         let kmCard;
         if (_planKm2) {
           const kmPct = Math.min(1, twKm / _planKm2);
-          const _r = 34,
-            _cx = 44,
-            _cy = 44,
-            _circ = +(2 * Math.PI * _r).toFixed(1),
-            _dash = +(_circ * kmPct).toFixed(1);
-          kmCard = `<div class="stat-box" style="text-align:center">
-      <div class="stat-lbl" style="text-align:left;margin-bottom:8px">Km ezen a héten</div>
-      ${_ringsvg(twKm.toFixed(1), "/ " + _planKm2 + " KM", "var(--lime)", kmPct, 30)}
-      <div style="margin-top:6px">
-        ${kmDeltaStr}
+          kmCard = `<div class="stat-box">
+      <div class="stat-lbl">Km ezen a héten</div>
+      <div class="stat-num lime">${twKm.toFixed(1)}<span style="font-size:13px;font-weight:500;color:var(--text3);margin-left:4px">/ ${_planKm2} km</span></div>
+      <div style="margin:8px 0 5px;height:4px;border-radius:2px;background:var(--surface2)">
+        <div style="width:${Math.round(kmPct*100)}%;height:100%;border-radius:2px;background:var(--lime);transition:width .4s"></div>
       </div>
+      ${kmDeltaStr}
     </div>`;
         } else {
           kmCard = `<div class="stat-box"><div class="stat-lbl">Km ezen a héten</div><div class="stat-num lime">${twKm.toFixed(1)}</div>${kmDeltaStr}</div>`;
@@ -12241,10 +12237,13 @@
     ${kmCard}
     ${
       _planRuns2
-        ? `<div class="stat-box" style="text-align:center">
-      <div class="stat-lbl" style="text-align:left;margin-bottom:8px">Futások</div>
-      ${_ringsvg(twRuns, "/ " + _planRuns2 + " FUTÁS", "var(--lime)", Math.min(1, twRuns / _planRuns2), 30)}
-      <div style="margin-top:6px">${runsDeltaStr}</div>
+        ? `<div class="stat-box">
+      <div class="stat-lbl">Futások</div>
+      <div class="stat-num">${twRuns}<span style="font-size:13px;font-weight:500;color:var(--text3);margin-left:4px">/ ${_planRuns2} futás</span></div>
+      <div style="margin:8px 0 5px;height:4px;border-radius:2px;background:var(--surface2)">
+        <div style="width:${Math.round(Math.min(1,twRuns/_planRuns2)*100)}%;height:100%;border-radius:2px;background:var(--lime);transition:width .4s"></div>
+      </div>
+      ${runsDeltaStr}
     </div>`
         : `<div class="stat-box"><div class="stat-lbl">Futások</div><div class="stat-num">${twRuns}</div>${runsDeltaStr}</div>`
     }
