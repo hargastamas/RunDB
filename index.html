@@ -256,7 +256,7 @@
         display: contents;
       }
       #today-plan > .stat-box {
-        grid-column: span 2;
+        grid-column: span 1;
       }
 
       #thisweek-stats {
@@ -13252,7 +13252,7 @@
     <div class="stat-lbl" style="text-align:left;margin-bottom:8px">Edzéskészség</div>
     ${_ringsvg(forma, '', col, forma / 100, 30)}
     <div style="margin-top:6px">
-      <div style="font-size:13px;font-weight:700;color:${col}">${status} <span style="font-weight:400;color:var(--text2)">· ${advice}</span></div>
+      <div class="stat-unit" style="color:${col};font-weight:700">${status} <span style="font-weight:400;color:var(--text2)">· ${advice}</span></div>
     </div>
   </div>`;
       }
