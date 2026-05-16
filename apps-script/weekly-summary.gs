@@ -564,6 +564,119 @@ function _generateIfMissing() {
   }
 }
 
+// ── Web App endpoint (/heti skill adatforrás) ─────────────────────────────────
+//
+// TELEPÍTÉS: Deploy → New deployment → Web app
+//   Execute as: Me | Who has access: Anyone with Google account
+//   Az URL-t másold be a apps-script/webapp.url fájlba.
+//
+// Visszaad: tömör JSON ~2 KB — csak az aktuális hét adatait,
+//   így a /heti skill nem kénytelen 464 KB-os sheet-eket olvasni.
+
+function doGet(e) {
+  try {
+    const data = getWeeklyData();
+    return ContentService
+      .createTextOutput(JSON.stringify(data))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ error: err.message }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function getWeeklyData() {
+  const ss        = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const runsSheet = ss.getSheets().find(s => s.getSheetId() === RUNS_GID);
+  if (!runsSheet) throw new Error('Futásokat tartalmazó sheet nem található');
+
+  const allRuns  = parseRuns(runsSheet.getDataRange().getValues());
+  const today    = new Date();
+  const weekStart = getWeekStart(today);
+  const wsStr    = fmtDate(weekStart);
+  const weStr    = fmtDate(today);
+  const plan     = readPlanSheet(ss);
+
+  let health = [];
+  try { health = readHealthSince(PLAN_START); } catch (e) {}
+
+  const thisWeekRuns   = allRuns.filter(r => r.date >= wsStr && r.date <= weStr);
+  const { ctl, atl, tsb } = computeCTL(allRuns);
+  const weeklyHistory  = aggregateWeeksSincePlan(allRuns, health, plan);
+  const bestPaces      = getBestPaces(allRuns);
+  const riegelHM       = getRiegelHM(allRuns);
+  const currentW       = weeklyHistory.find(w => w.wsStr === wsStr) || null;
+  const planNextW      = currentW ? plan.find(p => p.w === currentW.w + 1) : null;
+
+  // Egészségadatok az aktuális hétre
+  const wHealth  = health.filter(h => h.date >= wsStr && h.date <= weStr);
+  const vo2vals  = wHealth.filter(h => h.vo2max  > 0).map(h => h.vo2max);
+  const hrvVals  = wHealth.filter(h => h.hrv     > 0).map(h => h.hrv);
+  const rhrVals  = wHealth.filter(h => h.restHr  > 0).map(h => h.restHr);
+
+  // VO₂ Max 4 héttel ezelőtt (trendhez)
+  const fourWAgo    = new Date(weekStart);
+  fourWAgo.setDate(fourWAgo.getDate() - 28);
+  const prevVo2Arr  = health.filter(h => h.date >= fmtDate(fourWAgo) && h.date < wsStr && h.vo2max > 0);
+  const vo2maxPrev  = prevVo2Arr.length ? +prevVo2Arr[prevVo2Arr.length - 1].vo2max.toFixed(1) : null;
+
+  return {
+    generated: Utilities.formatDate(today, Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm'),
+    week: {
+      num:     currentW ? currentW.w    : null,
+      phase:   currentW ? currentW.phase : null,
+      planKm:  currentW ? currentW.planKm : null,
+      key:     currentW ? currentW.key   : null,
+      start:   wsStr,
+      end:     weStr,
+    },
+    runs: thisWeekRuns.map(r => ({
+      date:  r.date,
+      dist:  r.dist,
+      pace:  r.pace,
+      avgHr: r.avgHr,
+      maxHr: r.maxHr,
+      trimp: r.trimp,
+      rpe:   r.rpe,
+    })),
+    totals: {
+      km:    +thisWeekRuns.reduce((s, r) => s + r.dist,  0).toFixed(2),
+      trimp: Math.round(thisWeekRuns.reduce((s, r) => s + r.trimp, 0)),
+      runs:  thisWeekRuns.length,
+    },
+    fitness: { ctl, atl, tsb },
+    health: {
+      vo2max:     vo2vals.length ? +vo2vals[vo2vals.length - 1].toFixed(1) : null,
+      vo2maxPrev: vo2maxPrev,
+      avgHrv:     hrvVals.length ? Math.round(hrvVals.reduce((s, v) => s + v, 0) / hrvVals.length) : null,
+      avgRhr:     rhrVals.length ? Math.round(rhrVals.reduce((s, v) => s + v, 0) / rhrVals.length) : null,
+    },
+    riegel:    riegelHM,
+    bestPaces: bestPaces,
+    history:   weeklyHistory
+      .filter(w => w.elapsed || w.wsStr === wsStr)
+      .map(w => ({
+        w:        w.w,
+        phase:    w.phase,
+        planKm:   w.planKm,
+        actualKm: w.actualKm,
+        runs:     w.runs,
+        trimp:    w.trimp,
+        bestPace: w.bestPace,
+        avgHrv:   w.avgHrv,
+        avgRhr:   w.avgRestHr,
+        latestVo2: w.latestVo2,
+      })),
+    nextWeek: planNextW ? {
+      num:   planNextW.w,
+      phase: planNextW.phase,
+      km:    planNextW.km,
+      key:   planNextW.key,
+    } : null,
+  };
+}
+
 // ── Segédeszközök ─────────────────────────────────────────────────────────────
 
 // Teszteléshez: azonnal lefuttat egy summary-t (bármely napon)

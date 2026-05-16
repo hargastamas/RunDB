@@ -1,15 +1,28 @@
 Generálj heti edzéselemzést Tamásnak a következő lépésekkel:
 
-1. Töltsd be a Google Drive MCP-vel mindkét sheet-et:
-   - Futásnapló: fileId = `192YsNtDn7y6VpjMWKDlWUaA_A6scMiqP3DIDLS3Pfeg`
-   - Egészségügyi adatok: fileId = `1V8XlThjn4eSIjU06WDeuPVFQ24G30di4rNzHgHOGUB0`
-   - Ha a fájlok túl nagyok a közvetlen olvasáshoz, használj subagent-et a releváns adatok kinyeréséhez.
+1. **Adatok betöltése (elsődleges: Apps Script endpoint)**
+   - Olvasd be a `apps-script/webapp.url` fájlt — ez tartalmazza a deployed endpoint URL-t.
+   - Ha a fájl létezik: használj WebFetch-et az URL-re, és az visszaad egy tömör JSON-t (~2KB) az aktuális hét adataival.
+   - Ha a fájl nem létezik vagy a WebFetch hibával tér vissza: **fallback** — töltsd be a Google Drive MCP-vel mindkét sheet-et:
+     - Futásnapló: fileId = `192YsNtDn7y6VpjMWKDlWUaA_A6scMiqP3DIDLS3Pfeg`
+     - Egészségügyi adatok: fileId = `1V8XlThjn4eSIjU06WDeuPVFQ24G30di4rNzHgHOGUB0`
+     - Ha a fájlok túl nagyok a közvetlen olvasáshoz, használj subagent-et.
 
-2. Azonosítsd az aktuális edzéshetet (terv kezdete: 2026-05-11, hétfőtől vasárnapig).
+2. **JSON struktúra (ha az endpoint sikeresen válaszol):**
+   Az endpoint visszaad egy objektumot ezekkel a mezőkkel:
+   - `week`: hétszám, fázis, tervezett km, kulcsedzés, dátumok
+   - `runs[]`: az aktuális hét futásai (date, dist, pace min/km, avgHr, maxHr, trimp, rpe)
+   - `totals`: összesített km, trimp, futásszám
+   - `fitness`: ctl, atl, tsb
+   - `health`: vo2max, vo2maxPrev (4 héttel ezelőtti), avgHrv, avgRhr
+   - `riegel`: HM-becslés (pace min/km, timeMin, srcDist, srcDate) — a legjobb ≥8 km futásból
+   - `bestPaces`: overall, tempo, long (pace, dist, date)
+   - `history[]`: minden eltelt hét összesítve (w, phase, planKm, actualKm, trimp, bestPace, avgHrv, latestVo2)
+   - `nextWeek`: következő hét terve (num, phase, km, key)
 
-3. Szűrd ki az adott hétre eső futásokat és egészségadatokat.
+3. **Azonosítsd az aktuális edzéshetet** (terv kezdete: 2026-05-11, hétfőtől vasárnapig).
 
-4. Generáld az elemzést az alábbi struktúrával és szabályokkal:
+4. **Generáld az elemzést** az alábbi struktúrával és szabályokkal:
 
 ---
 
