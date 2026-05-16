@@ -189,13 +189,15 @@ function aggregateWeeksSincePlan(runs, health, plan) {
 
     const hrvVals   = wHealth.filter(h => h.hrv    > 0).map(h => h.hrv);
     const hrVals    = wHealth.filter(h => h.restHr > 0).map(h => h.restHr);
+    const vo2vals   = wHealth.filter(h => h.vo2max > 0).map(h => h.vo2max);
     const avgHrv    = hrvVals.length ? +(hrvVals.reduce((s, v) => s + v, 0) / hrvVals.length).toFixed(1) : null;
     const avgRestHr = hrVals.length  ? Math.round(hrVals.reduce((s, v) => s + v, 0) / hrVals.length)    : null;
+    const latestVo2 = vo2vals.length ? +vo2vals[vo2vals.length - 1].toFixed(1) : null;
 
     weeks.push({
       w: pw.w, phase: pw.phase, planKm: pw.km, key: pw.key,
       wsStr, weStr, actualKm, runs: wRuns.length, trimp,
-      bestPace, avgHrv, avgRestHr,
+      bestPace, avgHrv, avgRestHr, latestVo2,
       elapsed: weStr < todayStr,
     });
   }
@@ -286,9 +288,10 @@ function parseRuns(data) {
     const dist = parseUnit(c[8], 'km');
     if (!dist || dist < 0.1) continue;
     const avgHr = Math.round(parseUnit(c[12], 'bpm') || hun(c[12]) || 0) || null;
+    const maxHr = Math.round(parseUnit(c[13], 'bpm') || hun(c[13]) || 0) || null;
     const trimp = +(hun(c[14]) || 0).toFixed(1);
     const cal   = parseUnit(c[10], 'kcal') || hun(c[10]);
-    runs.push({ date, dist: +dist.toFixed(2), pace: +(dur / dist).toFixed(3), avgHr, trimp, calories: cal });
+    runs.push({ date, dist: +dist.toFixed(2), pace: +(dur / dist).toFixed(3), avgHr, maxHr, trimp, calories: cal });
   }
   return runs.sort((a, b) => a.date.localeCompare(b.date));
 }
@@ -346,7 +349,8 @@ function buildPrompt(wsStr, weStr, thisWeek, ctl, atl, tsb, weeklyHistory, bestP
   const runLines = thisWeek.length
     ? thisWeek.map(r =>
         '  ' + r.date + ': ' + r.dist + ' km @ ' + fmtPace(r.pace) + '/km' +
-        (r.avgHr    ? ', HR: ' + r.avgHr + ' bpm' : '') +
+        (r.avgHr ? ', AvgHR: ' + r.avgHr + ' bpm' : '') +
+        (r.maxHr ? ', MaxHR: ' + r.maxHr + ' bpm' : '') +
         ', TRIMP: ' + r.trimp +
         (r.calories ? ', ' + Math.round(r.calories) + ' kcal' : '')
       ).join('\n')
@@ -401,6 +405,12 @@ KONTEXTUS:
 - 17 hetes strukturált edzésterv, kezdet: ${PLAN_START}
 - TEMPÓ ÉRTELMEZÉS: Alap/Z1 futásoknál a 5:30–6:30/km tempó szándékosan lassú és HELYES. Ne hasonlítsd az alap futások tempóját a 4:30 célhoz — az irreleváns. Csak tempó- és intervalledzések tempóját értékeld a célhoz képest.
 - TSB SZABÁLY: TSB > -20 = normális tervezett terhelés, NE javasolj pihenést vagy recovery hetet. Csak TSB < -20 esetén jelezz túlterhelést.
+- HR CÉLOK FÁZISONKÉNT:
+  • Alap (H1–4): minden futás avg HR ≤ 150 bpm. Hosszú futásnál drift max 155-ig OK a vége felé. Strides (Wed) max HR spike irreleváns — csak avg számít.
+  • Tempo (H5–8): könnyű futások avg ≤ 150, tempófutás Z3 (avg 155–165) normális.
+  • Intervallum (H9–12): könnyű/recovery avg ≤ 150, interval max HR spike ≥ 175 elvárható és irreleváns.
+  • Versenyspecifikus (H13–14): könnyű avg ≤ 150, versenyiramos futás avg ~160–165.
+- VO₂ MAX ÉRTELMEZÉS: Az Apple Watch VO₂ Max relatív trendet mutat, nem laboratóriumi értéket. 4:30/km HM-hez kb. 52+ szükséges. Jelenlegi érték alapján becsülhető a fejlesztendő gap.
 
 ${thisWeekHeader}
 ${runLines}
@@ -415,6 +425,7 @@ ${bpLines || '  Nincs adat.'}
 
 FITTSÉG:
   CTL: ${ctl} · ATL: ${atl} · TSB: ${tsb} (${tsbCtx})
+  VO₂ Max (hét végi): ${currentW?.latestVo2 != null ? currentW.latestVo2 : '—'}
 
 Hangnem: személyes, közvetlen coach — nem riport, nem körülírás. Minden bekezdésben legalább egy konkrét számot idézz az adatokból.
 
@@ -424,7 +435,7 @@ Hangnem: személyes, közvetlen coach — nem riport, nem körülírás. Minden 
 
 2. TREND & FITTSÉG — Egy konkrét következtetés a CTL/TRIMP adatokból (nem metrika-magyarázat). Pl.: "A CTL egyelőre alacsony (14), az első hetekben ez normális — az építési ütem a 3–5. héttől gyorsul." Hasonlítsd az előző heti TRIMP/km adatokhoz ha van.
 
-3. CÉLELEMZÉS — Csak tempó- vagy intervalledzések tempóját hasonlítsd a 4:30 célhoz. Ha még nem volt ilyen (alapfázis), egy mondatban jelezd miért nem értékelhető még, majd térj rá arra, mi biztat vagy mi a kockázat az eddigi km-teljesítés alapján.
+3. HR-FEGYELEM & CÉLELEMZÉS — Először értékeld a HR-fegyelmet: nézd meg minden futás AvgHR-jét a fáziscél alapján (Alap: ≤ 150). Ha mindenki belefért, egy mondatban jelezd pozitívan számokkal. Ha valamelyik avg HR 150 felett volt, egyértelműen jelezd melyik futáson és mennyivel. Ezután: csak tempó- vagy intervalledzések tempóját hasonlítsd a 4:30 célhoz. Ha még nem volt ilyen (alapfázis), egy mondatban jelezd mi biztat vagy mi a kockázat. VO₂ Max trendet akkor emeld ki, ha legalább 2 mért érték van a héten.
 
 4. FÓKUSZ — A KÖVETKEZŐ HÉT konkrét terve: ${nextWeekCtx}. Ebből kiindulva: mi a legfontosabb egy mondatban (pl. km-volumen elérése, kulcsedzés minősége, regeneráció)? Ne a jelenlegi hét tervezett km-jét ismételd — a következő hétre fókuszálj.
 
