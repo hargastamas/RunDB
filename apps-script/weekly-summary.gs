@@ -214,7 +214,8 @@ function getRiegelHM(runs) {
   const candidates = runs.filter(r => r.date >= cutoffStr && r.dist >= 8 && r.pace > 0);
   if (!candidates.length) return null;
   const best = candidates.reduce((b, r) => r.pace < b.pace ? r : b);
-  const hmMin  = best.pace * Math.pow(21.0975 / best.dist, 1.06);
+  const t1Min  = best.pace * best.dist;
+  const hmMin  = t1Min * Math.pow(21.0975 / best.dist, 1.06);
   const hmPace = hmMin / 21.0975;
   return { pace: +hmPace.toFixed(3), timeMin: +hmMin.toFixed(1), dist: best.dist, date: best.date };
 }
