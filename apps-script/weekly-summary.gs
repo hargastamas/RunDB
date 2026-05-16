@@ -47,6 +47,15 @@ const PLAN_WEEKS = [
 // ── Fő függvény ───────────────────────────────────────────────────────────────
 
 function generateWeeklySummary() {
+  // Párhuzamos végrehajtás megelőzése (pl. appendRow onChange → újabb trigger)
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(5000)) {
+    Logger.log('Már fut egy generálás, kihagyva.');
+    return;
+  }
+
+  try {
+
   const apiKey = PropertiesService.getScriptProperties().getProperty('GROQ_API_KEY');
   if (!apiKey) throw new Error('Nincs GROQ_API_KEY beállítva a Script Properties-ben');
 
@@ -93,6 +102,10 @@ function generateWeeklySummary() {
   const genAt = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm');
   outSheet.appendRow([genAt, wsStr, weStr, summary]);
   Logger.log('✓ Összefoglaló generálva: ' + wsStr + ' – ' + weStr);
+
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 // ── Plan sheet kezelés ────────────────────────────────────────────────────────
