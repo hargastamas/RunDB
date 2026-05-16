@@ -85,8 +85,9 @@ function generateWeeklySummary() {
   const { ctl, atl, tsb } = computeCTL(runs);
   const weeklyHistory = aggregateWeeksSincePlan(runs, health, plan);
   const bestPaces     = getBestPaces(runs);
+  const riegelHM      = getRiegelHM(runs);
 
-  const prompt  = buildPrompt(wsStr, weStr, thisWeekRuns, ctl, atl, tsb, weeklyHistory, bestPaces, plan);
+  const prompt  = buildPrompt(wsStr, weStr, thisWeekRuns, ctl, atl, tsb, weeklyHistory, bestPaces, plan, riegelHM);
   const summary = callGroq(apiKey, prompt);
 
   const genAt = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm');
@@ -204,6 +205,20 @@ function aggregateWeeksSincePlan(runs, health, plan) {
   return weeks;
 }
 
+// ── Riegel HM előrejelzés ─────────────────────────────────────────────────────
+
+function getRiegelHM(runs) {
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 180);
+  const cutoffStr = fmtDate(cutoff);
+  const candidates = runs.filter(r => r.date >= cutoffStr && r.dist >= 8 && r.pace > 0);
+  if (!candidates.length) return null;
+  const best = candidates.reduce((b, r) => r.pace < b.pace ? r : b);
+  const hmMin  = best.pace * Math.pow(21.0975 / best.dist, 1.06);
+  const hmPace = hmMin / 21.0975;
+  return { pace: +hmPace.toFixed(3), timeMin: +hmMin.toFixed(1), dist: best.dist, date: best.date };
+}
+
 // ── Legjobb tempók az edzésterv kezdete óta ──────────────────────────────────
 
 function getBestPaces(runs) {
@@ -290,8 +305,9 @@ function parseRuns(data) {
     const avgHr = Math.round(parseUnit(c[12], 'bpm') || hun(c[12]) || 0) || null;
     const maxHr = Math.round(parseUnit(c[13], 'bpm') || hun(c[13]) || 0) || null;
     const trimp = +(hun(c[14]) || 0).toFixed(1);
+    const rpe   = hun(c[15]) || null;
     const cal   = parseUnit(c[10], 'kcal') || hun(c[10]);
-    runs.push({ date, dist: +dist.toFixed(2), pace: +(dur / dist).toFixed(3), avgHr, maxHr, trimp, calories: cal });
+    runs.push({ date, dist: +dist.toFixed(2), pace: +(dur / dist).toFixed(3), avgHr, maxHr, trimp, rpe, calories: cal });
   }
   return runs.sort((a, b) => a.date.localeCompare(b.date));
 }
@@ -332,7 +348,7 @@ function computeCTL(runs) {
 
 // ── Prompt összeállítás ───────────────────────────────────────────────────────
 
-function buildPrompt(wsStr, weStr, thisWeek, ctl, atl, tsb, weeklyHistory, bestPaces, plan) {
+function buildPrompt(wsStr, weStr, thisWeek, ctl, atl, tsb, weeklyHistory, bestPaces, plan, riegelHM) {
   const sumKm    = rs => +rs.reduce((s, r) => s + r.dist,  0).toFixed(1);
   const sumTrimp = rs => +rs.reduce((s, r) => s + r.trimp, 0).toFixed(0);
   const sumCal   = rs => { const v = rs.filter(r => r.calories).reduce((s, r) => s + r.calories, 0); return v > 0 ? Math.round(v) : null; };
@@ -351,6 +367,7 @@ function buildPrompt(wsStr, weStr, thisWeek, ctl, atl, tsb, weeklyHistory, bestP
         '  ' + r.date + ': ' + r.dist + ' km @ ' + fmtPace(r.pace) + '/km' +
         (r.avgHr ? ', AvgHR: ' + r.avgHr + ' bpm' : '') +
         (r.maxHr ? ', MaxHR: ' + r.maxHr + ' bpm' : '') +
+        (r.rpe   ? ', RPE: '   + r.rpe              : '') +
         ', TRIMP: ' + r.trimp +
         (r.calories ? ', ' + Math.round(r.calories) + ' kcal' : '')
       ).join('\n')
@@ -398,7 +415,18 @@ function buildPrompt(wsStr, weStr, thisWeek, ctl, atl, tsb, weeklyHistory, bestP
     ? 'H' + planNextW.w + ' — ' + planNextW.phase + ' | ' + planNextW.km + ' km | ' + planNextW.key
     : 'következő hét';
 
+  const riegelLine = riegelHM
+    ? `Riegel HM-előrejelzés (legjobb ${riegelHM.dist} km futásból, ${riegelHM.date}): ${fmtPace(riegelHM.pace)}/km (${Math.floor(riegelHM.timeMin / 60)}:${String(Math.round(riegelHM.timeMin % 60)).padStart(2,'0')} összidő) — ez edzéstempóból extrapolált becslés, nem versenyteljesítmény`
+    : 'Riegel HM-előrejelzés: nincs elég hosszú (≥8 km) futás az elmúlt 180 napból';
+
   return `Te egy személyes futóedző vagy. Írj tömör, személyes hangvételű heti elemzést magyarul Tamásnak.
+
+TAMÁS PROFILJA:
+- Előző félmaraton: 4:37/km (1:37:30, 2025-04-13), versenyen max HR 179 bpm
+- VO₂ Max csúcs: 56,8 (2025 március, 47 km/hetes edzésblokk — ez az igazi potenciálja)
+- Visszatérős forma: 45 napos kihagyás (jobb térd, IT band/patellofemoral, 2026 márc–ápr) — nem motivációs probléma
+- Edzésterv előtti alap: ~20 km/hét, 5 km @ ~4:45/km futóképesség
+- 4:30/km HM-hez kb. VO₂ Max 52 szükséges (VDOT-alapú becslés). Csúcson 56,8-nál volt (~1:29-es HM-forma), tehát a cél jóval a csúcs alatt van — reálisan visszaépíthető.
 
 KONTEXTUS:
 - Tapasztalt futó, HM-cél: sub-1:35 (4:30/km átlagtempó) — Wizzair Félmaraton, 2026-09-06
@@ -425,7 +453,8 @@ ${bpLines || '  Nincs adat.'}
 
 FITTSÉG:
   CTL: ${ctl} · ATL: ${atl} · TSB: ${tsb} (${tsbCtx})
-  VO₂ Max (hét végi): ${currentW?.latestVo2 != null ? currentW.latestVo2 : '—'}
+  VO₂ Max (hét végi): ${currentW?.latestVo2 != null ? currentW.latestVo2 : '—'} (cél: ~52, csúcs: 56,8)
+  ${riegelLine}
 
 Hangnem: személyes, közvetlen coach — nem riport, nem körülírás. Minden bekezdésben legalább egy konkrét számot idézz az adatokból.
 
@@ -435,7 +464,7 @@ Hangnem: személyes, közvetlen coach — nem riport, nem körülírás. Minden 
 
 2. TREND & FITTSÉG — Egy konkrét következtetés a CTL/TRIMP adatokból (nem metrika-magyarázat). Pl.: "A CTL egyelőre alacsony (14), az első hetekben ez normális — az építési ütem a 3–5. héttől gyorsul." Hasonlítsd az előző heti TRIMP/km adatokhoz ha van.
 
-3. HR-FEGYELEM & CÉLELEMZÉS — Először értékeld a HR-fegyelmet: nézd meg minden futás AvgHR-jét a fáziscél alapján (Alap: ≤ 150). Ha mindenki belefért, egy mondatban jelezd pozitívan számokkal. Ha valamelyik avg HR 150 felett volt, egyértelműen jelezd melyik futáson és mennyivel. Ezután: csak tempó- vagy intervalledzések tempóját hasonlítsd a 4:30 célhoz. Ha még nem volt ilyen (alapfázis), egy mondatban jelezd mi biztat vagy mi a kockázat. VO₂ Max trendet akkor emeld ki, ha legalább 2 mért érték van a héten.
+3. HR-FEGYELEM & CÉLELEMZÉS — Először értékeld a HR-fegyelmet: nézd meg minden futás AvgHR-jét a fáziscél alapján (Alap: ≤ 150). Ha mindenki belefért, egy mondatban jelezd pozitívan számokkal. Ha valamelyik avg HR 150 felett volt, egyértelműen jelezd melyik futáson és mennyivel. Ezután: ha van VO₂ Max adat, számítsd ki a gap-et: (jelenlegi VO₂ Max) → (cél: ~52) = X egység hiány. Mondd meg ez a jelenlegi ütemben hány hét alatt reális (kontextus: 56,8 volt a csúcs, tehát visszaépítés, nem új terep). Ha Riegel-adat elérhető, idézd a becsült HM-tempót egy mondatban. Csak tempó- vagy intervalledzések tempóját hasonlítsd a 4:30 célhoz — alapfázisban ez nem releváns, jelezd egyértelműen.
 
 4. FÓKUSZ — A KÖVETKEZŐ HÉT konkrét terve: ${nextWeekCtx}. Ebből kiindulva: mi a legfontosabb egy mondatban (pl. km-volumen elérése, kulcsedzés minősége, regeneráció)? Ne a jelenlegi hét tervezett km-jét ismételd — a következő hétre fókuszálj.
 
