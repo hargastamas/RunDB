@@ -101,6 +101,9 @@ function generateWeeklySummary() {
 
   const genAt = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm');
   outSheet.appendRow([genAt, wsStr, weStr, summary]);
+  // ScriptProperties-be is mentjük — a _generateIfMissing ezt nézi, nem a sheet tartalmát,
+  // így a sorok törlése nem indít új generálást.
+  PropertiesService.getScriptProperties().setProperty('generated_' + wsStr, '1');
   Logger.log('✓ Összefoglaló generálva: ' + wsStr + ' – ' + weStr);
 
   } finally {
@@ -558,23 +561,28 @@ function sundayFallback() {
   _generateIfMissing();
 }
 
-// Közös logika: csak generál ha erre a hétre még nincs summary
+// Közös logika: csak generál ha erre a hétre még nincs summary.
+// ScriptProperties alapján dönt — immunis a Summaries sheet sorok törlésére.
 function _generateIfMissing() {
   const wsStr = fmtDate(getWeekStart(new Date()));
-  const ss    = SpreadsheetApp.openById(SPREADSHEET_ID);
-  const summarySheet = ss.getSheetByName('Summaries');
-  if (summarySheet) {
-    const data = summarySheet.getDataRange().getValues();
-    if (data.slice(1).some(r => r[1] === wsStr)) {
-      Logger.log('Erre a hétre (' + wsStr + ') már van összefoglaló, kihagyva.');
-      return;
-    }
+  const props = PropertiesService.getScriptProperties();
+  if (props.getProperty('generated_' + wsStr) === '1') {
+    Logger.log('Erre a hétre (' + wsStr + ') ScriptProperties szerint már generált, kihagyva.');
+    return;
   }
   try {
     generateWeeklySummary();
   } catch (err) {
     Logger.log('Hiba a summary generálásakor: ' + err.message);
   }
+}
+
+// Ha kézzel újra akarod generálni egy adott hétre: töröld a property-t, majd futtasd testNow()-t.
+// Pl.: resetGeneratedWeek('2026-05-11')
+function resetGeneratedWeek(wsStr) {
+  wsStr = wsStr || fmtDate(getWeekStart(new Date()));
+  PropertiesService.getScriptProperties().deleteProperty('generated_' + wsStr);
+  Logger.log('✓ Reset: ' + wsStr + ' — újra generálható');
 }
 
 // ── Web App endpoint (/heti skill adatforrás) ─────────────────────────────────

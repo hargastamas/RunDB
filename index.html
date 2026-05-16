@@ -13251,12 +13251,13 @@
           col = "#FF0026";
           advice = "Pihenj ma";
         }
-        el.innerHTML = `<div class="stat-box" style="text-align:center">
-    <div class="stat-lbl" style="text-align:left;margin-bottom:8px">Edzéskészség</div>
-    ${_ringsvg(forma, '', col, forma / 100, 30)}
-    <div style="margin-top:6px">
-      <div style="font-size:13px;font-weight:700;color:${col}">${status} <span style="font-weight:400;color:var(--text2)">· ${advice}</span></div>
+        el.innerHTML = `<div class="stat-box">
+    <div class="stat-lbl">Edzéskészség</div>
+    <div class="stat-num" style="color:${col}">${forma}</div>
+    <div style="margin:8px 0 5px;height:4px;border-radius:2px;background:var(--surface2)">
+      <div style="width:${forma}%;height:100%;border-radius:2px;background:${col};transition:width .4s"></div>
     </div>
+    <div class="stat-unit" style="color:${col};margin-top:2px">${status} <span style="color:var(--text2)">· ${advice}</span></div>
   </div>`;
       }
 
