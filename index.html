@@ -10852,8 +10852,19 @@
         return { MONTHLY, YEARLY, WEEKLY, PRS, PR_DATES };
       }
 
+      async function _fetchUrl(url, timeoutMs = 15000) {
+        const ct = new AbortController();
+        const timer = setTimeout(() => ct.abort(), timeoutMs);
+        const sep = url.includes("?") ? "&" : "?";
+        try {
+          return await fetch(url + sep + `_t=${Date.now()}`, { cache: "no-store", signal: ct.signal });
+        } finally {
+          clearTimeout(timer);
+        }
+      }
+
       async function _fetchSheet() {
-        const r = await fetch(SHEET_CSV);
+        const r = await _fetchUrl(SHEET_CSV);
         if (!r.ok) throw new Error("HTTP " + r.status);
         return _parseCSV(await r.text());
       }
@@ -10893,12 +10904,12 @@
         return records.sort((a, b) => a.date.localeCompare(b.date));
       }
       async function _fetchHealth() {
-        const r = await fetch(HEALTH_CSV);
+        const r = await _fetchUrl(HEALTH_CSV);
         if (!r.ok) throw new Error("HTTP " + r.status);
         return _parseHealth(await r.text());
       }
       async function _fetchHrvLive() {
-        const r = await fetch(HRV_LIVE_CSV);
+        const r = await _fetchUrl(HRV_LIVE_CSV);
         if (!r.ok) throw new Error("HTTP " + r.status);
         const map = {};
         for (const line of (await r.text()).trim().split("\n")) {
@@ -10947,7 +10958,7 @@
         return records;
       }
       async function _fetchSummaries() {
-        const r = await fetch(SUMMARIES_CSV);
+        const r = await _fetchUrl(SUMMARIES_CSV);
         if (!r.ok) throw new Error("HTTP " + r.status);
         return _parseSummaries(await r.text());
       }
@@ -11023,7 +11034,7 @@
         return dates;
       }
       async function _fetchWorkouts() {
-        const r = await fetch(WORKOUT_CSV);
+        const r = await _fetchUrl(WORKOUT_CSV);
         if (!r.ok) throw new Error("HTTP " + r.status);
         return _parseWorkoutCSV(await r.text());
       }
