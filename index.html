@@ -1247,7 +1247,12 @@
           grid-template-columns: repeat(2, 1fr);
         }
         #daily-stats {
-          grid-template-columns: 1fr;
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .daily-week-label,
+        #thisweek-stats,
+        #thisweek-summary {
+          grid-column: 1 / -1;
         }
         #thisweek-stats {
           grid-template-columns: repeat(2, 1fr);
