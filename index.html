@@ -13732,12 +13732,19 @@
       }
 
       function _sessionDone(weekIdx, dayIdx, type) {
-        const dateStr = _planDayDate(weekIdx, dayIdx);
         if (type === "gym") return _gymDone(weekIdx);
         if (type === "rest") return false;
         if (type === "race") return false;
-        // run types: check if a run exists on that date
-        return RUNS.some((r) => r.date === dateStr && r.dist > 0);
+        // runs: week-flexible — the Nth planned run is done if N actual runs exist in the week
+        // (mirrors gym logic; handles day-swaps within a week)
+        const wkStart = _planWeekStart(weekIdx);
+        const wkEnd = _planDayDate(weekIdx, 6);
+        const week = PLAN_DATA[weekIdx];
+        const plannedRunsUpToDay = week.days
+          .slice(0, dayIdx + 1)
+          .filter((d) => d.type !== "rest" && d.type !== "gym" && d.type !== "race").length;
+        const actualRuns = RUNS.filter((r) => r.date >= wkStart && r.date <= wkEnd && r.dist > 0).length;
+        return actualRuns >= plannedRunsUpToDay;
       }
 
       function _planCurrentWeekIdx() {
