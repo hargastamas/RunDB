@@ -1021,9 +1021,10 @@ function initOverview(){
       <div class="pr-link">Futáshoz ugrás</div>
     </div>`;
   }
-  const halfRun=RUNS.find(r=>r.date===p.half?.date);
-  const shortRun=RUNS.find(r=>r.date===p.short_5k?.date);
-  const midRun=RUNS.find(r=>r.date===p.mid_10k?.date);
+  const prRun=(pr)=>pr&&(RUNS.find(r=>r.date===pr.date&&Math.abs(r.dist-pr.dist)<0.5)||RUNS.find(r=>r.date===pr.date));
+  const halfRun=prRun(p.half);
+  const shortRun=prRun(p.short_5k);
+  const midRun=prRun(p.mid_10k);
   const longRun=RUNS.find(r=>r.date===p.longest?.date);
   const trimpRun=RUNS.find(r=>r.date===p.highest_trimp?.date);
   document.getElementById('pr-grid').innerHTML=
