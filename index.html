@@ -10836,7 +10836,7 @@
           });
         const bp = (arr) => (arr.length ? arr.reduce((a, r) => (r.pace < a.pace ? r : a)) : null);
         const p5 = bp(runs.filter((r) => r.dist >= 4.5 && r.dist <= 7));
-        const p10 = bp(runs.filter((r) => r.dist > 7 && r.dist <= 12));
+        const p10 = bp(runs.filter((r) => r.dist >= 9.5 && r.dist <= 12));
         const pH = bp(runs.filter((r) => r.dist >= 18));
         const lng = runs.reduce((a, r) => (r.dist > a.dist ? r : a));
         const ht = runs.reduce((a, r) => (r.trimp > a.trimp ? r : a));
@@ -12290,9 +12290,10 @@
       ${run ? `<div class="pr-link">Futáshoz ugrás</div>` : ""}
     </div>`;
         }
-        const halfRun = RUNS.find((r) => r.date === p.half?.date);
-        const shortRun = RUNS.find((r) => r.date === p.short_5k?.date);
-        const midRun = RUNS.find((r) => r.date === p.mid_10k?.date);
+        const prRun = (pr) => pr && (RUNS.find((r) => r.date === pr.date && Math.abs(r.dist - pr.dist) < 0.5) || RUNS.find((r) => r.date === pr.date));
+        const halfRun = prRun(p.half);
+        const shortRun = prRun(p.short_5k);
+        const midRun = prRun(p.mid_10k);
         const longRun = RUNS.find((r) => r.date === p.longest?.date);
         const trimpRun = RUNS.find((r) => r.date === p.highest_trimp?.date);
         const vo2vals = HEALTH.filter((h) => h.vo2max > 0).sort((a, b) => (a.date < b.date ? -1 : 1));
