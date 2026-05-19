@@ -1988,19 +1988,6 @@
       <div class="slabel">Heti kalória (utolsó 52 hét)</div>
       <div class="chart-card"><canvas id="weeklyCalChart" height="160"></canvas></div>
       <div class="slabel">
-        Lépésszám trend<button class="info-btn" tabindex="0">
-          i<span class="info-tip"
-            >Havi átlagos lépésszám percenként futás közben. Magasabb kadencia általában hatékonyabb futóformát jelent
-            és csökkenti az ízületekre ható erőt. Elit futók: 170–180 lépés/perc. Ha az évek során emelkedik, a
-            futóformád fejlődik.</span
-          >
-        </button>
-      </div>
-      <div class="chart-card">
-        <div class="chart-sub">Havi átlag lépésszám/perc — magasabb általában hatékonyabb futóformát jelent</div>
-        <canvas id="cadenceChart" height="160"></canvas>
-      </div>
-      <div class="slabel">
         Futás intenzitás megoszlás<button class="info-btn" tabindex="0">
           i<span class="info-tip"
             >Az összes futás megoszlása edzéstípus szerint a kiválasztott időszakban. Könnyű: az idő ≥50%-a Z1 zónában.
@@ -12894,20 +12881,6 @@
               },
             ],
             { rotateLabels: true, yFmt: (v) => Math.round(v) + "kcal" },
-          );
-        }
-        // Cadence trend
-        const cadM = MONTHLY.map((m) => {
-          const rs = RUNS.filter((r) => r.ym === m.ym && r.cadence > 0);
-          return rs.length ? +(rs.reduce((s, r) => s + r.cadence, 0) / rs.length).toFixed(1) : null;
-        });
-        const cadLabels = MONTHLY.map((m) => m.ym.slice(2));
-        if (cadM.some((v) => v)) {
-          drawLine(
-            "cadenceChart",
-            cadLabels,
-            [{ data: cadM, color: getLime(), fill: true, fillColor: getLimeDim(), label: "lépés/perc" }],
-            { rotateLabels: true, yFmt: (v) => Math.round(v) },
           );
         }
         // Intensity donut — build period pills once
