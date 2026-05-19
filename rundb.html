@@ -576,7 +576,7 @@ function _clearDOM(){
   const calBody=document.getElementById('cal-body');if(calBody)calBody.innerHTML='';
 }
 
-const CACHE_KEY='rundb_runs_v1';
+const CACHE_KEY='rundb_runs_v2';
 
 function _saveCache(runs){
   try{localStorage.setItem(CACHE_KEY,JSON.stringify(runs));}catch(e){}
