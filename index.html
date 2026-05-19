@@ -244,15 +244,16 @@
         margin-bottom: 0;
       }
       .race-pred-grid {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(3, 1fr);
       }
       #daily-stats {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 12px;
       }
       #today-plan,
-      #today-forma {
+      #today-forma,
+      #today-vo2 {
         display: contents;
       }
       #today-plan > .stat-box {
@@ -1732,6 +1733,7 @@
       <div id="daily-stats">
         <div id="today-plan"></div>
         <div id="today-forma"></div>
+        <div id="today-vo2"></div>
         <div class="slabel daily-week-label">Ezen a héten</div>
         <div id="thisweek-stats"></div>
         <div id="thisweek-summary"></div>
@@ -1742,13 +1744,46 @@
           i<span class="info-tip"
             >Riegel-formula alapján számított becslés a legutóbbi 180 nap legjobb edzésfutásaiból (T₂ = T₁ ×
             (D₂/D₁)^1.06). Ha nincs elegendő adat az adott távhoz, VO₂ Max alapú becslés jelenik meg felső
-            határként.</span
+            határként. A félmaraton becslés a felső sávban látható.</span
           >
         </button>
       </div>
       <div class="stat-row race-pred-grid" id="race-pred-stats"></div>
-      <div class="slabel">Heti km — futási volumen (utolsó 52 hét)</div>
+      <!-- PERSONAL RECORDS -->
+      <div class="slabel">Personal Records — kattints a futáshoz</div>
+      <div class="pr-grid" id="pr-grid"></div>
+      <!-- HETI KM with plan overlay -->
+      <div class="slabel">
+        Heti km — futási volumen (utolsó 52 hét)<button class="info-btn" tabindex="0">
+          i<span class="info-tip"
+            >Heti összes futott km. A szaggatott rózsaszín vonal a tervezett heti km a futási tervből (Wizzair
+            Félmaraton 2026.09.06.).</span
+          >
+        </button>
+      </div>
       <div class="chart-card"><canvas id="weeklyKmChart" height="160"></canvas></div>
+      <!-- FORMA TREND (CTL/ATL/TSB) -->
+      <div class="slabel">
+        Forma trend (Fitnesz vs. Fáradtság)<button class="info-btn" tabindex="0">
+          i<span class="info-tip"
+            >Fitnesz (CTL, lime): 42-napos exponenciális TRIMP-átlag — hosszú távú edzettség. Fáradtság (ATL,
+            narancs): 7-napos TRIMP-átlag — akut terhelés. Forma (TSB, kék): CTL−ATL. Pozitív TSB = friss, negatív
+            = fáradt. Versenyhetén +5…+15 az ideális.</span
+          >
+        </button>
+      </div>
+      <div class="chart-card"><canvas id="formaChart" height="180"></canvas></div>
+      <!-- KÖNNYŰ TEMPÓ TREND -->
+      <div class="slabel">
+        Könnyű futások tempó-trendje<button class="info-btn" tabindex="0">
+          i<span class="info-tip"
+            >Z1-Z2 dominanciájú futások (Z1 ≥ 50%) havi átlagtempója. Ha azonos pulzuson gyorsulsz, az aerob
+            kapacitásod fejlődik. Csökkenő érték = jobb forma.</span
+          >
+        </button>
+      </div>
+      <div class="chart-card"><canvas id="easyPaceChart" height="160"></canvas></div>
+      <!-- HEATMAP -->
       <div class="slabel">Havi km heatmap</div>
       <div class="chart-card">
         <div class="month-names" id="month-names"></div>
@@ -1808,8 +1843,6 @@
         <span id="page-info"></span>
         <button class="page-btn" id="next-btn" onclick="changePage(1)">Következő →</button>
       </div>
-      <div class="slabel">Personal Records — kattints a futáshoz</div>
-      <div class="pr-grid" id="pr-grid"></div>
     </div>
 
     <!-- ═══ CALENDAR ═══ -->
@@ -11235,6 +11268,11 @@
         const cW = W - pad.left - pad.right,
           cH = H - pad.top - pad.bottom;
         const allV = datasets.flatMap((ds) => ds.data.filter((v) => v != null && !isNaN(v)));
+        if (opts.lineOverlay && opts.lineOverlay.data) {
+          opts.lineOverlay.data.forEach((v) => {
+            if (v != null && !isNaN(v)) allV.push(v);
+          });
+        }
         if (!allV.length) return;
         const maxV = opts.maxVal || Math.max(...allV),
           minV = opts.minVal || 0,
@@ -11272,6 +11310,43 @@
             ctx.fill();
           });
         });
+        // line overlay (e.g. plan target)
+        if (opts.lineOverlay && opts.lineOverlay.data) {
+          const lo = opts.lineOverlay;
+          ctx.save();
+          ctx.strokeStyle = lo.color || "#d50d8d";
+          ctx.lineWidth = 2;
+          ctx.setLineDash([4, 3]);
+          ctx.beginPath();
+          let started = false;
+          lo.data.forEach((val, i) => {
+            if (val == null || isNaN(val)) {
+              started = false;
+              return;
+            }
+            const x = pad.left + i * gW + gW / 2;
+            const y = pad.top + cH - ((val - minV) / range) * cH;
+            if (!started) {
+              ctx.moveTo(x, y);
+              started = true;
+            } else {
+              ctx.lineTo(x, y);
+            }
+          });
+          ctx.stroke();
+          ctx.setLineDash([]);
+          // dots at each plan point
+          lo.data.forEach((val, i) => {
+            if (val == null || isNaN(val)) return;
+            const x = pad.left + i * gW + gW / 2;
+            const y = pad.top + cH - ((val - minV) / range) * cH;
+            ctx.beginPath();
+            ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+            ctx.fillStyle = lo.color || "#d50d8d";
+            ctx.fill();
+          });
+          ctx.restore();
+        }
         // x labels
         ctx.fillStyle = axisColor();
         ctx.font = "8px DINPro,sans-serif";
@@ -12016,30 +12091,34 @@
         style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none">
         <source src="banner.mp4" type="video/mp4">
       </video>
-      <div style="position:absolute;inset:0;background:rgba(0,0,0,.58)"></div>
-      <div style="position:relative;z-index:1;padding:18px 20px">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px">
-          <div>
-            <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:8px"><span style="color:#d50d8d">Wizzair</span> Félmaraton · 2026.09.06.</div>
-            <div style="display:flex;align-items:baseline;gap:8px">
-              <span style="font-family:DINPro,sans-serif;font-size:40px;font-weight:700;color:#d50d8d;line-height:1;letter-spacing:-.5px">${daysLeft}</span>
-              <span style="font-size:15px;color:rgba(255,255,255,.5)">nap</span>
+      <div style="position:absolute;inset:0;background:rgba(0,0,0,.6)"></div>
+      <div style="position:relative;z-index:1;padding:14px 18px">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
+          <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap">
+            <div>
+              <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:3px"><span style="color:#d50d8d">Wizzair</span> HM · 2026.09.06.</div>
+              <div style="display:flex;align-items:baseline;gap:6px">
+                <span style="font-family:DINPro,sans-serif;font-size:32px;font-weight:700;color:#d50d8d;line-height:1;letter-spacing:-.5px">${daysLeft}</span>
+                <span style="font-size:13px;color:rgba(255,255,255,.55)">nap</span>
+                ${planW ? `<span style="font-size:11px;color:rgba(255,255,255,.45);margin-left:6px">· ${cwI + 1}. hét · ${planW.phase}</span>` : ""}
+              </div>
             </div>
-            <div style="font-size:12px;color:rgba(255,255,255,.45);margin-top:4px">${planW ? `${cwI + 1}. hét · ${planW.phase} fázis` : ""}</div>
           </div>
-          <div class="race-time-block" style="text-align:right">
-            <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:8px">Becsült félmaraton idő</div>
-            <div style="font-size:28px;font-weight:900;font-family:DINPro,sans-serif;letter-spacing:-1px;color:#fff">${hmPred || "—"}</div>
-            <div style="font-size:12px;margin-top:3px"><span style="color:rgba(255,255,255,.45)">A-cél: </span><span style="color:#d50d8d;font-weight:700">1:35:00</span></div>
+          <div style="text-align:right">
+            <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:3px">Becsült HM idő</div>
+            <div style="display:flex;align-items:baseline;gap:8px;justify-content:flex-end">
+              <span style="font-size:24px;font-weight:900;font-family:DINPro,sans-serif;letter-spacing:-1px;color:#fff">${hmPred || "—"}</span>
+              <span style="font-size:11px;color:rgba(255,255,255,.5)">A-cél <span style="color:#d50d8d;font-weight:700">1:35:00</span></span>
+            </div>
           </div>
         </div>
-        <div style="margin-top:16px">
-          <div style="display:flex;justify-content:space-between;margin-bottom:7px">
-            <span style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.5)">${donePct}% felkészülés</span>
-            <span style="font-size:11px;color:rgba(255,255,255,.45)">${doneDays} / ${totalDays} nap</span>
+        <div style="margin-top:10px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+            <span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.55)">${donePct}% felkészülés</span>
+            <span style="font-size:10px;color:rgba(255,255,255,.45)">${doneDays} / ${totalDays} nap</span>
           </div>
-          <div style="width:100%;height:8px;background:rgba(255,255,255,.15);border-radius:4px">
-            <div style="height:100%;border-radius:4px;background:#d50d8d;width:${donePct}%"></div>
+          <div style="width:100%;height:6px;background:rgba(255,255,255,.15);border-radius:3px">
+            <div style="height:100%;border-radius:3px;background:#d50d8d;width:${donePct}%"></div>
           </div>
         </div>
       </div>
@@ -12048,6 +12127,14 @@
 
         const wk52 = WEEKLY.slice(-52);
         const isLight = document.documentElement.classList.contains("light");
+        // Plan overlay: a tervezett heti km a futási tervből, ha a hét beleesik a tervbe
+        const planStartMs = new Date(PLAN_START + "T00:00:00").getTime();
+        const planLine = wk52.map((w) => {
+          const wsMs = new Date(w.w.split("/")[0] + "T00:00:00").getTime();
+          const weekIdx = Math.round((wsMs - planStartMs) / (7 * 86400000));
+          if (weekIdx >= 0 && weekIdx < PLAN_DATA.length) return PLAN_DATA[weekIdx].km;
+          return null;
+        });
         drawBar(
           "weeklyKmChart",
           wk52.map((w) => w.date.slice(5)),
@@ -12058,9 +12145,86 @@
               label: "km",
             },
           ],
-          { rotateLabels: true, yFmt: (v) => Math.round(v) + "km", extraTip: (i) => (wk52[i].runs || "?") + " futás" },
+          {
+            rotateLabels: true,
+            yFmt: (v) => Math.round(v) + "km",
+            extraTip: (i) => (wk52[i].runs || "?") + " futás" + (planLine[i] != null ? ` · terv: ${planLine[i]}km` : ""),
+            lineOverlay: { data: planLine, color: "#d50d8d", label: "terv" },
+          },
         );
         _drawRacePredictions();
+        _drawFormaChart();
+        _drawEasyPaceChart();
+      }
+
+      // ── FORMA TREND (CTL/ATL/TSB) ──
+      function _drawFormaChart() {
+        if (!RUNS.length) return;
+        // Build daily TRIMP timeline from first run to today
+        const firstDate = RUNS[0].date;
+        const today = new Date().toISOString().slice(0, 10);
+        const dayTrimp = {};
+        RUNS.forEach((r) => {
+          dayTrimp[r.date] = (dayTrimp[r.date] || 0) + (r.trimp || 0);
+        });
+        const days = [];
+        const d = new Date(firstDate);
+        const end = new Date(today);
+        while (d <= end) {
+          const ds = d.toISOString().slice(0, 10);
+          days.push({ date: ds, trimp: dayTrimp[ds] || 0 });
+          d.setDate(d.getDate() + 1);
+        }
+        // EMA: today = yesterday + (today_load - yesterday) / N
+        let ctl = 0,
+          atl = 0;
+        days.forEach((day) => {
+          ctl = ctl + (day.trimp - ctl) / 42;
+          atl = atl + (day.trimp - atl) / 7;
+          day.ctl = +ctl.toFixed(2);
+          day.atl = +atl.toFixed(2);
+          day.tsb = +(ctl - atl).toFixed(2);
+        });
+        // Csak az utolsó 180 napot mutatjuk (olvashatóbb)
+        const recent = days.slice(-180);
+        const labels = recent.map((x) => x.date.slice(5));
+        const isLight = document.documentElement.classList.contains("light");
+        drawLine(
+          "formaChart",
+          labels,
+          [
+            { data: recent.map((x) => x.ctl), color: isLight ? "#00B896" : "#00F19F", label: "Fitnesz (CTL)" },
+            { data: recent.map((x) => x.atl), color: "#ff6622", label: "Fáradtság (ATL)" },
+            { data: recent.map((x) => x.tsb), color: isLight ? "#0078D4" : "#4DB8FF", label: "Forma (TSB)" },
+          ],
+          {
+            rotateLabels: true,
+            yFmt: (v) => Math.round(v),
+            refLines: [{ value: 0, color: "rgba(128,128,128,.5)", label: "0" }],
+          },
+        );
+      }
+
+      // ── KÖNNYŰ TEMPÓ TREND ──
+      function _drawEasyPaceChart() {
+        if (!MONTHLY.length) return;
+        const data = MONTHLY.map((m) => {
+          const easy = RUNS.filter((r) => r.ym === m.ym && r.z1 >= 50 && r.pace > 0);
+          if (!easy.length) return null;
+          return +(easy.reduce((s, r) => s + r.pace, 0) / easy.length).toFixed(3);
+        });
+        const labels = MONTHLY.map((m) => m.ym.slice(2));
+        if (!data.some((v) => v)) return;
+        drawLine(
+          "easyPaceChart",
+          labels,
+          [{ data, color: getLime(), fill: true, fillColor: getLimeDim(), label: "tempó" }],
+          {
+            rotateLabels: true,
+            yInvert: true,
+            yFmt: (v) => fmtPace(v) + "/km",
+          },
+        );
       }
 
       function _computeStreaks() {
@@ -12355,7 +12519,9 @@
               _hmCellColor(cell, alpha.toFixed(2));
               const tt = document.getElementById("hm-tooltip");
               cell.addEventListener("mouseenter", () => {
-                tt.textContent = `${found.ym} · ${found.km} km · ${found.runs} futás`;
+                const apc = found.avg_pace ? fmtPace(found.avg_pace) + "/km" : "—";
+                const lng = found.max_dist ? found.max_dist.toFixed(1) + "km" : "—";
+                tt.innerHTML = `<b>${found.ym}</b> · ${found.km} km · ${found.runs} futás<br>Átl. tempó: ${apc} · Leghosszabb: ${lng}`;
                 tt.style.display = "block";
               });
               cell.addEventListener("mousemove", (e) => {
@@ -13211,13 +13377,29 @@
         const avgHR = allHR.reduce((s, h) => s + h.resting_hr, 0) / allHR.length;
         const lastHRV = allHRV[allHRV.length - 1];
         const lastHR = allHR[allHR.length - 1];
-        const forma = Math.min(
-          100,
-          Math.max(
-            0,
-            Math.round(50 + ((lastHRV.hrv - avgHRV) / avgHRV) * 40 - ((lastHR.resting_hr - avgHR) / avgHR) * 20),
-          ),
+        let forma = Math.round(
+          50 + ((lastHRV.hrv - avgHRV) / avgHRV) * 40 - ((lastHR.resting_hr - avgHR) / avgHR) * 20,
         );
+        // TRIMP-alapú fáradtság-korrekció: ha az elmúlt 3 nap TRIMP > átlag 1.5×, csökkenti a formát
+        const today = new Date().toISOString().slice(0, 10);
+        const ag3 = new Date(new Date().setDate(new Date().getDate() - 3)).toISOString().slice(0, 10);
+        const ag28 = new Date(new Date().setDate(new Date().getDate() - 28)).toISOString().slice(0, 10);
+        const last3 = RUNS.filter((r) => r.date >= ag3 && r.date <= today);
+        const last28 = RUNS.filter((r) => r.date >= ag28 && r.date <= today);
+        const trimp3 = last3.reduce((s, r) => s + r.trimp, 0);
+        const trimp28Avg3 = last28.length ? (last28.reduce((s, r) => s + r.trimp, 0) * 3) / 28 : 0;
+        let fatiguePenalty = 0;
+        let fatigueNote = "";
+        if (trimp28Avg3 > 0) {
+          const ratio = trimp3 / trimp28Avg3;
+          if (ratio > 1.5) {
+            fatiguePenalty = Math.min(25, Math.round((ratio - 1.5) * 30));
+            fatigueNote = ` · Magas 3-napos terhelés (${Math.round((ratio - 1) * 100)}% az átlag felett)`;
+          } else if (ratio > 1.2) {
+            fatiguePenalty = Math.min(10, Math.round((ratio - 1.2) * 30));
+          }
+        }
+        forma = Math.min(100, Math.max(0, forma - fatiguePenalty));
         let status, col, advice;
         if (forma >= 67) {
           status = "Jó forma";
@@ -13237,6 +13419,7 @@
     ${_ringsvg(forma, '', col, forma / 100, 30)}
     <div style="margin-top:6px">
       <div class="stat-unit" style="color:${col};font-weight:700">${status} <span style="font-weight:400;color:var(--text2)">· ${advice}</span></div>
+      ${fatigueNote ? `<div class="stat-unit" style="font-size:10px;color:var(--text3);margin-top:2px">${fatigueNote}</div>` : ""}
     </div>
   </div>`;
       }
@@ -13251,10 +13434,14 @@
         const vo2 = vo2vals.length ? vo2vals[vo2vals.length - 1].vo2max : null;
         const bestVo2 = vo2vals.length ? Math.max(...vo2vals.map((h) => h.vo2max)) : null;
         const vsel = document.getElementById("today-vo2");
-        if (vsel && vo2) {
-          const vsStr = vo2 === bestVo2 ? "Személyes csúcs" : `Csúcs: ${bestVo2} ml/kg/min`;
-          const cat = vo2 >= 60 ? "Elit" : vo2 >= 50 ? "Sportoló szint" : vo2 >= 45 ? "Aktív felnőtt" : "Átlag alatti";
-          vsel.innerHTML = `<div class="stat-box stat-box-link" onclick="showVo2Modal()"><div class="stat-lbl">VO₂ Max</div><div class="stat-num lime">${vo2.toFixed(1)}<span style="font-size:13px;font-weight:500;color:var(--text3);margin-left:3px">ml/kg/min</span></div><div class="stat-unit">${cat} · ${vsStr}</div></div>`;
+        if (vsel) {
+          if (vo2) {
+            const vsStr = vo2 === bestVo2 ? "Személyes csúcs" : `Csúcs: ${bestVo2} ml/kg/min`;
+            const cat = vo2 >= 60 ? "Elit" : vo2 >= 50 ? "Sportoló szint" : vo2 >= 45 ? "Aktív felnőtt" : "Átlag alatti";
+            vsel.innerHTML = `<div class="stat-box stat-box-link" onclick="showVo2Modal()"><div class="stat-lbl">VO₂ Max</div><div class="stat-num lime">${vo2.toFixed(1)}<span style="font-size:13px;font-weight:500;color:var(--text3);margin-left:3px">ml/kg/min</span></div><div class="stat-unit">${cat} · ${vsStr}</div></div>`;
+          } else {
+            vsel.innerHTML = `<div class="stat-box" style="opacity:.5"><div class="stat-lbl">VO₂ Max</div><div style="font-size:13px;color:var(--text3);margin-top:6px">Nincs adat</div></div>`;
+          }
         }
 
         function fmtTime(totalMin) {
@@ -13277,10 +13464,10 @@
         const cutoff = new Date(new Date().setDate(new Date().getDate() - 180)).toISOString().slice(0, 10);
         const recentRuns = RUNS.filter((r) => r.date >= cutoff && r.pace > 0 && r.pace < 9.5);
 
+        // HM-et a race banner mutatja, itt nem ismételjük
         const raceDefs = [
           { lbl: "5 km", dist: 5, minRef: 3, maxRef: 8, vo2pct: 0.96 },
           { lbl: "10 km", dist: 10, minRef: 6, maxRef: 16, vo2pct: 0.92 },
-          { lbl: "Félmaraton", dist: 21.097, minRef: 10, maxRef: null, vo2pct: 0.85 },
           { lbl: "Maraton", dist: 42.195, minRef: 18, maxRef: null, vo2pct: 0.79 },
         ];
 
@@ -13296,13 +13483,13 @@
               result = {
                 timeStr: fmtTime(predTime),
                 paceStr: fmtPace(predTime / race.dist) + "/km",
-                sub: `Alap: ${ref.dist.toFixed(1)}km-es futás (${ref.date})`,
+                sub: `${ref.dist.toFixed(1)}km · ${ref.date.slice(5)}`,
               };
             } else {
               const fb = vo2Predict(race.vo2pct, race.dist);
               if (!fb)
                 return `<div class="stat-box"><div class="stat-lbl">${race.lbl}</div><div class="stat-num" style="font-size:24px">—</div><div class="stat-unit">Nincs elég adat</div></div>`;
-              result = { ...fb, sub: `VO₂ Max felső határ (${vo2})` };
+              result = { ...fb, sub: `VO₂ Max alapján` };
             }
             return `<div class="stat-box">
       <div class="stat-lbl">${race.lbl}</div>
