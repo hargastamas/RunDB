@@ -10683,7 +10683,7 @@
           vo,
           sl,
           gct,
-          cadence: steps && dur ? +(steps / dur).toFixed(1) : null,
+          cadence: steps && dur && (steps / dur) >= 100 && (steps / dur) <= 220 ? +(steps / dur).toFixed(1) : null,
         };
       }
 
