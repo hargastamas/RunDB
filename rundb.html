@@ -539,7 +539,7 @@ function _compute(runs){
   });
   const bp=arr=>arr.length?arr.reduce((a,r)=>r.pace<a.pace?r:a):null;
   const p5=bp(runs.filter(r=>r.dist>=4.5&&r.dist<=7));
-  const p10=bp(runs.filter(r=>r.dist>7&&r.dist<=12));
+  const p10=bp(runs.filter(r=>r.dist>=9.5&&r.dist<=12));
   const pH=bp(runs.filter(r=>r.dist>=18));
   const lng=runs.reduce((a,r)=>r.dist>a.dist?r:a);
   const ht=runs.reduce((a,r)=>r.trimp>a.trimp?r:a);
