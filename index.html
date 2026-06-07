@@ -11129,6 +11129,14 @@
       }
       // ─────────────────────────────────────────────────────────────────────────────
       const MONTHS_HU = ["jan", "feb", "már", "ápr", "máj", "jún", "júl", "aug", "szep", "okt", "nov", "dec"];
+      const MONTHS_HU_FULL = ["január","február","március","április","május","június","július","augusztus","szeptember","október","november","december"];
+      function fmtYm(ym, showYear) {
+        const [y, m] = ym.split("-");
+        const mon = MONTHS_HU[+m - 1];
+        if (showYear === "full") return `${y} ${MONTHS_HU_FULL[+m - 1]}`;
+        if (showYear) return `${mon} '${y.slice(2)}`;
+        return mon;
+      }
       const LIME = "#00F19F";
       function getLime() {
         return document.documentElement.classList.contains("light") ? "#00B896" : "#00F19F";
@@ -12249,7 +12257,7 @@
           if (!easy.length) return null;
           return +(easy.reduce((s, r) => s + r.pace, 0) / easy.length).toFixed(3);
         });
-        const labels = months.map((m) => showYear ? m.ym.slice(2) : m.ym.slice(5));
+        const labels = months.map((m) => fmtYm(m.ym, showYear));
         if (!data.some((v) => v)) return;
         drawLine(
           "easyPaceChart",
@@ -12783,7 +12791,7 @@
           .map(
             (m) => `
     <tr onclick="filterAndShowRuns('${m.ym}')" style="cursor:pointer">
-      <td class="primary">${m.ym}</td>
+      <td class="primary">${fmtYm(m.ym, "full")}</td>
       <td>${m.runs}</td>
       <td class="${m.km === bKm ? "best" : ""}">${m.km.toFixed(1)}km</td>
       <td>${fmtPace(m.avg_pace)}</td>
@@ -12867,7 +12875,7 @@
             [mA, mB].forEach((s) => {
               const o = document.createElement("option");
               o.value = m.ym;
-              o.textContent = `${m.ym} · ${m.km.toFixed(0)}km`;
+              o.textContent = `${fmtYm(m.ym, "full")} · ${m.km.toFixed(0)}km`;
               s.appendChild(o);
             });
           });
@@ -12924,7 +12932,7 @@
           ["avg_aei", "AEI", (v) => (v != null ? v.toFixed(2) : "—"), false],
         ];
         document.getElementById("month-compare-table").innerHTML =
-          `<thead><tr><th>Mutató</th><th style="color:#60a5fa">${a.ym}</th><th style="color:${getLime()}">${b.ym}</th><th>Jobb</th></tr></thead><tbody>${cmpRows(m, a, b, a.ym, b.ym)}</tbody>`;
+          `<thead><tr><th>Mutató</th><th style="color:#60a5fa">${fmtYm(a.ym,"full")}</th><th style="color:${getLime()}">${fmtYm(b.ym,"full")}</th><th>Jobb</th></tr></thead><tbody>${cmpRows(m, a, b, fmtYm(a.ym,"full"), fmtYm(b.ym,"full"))}</tbody>`;
       }
       function renderYearCompare() {
         const a = YEARLY.find((y) => y.year == document.getElementById("year-a").value);
@@ -12997,7 +13005,7 @@
         const data = _zoneYear ? MONTHLY.filter((m) => m.year == _zoneYear) : MONTHLY;
         drawBar(
           "zoneTimeChart",
-          data.map((m) => (_zoneYear ? MONTHS_HU[+m.ym.slice(5) - 1] : m.ym.slice(2))),
+          data.map((m) => fmtYm(m.ym, !_zoneYear)),
           [
             { data: data.map((m) => m.avg_z1), color: getLime(), label: "Z1%" },
             { data: data.map((m) => m.avg_z4), color: "rgba(255,140,0,.7)", label: "Z4%" },
@@ -13370,7 +13378,7 @@
         if (aeiD.length)
           drawLine(
             "aeiTrendChart",
-            aeiD.map((m) => m.ym.slice(2)),
+            aeiD.map((m) => fmtYm(m.ym, _aeiPeriod === 0 || _aeiPeriod > 12)),
             [{ data: aeiD.map((m) => m.avg_aei), color: getLime(), fill: true, fillColor: getLimeDim(), label: "AEI" }],
             { rotateLabels: true, yFmt: (v) => v.toFixed(2) },
           );
@@ -13664,7 +13672,7 @@
         const trimpC = cur ? Math.round(cur.total_trimp) : 0,
           trimpP = prev ? Math.round(prev.total_trimp) : 0;
         document.getElementById("vsly-stats").innerHTML = `
-    <div class="stat-box"><div class="stat-lbl">${ym} km</div><div class="stat-num lime">${kmC}</div><div class="stat-unit">${fmt(+(kmC - kmP).toFixed(1), "km", false)} vs. ${ymPrev}</div></div>
+    <div class="stat-box"><div class="stat-lbl">${fmtYm(ym, "full")} km</div><div class="stat-num lime">${kmC}</div><div class="stat-unit">${fmt(+(kmC - kmP).toFixed(1), "km", false)} vs. ${fmtYm(ymPrev, "full")}</div></div>
     <div class="stat-box"><div class="stat-lbl">Futások</div><div class="stat-num">${runsC}</div><div class="stat-unit">${fmt(runsC - runsP, "", false)} vs. tavaly</div></div>
     <div class="stat-box"><div class="stat-lbl">TRIMP</div><div class="stat-num">${trimpC}</div><div class="stat-unit">${fmt(trimpC - trimpP, "", false)} vs. tavaly</div></div>`;
       }
