@@ -2055,7 +2055,7 @@
           <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:center">
             <span style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--text2)"><span style="display:inline-block;width:18px;height:3px;background:var(--lime);border-radius:2px"></span>CTL — fitnesz</span>
             <span style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--text2)"><span style="display:inline-block;width:18px;height:3px;background:#f87171;border-radius:2px"></span>ATL — fáradtság</span>
-            <span style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--text2)"><span style="display:inline-block;width:18px;height:3px;background:#60a5fa;border-radius:2px"></span>TSB — forma</span>
+            <span style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--text2)"><span style="display:inline-block;width:18px;height:3px;background:#60a5fa;border-radius:2px"></span>TSB — frissesség</span>
           </div>
           <div id="ctl-nav" style="display:flex; gap:5px; flex-wrap:wrap"></div>
         </div>
@@ -2116,7 +2116,7 @@
         </div>
       </div>
       <div class="slabel">
-        Edzéskészség — trend (90 nap)<button class="info-btn" tabindex="0">
+        Edzéskészség — trend<button class="info-btn" tabindex="0">
           i<span class="info-tip"
             >HRV (60% súly) és nyugalmi HR (40% súly) kombinációja, személyes átlagtól való eltérés alapján. 50 =
             teljesen átlagos nap. 70 felett az átlagnál jobb regeneráció, kemény edzés mehet. 30 alatt pihenjél vagy
@@ -12155,7 +12155,7 @@
         });
         drawBar(
           "weeklyKmChart",
-          wk52.map((w) => w.date.slice(5)),
+          wk52.map((w) => { const [y,mo,d] = w.date.split("-"); return `${MONTHS_HU[+mo-1]} '${y.slice(2)}`; }),
           [
             {
               data: wk52.map((w) => w.km),
@@ -13033,7 +13033,7 @@
         const wk = _trimpWeeks === 0 ? WEEKLY : WEEKLY.slice(-_trimpWeeks);
         drawBar(
           "weeklyTRIMPChart",
-          wk.map((w) => w.date.slice(2)),
+          wk.map((w) => { const [y,mo,d] = w.date.split("-"); return `${MONTHS_HU[+mo-1]} '${y.slice(2)}`; }),
           [
             {
               data: wk.map((w) => w.trimp),
