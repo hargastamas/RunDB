@@ -2046,10 +2046,15 @@
         </button>
       </div>
       <div class="chart-card">
-        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px; margin-bottom:8px">
-          <div class="chart-sub" style="margin:0">CTL = fitnesz · ATL = fáradtság · TSB = forma (pozitív = pihent)</div>
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px; margin-bottom:10px">
+          <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:center">
+            <span style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--text2)"><span style="display:inline-block;width:18px;height:3px;background:var(--lime);border-radius:2px"></span>CTL — fitnesz</span>
+            <span style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--text2)"><span style="display:inline-block;width:18px;height:3px;background:#f87171;border-radius:2px"></span>ATL — fáradtság</span>
+            <span style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--text2)"><span style="display:inline-block;width:18px;height:3px;background:#60a5fa;border-radius:2px"></span>TSB — forma</span>
+          </div>
           <div id="ctl-nav" style="display:flex; gap:5px; flex-wrap:wrap"></div>
         </div>
+        <div class="chart-sub" style="margin-bottom:8px">TSB pozitív = pihent és edzéskész · negatív = fáradt · versenyhetén +5…+15 az ideális</div>
         <canvas id="ctlChart" height="200"></canvas>
       </div>
       <div class="slabel">
