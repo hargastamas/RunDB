@@ -2072,7 +2072,12 @@
           >
         </button>
       </div>
-      <div class="chart-card"><canvas id="longRunChart" height="160"></canvas></div>
+      <div class="chart-card">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px; margin-bottom:8px">
+          <div id="longrun-nav" style="display:flex; gap:5px; flex-wrap:wrap"></div>
+        </div>
+        <canvas id="longRunChart" height="160"></canvas>
+      </div>
       <div class="slabel">PR fejlődés</div>
       <div class="chart-card">
         <div id="pr-prog-nav" style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px"></div>
@@ -13107,6 +13112,12 @@
           });
         }
         _drawPaceHist(_paceHistPeriod);
+        _buildNavPills(
+          "longrun-nav",
+          [[180, "6 hó"], [365, "1 év"], [730, "2 év"], [0, "Összes"]],
+          () => _longRunPeriod,
+          (v) => { _longRunPeriod = +v; _drawLongRunChart(); },
+        );
         _drawLongRunChart();
         _drawPRProgression();
 
@@ -13347,9 +13358,12 @@
           );
       }
 
+      let _longRunPeriod = 365;
       function _drawLongRunChart() {
         if (!WEEKLY.length) return;
         const planStartMs = new Date(PLAN_START + "T00:00:00").getTime();
+        const cut = _longRunPeriod ? (() => { const d = new Date(); d.setDate(d.getDate() - _longRunPeriod); return d.toISOString().slice(0, 10); })() : null;
+        const showYear = _longRunPeriod === 0 || _longRunPeriod > 365;
         const labels = [], actuals = [], planned = [];
         function _parseDetKm(det) {
           const m = det && det.match(/(\d+(?:\.\d+)?)\s*km/i);
@@ -13357,10 +13371,11 @@
         }
         WEEKLY.forEach((w) => {
           const [s, e] = w.w.split("/");
+          if (cut && s < cut) return;
           const wRuns = RUNS.filter((r) => r.date >= s && r.date <= e);
           if (!wRuns.length) return;
           const maxDist = Math.max(...wRuns.map((r) => r.dist));
-          labels.push(s.slice(2));
+          labels.push(showYear ? s.slice(2, 7) : s.slice(5));
           actuals.push(+maxDist.toFixed(1));
           const wsMs = new Date(s + "T00:00:00").getTime();
           const weekIdx = Math.round((wsMs - planStartMs) / (7 * 86400000));
