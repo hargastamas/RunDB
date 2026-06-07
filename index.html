@@ -2046,7 +2046,10 @@
         </button>
       </div>
       <div class="chart-card">
-        <div class="chart-sub">CTL = fitnesz · ATL = fáradtság · TSB = forma (pozitív = pihent)</div>
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px; margin-bottom:8px">
+          <div class="chart-sub" style="margin:0">CTL = fitnesz · ATL = fáradtság · TSB = forma (pozitív = pihent)</div>
+          <div id="ctl-nav" style="display:flex; gap:5px; flex-wrap:wrap"></div>
+        </div>
         <canvas id="ctlChart" height="200"></canvas>
       </div>
       <div class="slabel">
@@ -13077,33 +13080,13 @@
         _drawIntensity(_intPeriod);
 
         // CTL / ATL / TSB
-        const ctl = _computeCTL();
-        if (ctl.length > 4) {
-          const minTSB = Math.min(...ctl.map((x) => x.tsb)),
-            maxAll = Math.max(...ctl.map((x) => Math.max(x.ctl, x.atl)));
-          drawLine(
-            "ctlChart",
-            ctl.map((x) => x.date.slice(5)),
-            [
-              { data: ctl.map((x) => x.ctl), color: getLime(), fill: false, label: "CTL" },
-              { data: ctl.map((x) => x.atl), color: "#f87171", fill: false, label: "ATL" },
-              {
-                data: ctl.map((x) => x.tsb),
-                color: "#60a5fa",
-                fill: true,
-                fillColor: "rgba(96,165,250,.07)",
-                label: "TSB",
-              },
-            ],
-            {
-              rotateLabels: true,
-              yFmt: (v) => Math.round(v),
-              minVal: Math.min(minTSB * 1.1, -5),
-              maxVal: maxAll * 1.05,
-              refLines: [{ value: 0, color: "#555", label: "TSB = 0" }],
-            },
-          );
-        }
+        _buildNavPills(
+          "ctl-nav",
+          [[180, "6 hó"], [365, "1 év"], [730, "2 év"], [0, "Összes"]],
+          () => _ctlPeriod,
+          (v) => { _ctlPeriod = +v; _drawCtlChart(); },
+        );
+        _drawCtlChart();
 
         // Pace histogram
         const phn = document.getElementById("pace-hist-nav");
@@ -13321,6 +13304,34 @@
           minDist: 0,
         },
       ];
+      let _ctlPeriod = 365;
+      function _drawCtlChart() {
+        const allCtl = _computeCTL();
+        const cut = _ctlPeriod ? (() => { const d = new Date(); d.setDate(d.getDate() - _ctlPeriod); return d.toISOString().slice(0, 10); })() : null;
+        const ctl = cut ? allCtl.filter((x) => x.date >= cut) : allCtl;
+        if (ctl.length <= 4) return;
+        const showYear = _ctlPeriod === 0 || _ctlPeriod > 365;
+        const lbl = (x) => showYear ? x.date.slice(2, 7) : x.date.slice(5);
+        const minTSB = Math.min(...ctl.map((x) => x.tsb)),
+          maxAll = Math.max(...ctl.map((x) => Math.max(x.ctl, x.atl)));
+        drawLine(
+          "ctlChart",
+          ctl.map(lbl),
+          [
+            { data: ctl.map((x) => x.ctl), color: getLime(), fill: false, label: "CTL (fitnesz)" },
+            { data: ctl.map((x) => x.atl), color: "#f87171", fill: false, label: "ATL (fáradtság)" },
+            { data: ctl.map((x) => x.tsb), color: "#60a5fa", fill: true, fillColor: "rgba(96,165,250,.07)", label: "TSB (forma)" },
+          ],
+          {
+            rotateLabels: true,
+            yFmt: (v) => Math.round(v),
+            minVal: Math.min(minTSB * 1.1, -5),
+            maxVal: maxAll * 1.05,
+            refLines: [{ value: 0, color: "#555", label: "TSB = 0" }],
+          },
+        );
+      }
+
       let _aeiPeriod = 12;
       function _drawAeiChart() {
         const cutYm = _aeiPeriod
