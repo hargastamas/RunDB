@@ -2030,7 +2030,10 @@
         </button>
       </div>
       <div class="chart-card">
-        <div class="chart-sub">Havi átlagos AEI — magasabb = hatékonyabb aerob rendszer</div>
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px; margin-bottom:8px">
+          <div class="chart-sub" style="margin:0">Havi átlagos AEI — magasabb = hatékonyabb aerob rendszer</div>
+          <div id="aei-nav" style="display:flex; gap:5px; flex-wrap:wrap"></div>
+        </div>
         <canvas id="aeiTrendChart" height="160"></canvas>
       </div>
       <div class="slabel">
@@ -13124,15 +13127,14 @@
         _drawLongRunChart();
         _drawPRProgression();
 
-        // AEI trend (all time monthly)
-        const aeiD = MONTHLY.filter((m) => m.avg_aei);
-        if (aeiD.length)
-          drawLine(
-            "aeiTrendChart",
-            aeiD.map((m) => m.ym.slice(2)),
-            [{ data: aeiD.map((m) => m.avg_aei), color: getLime(), fill: true, fillColor: getLimeDim(), label: "AEI" }],
-            { rotateLabels: true, yFmt: (v) => v.toFixed(2) },
-          );
+        // AEI trend with time nav
+        _buildNavPills(
+          "aei-nav",
+          [[12, "1 év"], [24, "2 év"], [0, "Összes"]],
+          () => _aeiPeriod,
+          (v) => { _aeiPeriod = +v; _drawAeiChart(); },
+        );
+        _drawAeiChart();
       }
 
       // ── EGÉSZSÉG ──
@@ -13319,6 +13321,21 @@
           minDist: 0,
         },
       ];
+      let _aeiPeriod = 12;
+      function _drawAeiChart() {
+        const cutYm = _aeiPeriod
+          ? (() => { const d = new Date(); d.setMonth(d.getMonth() - _aeiPeriod); return d.toISOString().slice(0, 7); })()
+          : null;
+        const aeiD = MONTHLY.filter((m) => m.avg_aei && (!cutYm || m.ym >= cutYm));
+        if (aeiD.length)
+          drawLine(
+            "aeiTrendChart",
+            aeiD.map((m) => m.ym.slice(2)),
+            [{ data: aeiD.map((m) => m.avg_aei), color: getLime(), fill: true, fillColor: getLimeDim(), label: "AEI" }],
+            { rotateLabels: true, yFmt: (v) => v.toFixed(2) },
+          );
+      }
+
       function _drawLongRunChart() {
         if (!WEEKLY.length) return;
         const planStartMs = new Date(PLAN_START + "T00:00:00").getTime();
