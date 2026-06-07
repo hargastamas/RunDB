@@ -1762,27 +1762,6 @@
         </button>
       </div>
       <div class="chart-card"><canvas id="weeklyKmChart" height="160"></canvas></div>
-      <!-- KÖNNYŰ TEMPÓ TREND -->
-      <div class="slabel">
-        Könnyű futások tempó-trendje<button class="info-btn" tabindex="0">
-          i<span class="info-tip"
-            >Z1-Z2 dominanciájú futások (Z1 ≥ 50%) havi átlagtempója. Ha azonos pulzuson gyorsulsz, az aerob
-            kapacitásod fejlődik. Csökkenő érték = jobb forma.</span
-          >
-        </button>
-      </div>
-      <div class="chart-card">
-        <div style="display:flex; justify-content:flex-end; margin-bottom:8px">
-          <div id="easypace-nav" style="display:flex; gap:5px; flex-wrap:wrap"></div>
-        </div>
-        <canvas id="easyPaceChart" height="160"></canvas>
-      </div>
-      <!-- HEATMAP -->
-      <div class="slabel">Havi km heatmap</div>
-      <div class="chart-card">
-        <div class="month-names" id="month-names"></div>
-        <div id="heatmap"></div>
-      </div>
     </div>
 
     <!-- ═══ RUNS ═══ -->
@@ -1951,6 +1930,11 @@
             <canvas id="yearlyAEIChart" height="180"></canvas>
           </div>
         </div>
+        <div class="slabel">Havi km heatmap</div>
+        <div class="chart-card">
+          <div class="month-names" id="month-names"></div>
+          <div id="heatmap"></div>
+        </div>
       </div>
       <!-- ÖSSZEHASONLÍTÁS -->
       <div id="stats-compare" style="display: none">
@@ -1978,6 +1962,20 @@
     <!-- ═══ TRENDS ═══ -->
     <div class="page" id="page-trends">
       <div class="slabel" style="border-top: none; padding-top: 0; margin-top: 0">
+        Könnyű futások tempó-trendje<button class="info-btn" tabindex="0">
+          i<span class="info-tip"
+            >Z1-Z2 dominanciájú futások (Z1 ≥ 50%) havi átlagtempója. Ha azonos pulzuson gyorsulsz, az aerob
+            kapacitásod fejlődik. Csökkenő érték = jobb forma.</span
+          >
+        </button>
+      </div>
+      <div class="chart-card">
+        <div style="display:flex; justify-content:flex-end; margin-bottom:8px">
+          <div id="easypace-nav" style="display:flex; gap:5px; flex-wrap:wrap"></div>
+        </div>
+        <canvas id="easyPaceChart" height="160"></canvas>
+      </div>
+      <div class="slabel">
         Havi edzésmegoszlás<button class="info-btn" tabindex="0">
           i<span class="info-tip"
             >Az edzések mekkora hányada zajlott könnyű, aerob (Z1) zónában. A polarizált edzéselmélet szerint az edzések
@@ -2040,27 +2038,6 @@
           <div id="aei-nav" style="display:flex; gap:5px; flex-wrap:wrap"></div>
         </div>
         <canvas id="aeiTrendChart" height="160"></canvas>
-      </div>
-      <div class="slabel">
-        Fitnesz &amp; Forma (CTL / ATL / TSB)<button class="info-btn" tabindex="0">
-          i<span class="info-tip"
-            >Edzésterhelés modell:<br />• CTL (fitnesz) = 42 napos exponenciálisan súlyozott TRIMP átlag<br />• ATL
-            (fáradtság) = 7 napos súlyozott átlag<br />• TSB (forma) = CTL − ATL. Ha TSB pozitív és emelkedik,
-            versenyképes formában vagy.</span
-          >
-        </button>
-      </div>
-      <div class="chart-card">
-        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px; margin-bottom:10px">
-          <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:center">
-            <span style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--text2)"><span style="display:inline-block;width:18px;height:3px;background:var(--lime);border-radius:2px"></span>CTL — fitnesz</span>
-            <span style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--text2)"><span style="display:inline-block;width:18px;height:3px;background:#f87171;border-radius:2px"></span>ATL — fáradtság</span>
-            <span style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--text2)"><span style="display:inline-block;width:18px;height:3px;background:#60a5fa;border-radius:2px"></span>TSB — frissesség</span>
-          </div>
-          <div id="ctl-nav" style="display:flex; gap:5px; flex-wrap:wrap"></div>
-        </div>
-        <div class="chart-sub" style="margin-bottom:8px">TSB pozitív = pihent és edzéskész · negatív = fáradt · versenyhetén +5…+15 az ideális</div>
-        <canvas id="ctlChart" height="200"></canvas>
       </div>
       <div class="slabel">
         Tempó eloszlás<button class="info-btn" tabindex="0">
@@ -2129,6 +2106,34 @@
           HRV + nyugalmi HR kombinációja a személyes átlaghoz képest · 50 = átlagos · &gt;70 = edzéskész
         </div>
         <canvas id="readinessChart" height="150"></canvas>
+      </div>
+      <div class="slabel">
+        Fitnesz &amp; Forma (CTL / ATL / TSB)<button class="info-btn" tabindex="0">
+          i<span class="info-tip"
+            >CTL (Chronic Training Load) = 42 napos exponenciális TRIMP átlag — fitnesz. ATL (Acute Training Load) = 7
+            napos — aktuális fáradtság. TSB = CTL − ATL — forma/frissesség. Pozitív TSB: kipihent, versenyképes.
+            Negatív: fáradt, de fejlődsz.</span
+          >
+        </button>
+      </div>
+      <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:center; padding: 0 4px 4px">
+        <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-secondary)"
+          ><span style="display:inline-block;width:28px;height:3px;background:var(--lime);border-radius:2px"></span>CTL
+          — fitnesz</span
+        >
+        <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-secondary)"
+          ><span style="display:inline-block;width:28px;height:3px;background:#f87171;border-radius:2px"></span>ATL —
+          fáradtság</span
+        >
+        <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-secondary)"
+          ><span style="display:inline-block;width:28px;height:3px;background:#60a5fa;border-radius:2px"></span>TSB —
+          frissesség</span
+        >
+      </div>
+      <div id="ctl-nav" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px"></div>
+      <div class="chart-card">
+        <div class="chart-sub">Napi CTL / ATL / TSB értékek · TRIMP alapú terhelésszámítás</div>
+        <canvas id="ctlChart" height="160"></canvas>
       </div>
       <div class="slabel">
         VO₂ Max trend<button class="info-btn" tabindex="0">
@@ -12172,13 +12177,6 @@
         );
         _drawRacePredictions();
         _drawFormaChart();
-        _buildNavPills(
-          "easypace-nav",
-          [[12, "1 év"], [24, "2 év"], [0, "Összes"]],
-          () => _easyPacePeriod,
-          (v) => { _easyPacePeriod = +v; _drawEasyPaceChart(); },
-        );
-        _drawEasyPaceChart();
       }
 
       // ── FORMA TREND (CTL/ATL/TSB) ──
@@ -12516,58 +12514,6 @@
             null,
           );
 
-        // heatmap
-        const mn = document.getElementById("month-names");
-        MONTHS_HU.forEach((m) => {
-          const d = document.createElement("div");
-          d.className = "month-name";
-          d.textContent = m;
-          mn.appendChild(d);
-        });
-        const years = [...new Set(MONTHLY.map((m) => m.year))].sort();
-        const maxKm = Math.max(...MONTHLY.map((m) => m.km));
-        const hm = document.getElementById("heatmap");
-        years.forEach((yr) => {
-          const row = document.createElement("div");
-          row.className = "heatmap-row";
-          const lbl = document.createElement("div");
-          lbl.className = "heatmap-year";
-          lbl.textContent = yr;
-          const cells = document.createElement("div");
-          cells.className = "heatmap-cells";
-          for (let mo = 1; mo <= 12; mo++) {
-            const found = MONTHLY.find((m) => m.year === yr && m.month === mo);
-            const cell = document.createElement("div");
-            cell.className = "hm-cell";
-            if (found) {
-              const alpha = 0.1 + (found.km / maxKm) * 0.9;
-              cell.dataset.alpha = alpha.toFixed(2);
-              _hmCellColor(cell, alpha.toFixed(2));
-              const tt = document.getElementById("hm-tooltip");
-              cell.addEventListener("mouseenter", () => {
-                const apc = found.avg_pace ? fmtPace(found.avg_pace) + "/km" : "—";
-                const lng = found.max_dist ? found.max_dist.toFixed(1) + "km" : "—";
-                tt.innerHTML = `<b>${found.ym}</b> · ${found.km} km · ${found.runs} futás<br>Átl. tempó: ${apc} · Leghosszabb: ${lng}`;
-                tt.style.display = "block";
-              });
-              cell.addEventListener("mousemove", (e) => {
-                tt.style.left = e.clientX + 14 + "px";
-                tt.style.top = e.clientY - 36 + "px";
-              });
-              cell.addEventListener("mouseleave", () => {
-                tt.style.display = "none";
-              });
-              cell.onclick = () => filterAndShowRuns(found.ym);
-            } else {
-              cell.style.background = "var(--border)";
-              cell.style.opacity = ".4";
-            }
-            cells.appendChild(cell);
-          }
-          row.appendChild(lbl);
-          row.appendChild(cells);
-          hm.appendChild(row);
-        });
         drawOverviewCharts();
       }
 
@@ -12825,6 +12771,61 @@
           [{ data: a.map((y) => y.avg_aei), color: getLime(), fill: true, fillColor: getLimeDim() }],
           { yFmt: (v) => v.toFixed(2) },
         );
+
+        // heatmap
+        const mn = document.getElementById("month-names");
+        mn.innerHTML = "";
+        MONTHS_HU.forEach((m) => {
+          const d = document.createElement("div");
+          d.className = "month-name";
+          d.textContent = m;
+          mn.appendChild(d);
+        });
+        const years = [...new Set(MONTHLY.map((m) => m.year))].sort();
+        const maxKm = Math.max(...MONTHLY.map((m) => m.km));
+        const hm = document.getElementById("heatmap");
+        hm.innerHTML = "";
+        years.forEach((yr) => {
+          const row = document.createElement("div");
+          row.className = "heatmap-row";
+          const lbl = document.createElement("div");
+          lbl.className = "heatmap-year";
+          lbl.textContent = yr;
+          const cells = document.createElement("div");
+          cells.className = "heatmap-cells";
+          for (let mo = 1; mo <= 12; mo++) {
+            const found = MONTHLY.find((m) => m.year === yr && m.month === mo);
+            const cell = document.createElement("div");
+            cell.className = "hm-cell";
+            if (found) {
+              const alpha = 0.1 + (found.km / maxKm) * 0.9;
+              cell.dataset.alpha = alpha.toFixed(2);
+              _hmCellColor(cell, alpha.toFixed(2));
+              const tt = document.getElementById("hm-tooltip");
+              cell.addEventListener("mouseenter", () => {
+                const apc = found.avg_pace ? fmtPace(found.avg_pace) + "/km" : "—";
+                const lng = found.max_dist ? found.max_dist.toFixed(1) + "km" : "—";
+                tt.innerHTML = `<b>${found.ym}</b> · ${found.km} km · ${found.runs} futás<br>Átl. tempó: ${apc} · Leghosszabb: ${lng}`;
+                tt.style.display = "block";
+              });
+              cell.addEventListener("mousemove", (e) => {
+                tt.style.left = e.clientX + 14 + "px";
+                tt.style.top = e.clientY - 36 + "px";
+              });
+              cell.addEventListener("mouseleave", () => {
+                tt.style.display = "none";
+              });
+              cell.onclick = () => filterAndShowRuns(found.ym);
+            } else {
+              cell.style.background = "var(--border)";
+              cell.style.opacity = ".4";
+            }
+            cells.appendChild(cell);
+          }
+          row.appendChild(lbl);
+          row.appendChild(cells);
+          hm.appendChild(row);
+        });
       }
       function initYearlyTab() {
         const bKm = Math.max(...YEARLY.map((y) => y.km)),
@@ -13049,6 +13050,13 @@
       // ── TRENDS ──
       function drawTrendCharts() {
         const isLight = document.documentElement.classList.contains("light");
+        _buildNavPills(
+          "easypace-nav",
+          [[12, "1 év"], [24, "2 év"], [0, "Összes"]],
+          () => _easyPacePeriod,
+          (v) => { _easyPacePeriod = +v; _drawEasyPaceChart(); },
+        );
+        _drawEasyPaceChart();
         _buildZoneNav();
         _drawZoneChart();
         _buildTrimpNav();
@@ -13095,15 +13103,6 @@
           });
         }
         _drawIntensity(_intPeriod);
-
-        // CTL / ATL / TSB
-        _buildNavPills(
-          "ctl-nav",
-          [[180, "6 hó"], [365, "1 év"], [730, "2 év"], [0, "Összes"]],
-          () => _ctlPeriod,
-          (v) => { _ctlPeriod = +v; _drawCtlChart(); },
-        );
-        _drawCtlChart();
 
         // Pace histogram
         const phn = document.getElementById("pace-hist-nav");
@@ -13273,6 +13272,14 @@
           (v) => _drawHrHrvCharts(+v),
         );
         _drawHrHrvCharts(_hrHrvPeriod);
+
+        _buildNavPills(
+          "ctl-nav",
+          [[180, "6 hó"], [365, "1 év"], [730, "2 év"], [0, "Összes"]],
+          () => _ctlPeriod,
+          (v) => { _ctlPeriod = +v; _drawCtlChart(); },
+        );
+        _drawCtlChart();
 
         _buildVo2Nav();
         drawVo2Chart();
