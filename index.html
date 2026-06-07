@@ -1762,17 +1762,6 @@
         </button>
       </div>
       <div class="chart-card"><canvas id="weeklyKmChart" height="160"></canvas></div>
-      <!-- FORMA TREND (CTL/ATL/TSB) -->
-      <div class="slabel">
-        Forma trend (Fitnesz vs. Fáradtság)<button class="info-btn" tabindex="0">
-          i<span class="info-tip"
-            >Fitnesz (CTL, lime): 42-napos exponenciális TRIMP-átlag — hosszú távú edzettség. Fáradtság (ATL,
-            narancs): 7-napos TRIMP-átlag — akut terhelés. Forma (TSB, kék): CTL−ATL. Pozitív TSB = friss, negatív
-            = fáradt. Versenyhetén +5…+15 az ideális.</span
-          >
-        </button>
-      </div>
-      <div class="chart-card"><canvas id="formaChart" height="180"></canvas></div>
       <!-- KÖNNYŰ TEMPÓ TREND -->
       <div class="slabel">
         Könnyű futások tempó-trendje<button class="info-btn" tabindex="0">
@@ -1917,6 +1906,7 @@
                 <th>TRIMP</th>
                 <th>Z1%</th>
                 <th>AEI</th>
+                <th>Szint</th>
                 <th>Kalória</th>
               </tr>
             </thead>
@@ -2018,8 +2008,6 @@
         </div>
         <canvas id="weeklyTRIMPChart" height="160"></canvas>
       </div>
-      <div class="slabel">Heti kalória (utolsó 52 hét)</div>
-      <div class="chart-card"><canvas id="weeklyCalChart" height="160"></canvas></div>
       <div class="slabel">
         Futás intenzitás megoszlás<button class="info-btn" tabindex="0">
           i<span class="info-tip"
@@ -2070,6 +2058,15 @@
         <div id="pace-hist-nav" style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px"></div>
         <canvas id="paceHistChart" height="160"></canvas>
       </div>
+      <div class="slabel">
+        Hosszú futás progresszió<button class="info-btn" tabindex="0">
+          i<span class="info-tip"
+            >Hetenként a leghosszabb futás távolsága. A félmaraton edzésben a hosszú futás fokozatos növelése a
+            kulcs — a görbe folyamatos emelkedése jó jel. A szaggatott vonal a tervezett hosszú futást mutatja.</span
+          >
+        </button>
+      </div>
+      <div class="chart-card"><canvas id="longRunChart" height="160"></canvas></div>
       <div class="slabel">PR fejlődés</div>
       <div class="chart-card">
         <div id="pr-prog-nav" style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px"></div>
@@ -2079,7 +2076,10 @@
 
     <!-- ═══ EGÉSZSÉG ═══ -->
     <div class="page" id="page-health">
-      <div class="slabel" style="border-top: none; padding-top: 0; margin-top: 0">Regeneráció — utolsó 90 nap</div>
+      <div class="slabel" style="border-top: none; padding-top: 0; margin-top: 0; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px">
+        <span>Regeneráció</span>
+        <div id="hrv-hr-nav" style="display:flex; gap:5px; flex-wrap:wrap"></div>
+      </div>
       <div class="g2">
         <div class="chart-card">
           <div class="chart-title">
@@ -2148,13 +2148,14 @@
         </div>
         <canvas id="vo2Chart" height="150"></canvas>
       </div>
-      <div class="slabel">
-        Lépések — utolsó 60 nap<button class="info-btn" tabindex="0">
+      <div class="slabel" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px">
+        <span>Lépések<button class="info-btn" tabindex="0">
           i<span class="info-tip"
             >Napi összes lépésszám. A zöld sávok 10 000 lépés felett vannak, ami az általánosan ajánlott napi minimum
             aktív életmódhoz. Edzős napokon természetesen magasabb.</span
           >
-        </button>
+        </button></span>
+        <div id="steps-nav" style="display:flex; gap:5px; flex-wrap:wrap"></div>
       </div>
       <div class="chart-card"><canvas id="stepsChart" height="150"></canvas></div>
     </div>
@@ -11476,6 +11477,7 @@
           ctx.strokeStyle = ds.color || getLime();
           ctx.lineWidth = 2;
           ctx.lineJoin = "round";
+          if (ds.dashed) ctx.setLineDash([5, 4]);
           ctx.beginPath();
           let first = true,
             prevP = null;
@@ -11493,6 +11495,7 @@
             prevP = p;
           });
           ctx.stroke();
+          ctx.setLineDash([]);
           pts.forEach((p) => {
             if (!p) return;
             ctx.beginPath();
@@ -12761,6 +12764,7 @@
       <td class="${m.total_trimp === bTrimp ? "best" : ""}">${m.total_trimp.toFixed(0)}</td>
       <td>${m.avg_z1.toFixed(0)}%</td>
       <td>${m.avg_aei != null ? m.avg_aei.toFixed(2) : "—"}</td>
+      <td>${m.total_elev ? Math.round(m.total_elev) + " m" : "—"}</td>
       <td>${m.total_cal != null ? Math.round(m.total_cal).toLocaleString() + " kcal" : "—"}</td>
     </tr>`,
           )
@@ -13117,6 +13121,7 @@
           });
         }
         _drawPaceHist(_paceHistPeriod);
+        _drawLongRunChart();
         _drawPRProgression();
 
         // AEI trend (all time monthly)
@@ -13131,6 +13136,110 @@
       }
 
       // ── EGÉSZSÉG ──
+      let _hrHrvPeriod = 90;
+      let _stepsPeriod = 60;
+
+      function _buildNavPills(containerId, options, getCurrent, onSelect) {
+        const nav = document.getElementById(containerId);
+        if (!nav || nav.dataset.built) return;
+        nav.dataset.built = "1";
+        const styleBase =
+          'font-size:10px;font-weight:700;letter-spacing:.3px;font-family:"Proxima Nova",sans-serif;border-radius:20px;padding:4px 12px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text3);transition:all .15s';
+        options.forEach(([val, lbl]) => {
+          const btn = document.createElement("button");
+          btn.dataset.v = val;
+          btn.textContent = lbl;
+          btn.style.cssText = styleBase;
+          btn.onclick = () => {
+            nav.querySelectorAll("button").forEach((b) => {
+              const active = b.dataset.v == val;
+              b.style.background = active ? "var(--lime)" : "var(--surface)";
+              b.style.color = active ? "var(--on-lime)" : "var(--text3)";
+              b.style.borderColor = active ? "var(--lime)" : "var(--border)";
+            });
+            onSelect(val);
+          };
+          if (val == getCurrent()) {
+            btn.style.background = "var(--lime)";
+            btn.style.color = "var(--on-lime)";
+            btn.style.borderColor = "var(--lime)";
+          }
+          nav.appendChild(btn);
+        });
+      }
+
+      function _cutDate(days) {
+        if (!days) return null;
+        const d = new Date();
+        d.setDate(d.getDate() - days);
+        return d.toISOString().slice(0, 10);
+      }
+
+      function _drawHrHrvCharts(days) {
+        _hrHrvPeriod = days;
+        const cut = _cutDate(days);
+        const allHRV = HEALTH.filter((h) => h.hrv > 0).map((h) => h.hrv);
+        const allHR = HEALTH.filter((h) => h.resting_hr > 0).map((h) => h.resting_hr);
+
+        const hrD = HEALTH.filter((h) => (!cut || h.date >= cut) && h.resting_hr > 0);
+        const lbl = (h) => (days && days <= 90 ? h.date.slice(5) : h.date.slice(2));
+        if (hrD.length)
+          drawLine(
+            "restingHRChart",
+            hrD.map(lbl),
+            [{ data: hrD.map((h) => h.resting_hr), color: "#ff6622", fill: true, fillColor: "rgba(255,102,34,.1)", label: "bpm" }],
+            { rotateLabels: true, yFmt: (v) => Math.round(v) + " bpm" },
+          );
+
+        const hrvD = HEALTH.filter((h) => (!cut || h.date >= cut) && h.hrv > 0);
+        if (hrvD.length)
+          drawLine(
+            "hrvChart",
+            hrvD.map(lbl),
+            [{ data: hrvD.map((h) => h.hrv), color: getLime(), fill: true, fillColor: getLimeDim(), label: "ms" }],
+            { rotateLabels: true, yFmt: (v) => Math.round(v) + " ms" },
+          );
+
+        if (allHRV.length && allHR.length) {
+          const avgHRV = allHRV.reduce((s, v) => s + v, 0) / allHRV.length;
+          const avgHR = allHR.reduce((s, v) => s + v, 0) / allHR.length;
+          const formaD = HEALTH.filter((h) => (!cut || h.date >= cut) && h.hrv > 0 && h.resting_hr > 0);
+          const formaVals = formaD.map((h) => {
+            const hrvScore = ((h.hrv - avgHRV) / avgHRV) * 40;
+            const hrScore = (-(h.resting_hr - avgHR) / avgHR) * 20;
+            return Math.min(100, Math.max(0, Math.round(50 + hrvScore + hrScore)));
+          });
+          drawLine(
+            "readinessChart",
+            formaD.map(lbl),
+            [{ data: formaVals, color: "#60a5fa", fill: true, fillColor: "rgba(96,165,250,.08)", label: "Forma" }],
+            {
+              rotateLabels: true,
+              yFmt: (v) => Math.round(v),
+              minVal: 0,
+              maxVal: 100,
+              refLines: [
+                { value: 70, color: getLime(), label: "70 — jó forma" },
+                { value: 30, color: "#ff4444", label: "30 — fáradt" },
+              ],
+            },
+          );
+        }
+      }
+
+      function _drawStepsChart(days) {
+        _stepsPeriod = days;
+        const cut = _cutDate(days);
+        const stepsD = HEALTH.filter((h) => (!cut || h.date >= cut) && h.steps > 0);
+        if (stepsD.length)
+          drawBar(
+            "stepsChart",
+            stepsD.map((h) => (days && days <= 90 ? h.date.slice(5) : h.date.slice(2))),
+            [{ data: stepsD.map((h) => h.steps), color: stepsD.map((h) => (h.steps >= 10000 ? getStrain() : getStrainDim(0.35))), label: "lépés" }],
+            { rotateLabels: true, yFmt: (v) => Math.round(v / 1000) + "k" },
+          );
+      }
+
       function drawHealthCharts() {
         if (!HEALTH.length) {
           document
@@ -13151,91 +13260,25 @@
             });
           return;
         }
-        const isLight = document.documentElement.classList.contains("light");
-        const today = new Date().toISOString().slice(0, 10);
-        const cut90 = new Date();
-        cut90.setDate(cut90.getDate() - 90);
-        const c90 = cut90.toISOString().slice(0, 10);
-        const cut60 = new Date();
-        cut60.setDate(cut60.getDate() - 60);
-        const c60 = cut60.toISOString().slice(0, 10);
 
-        // Resting HR (last 90 days)
-        const hrD = HEALTH.filter((h) => h.date >= c90 && h.resting_hr > 0);
-        if (hrD.length)
-          drawLine(
-            "restingHRChart",
-            hrD.map((h) => h.date.slice(5)),
-            [
-              {
-                data: hrD.map((h) => h.resting_hr),
-                color: "#ff6622",
-                fill: true,
-                fillColor: "rgba(255,102,34,.1)",
-                label: "bpm",
-              },
-            ],
-            { rotateLabels: true, yFmt: (v) => Math.round(v) + " bpm" },
-          );
+        _buildNavPills(
+          "hrv-hr-nav",
+          [[30, "30 nap"], [90, "90 nap"], [180, "180 nap"], [0, "Összes"]],
+          () => _hrHrvPeriod,
+          (v) => _drawHrHrvCharts(+v),
+        );
+        _drawHrHrvCharts(_hrHrvPeriod);
 
-        // HRV (last 90 days)
-        const hrvD = HEALTH.filter((h) => h.date >= c90 && h.hrv > 0);
-        if (hrvD.length)
-          drawLine(
-            "hrvChart",
-            hrvD.map((h) => h.date.slice(5)),
-            [{ data: hrvD.map((h) => h.hrv), color: getLime(), fill: true, fillColor: getLimeDim(), label: "ms" }],
-            { rotateLabels: true, yFmt: (v) => Math.round(v) + " ms" },
-          );
-
-        // Forma Index (last 90 days, baseline from all history)
-        const allHRV = HEALTH.filter((h) => h.hrv > 0).map((h) => h.hrv);
-        const allHR = HEALTH.filter((h) => h.resting_hr > 0).map((h) => h.resting_hr);
-        if (allHRV.length && allHR.length) {
-          const avgHRV = allHRV.reduce((s, v) => s + v, 0) / allHRV.length;
-          const avgHR = allHR.reduce((s, v) => s + v, 0) / allHR.length;
-          const formaD = HEALTH.filter((h) => h.date >= c90 && h.hrv > 0 && h.resting_hr > 0);
-          const formaVals = formaD.map((h) => {
-            const hrvScore = ((h.hrv - avgHRV) / avgHRV) * 40; // ±40 based on deviation from avg
-            const hrScore = (-(h.resting_hr - avgHR) / avgHR) * 20; // ±20 (lower HR = higher score)
-            return Math.min(100, Math.max(0, Math.round(50 + hrvScore + hrScore)));
-          });
-          drawLine(
-            "readinessChart",
-            formaD.map((h) => h.date.slice(5)),
-            [{ data: formaVals, color: "#60a5fa", fill: true, fillColor: "rgba(96,165,250,.08)", label: "Forma" }],
-            {
-              rotateLabels: true,
-              yFmt: (v) => Math.round(v),
-              minVal: 0,
-              maxVal: 100,
-              refLines: [
-                { value: 70, color: getLime(), label: "70 — jó forma" },
-                { value: 30, color: "#ff4444", label: "30 — fáradt" },
-              ],
-            },
-          );
-        }
-
-        // VO2 Max
         _buildVo2Nav();
         drawVo2Chart();
 
-        // Steps (last 60 days)
-        const stepsD = HEALTH.filter((h) => h.date >= c60 && h.steps > 0);
-        if (stepsD.length)
-          drawBar(
-            "stepsChart",
-            stepsD.map((h) => h.date.slice(5)),
-            [
-              {
-                data: stepsD.map((h) => h.steps),
-                color: stepsD.map((h) => (h.steps >= 10000 ? getStrain() : getStrainDim(0.35))),
-                label: "lépés",
-              },
-            ],
-            { rotateLabels: true, yFmt: (v) => Math.round(v / 1000) + "k" },
-          );
+        _buildNavPills(
+          "steps-nav",
+          [[30, "30 nap"], [60, "60 nap"], [90, "90 nap"], [0, "Összes"]],
+          () => _stepsPeriod,
+          (v) => _drawStepsChart(+v),
+        );
+        _drawStepsChart(_stepsPeriod);
       }
 
       // ── PR PROGRESSION ──
@@ -13276,6 +13319,39 @@
           minDist: 0,
         },
       ];
+      function _drawLongRunChart() {
+        if (!WEEKLY.length) return;
+        const planStartMs = new Date(PLAN_START + "T00:00:00").getTime();
+        const labels = [], actuals = [], planned = [];
+        function _parseDetKm(det) {
+          const m = det && det.match(/(\d+(?:\.\d+)?)\s*km/i);
+          return m ? parseFloat(m[1]) : null;
+        }
+        WEEKLY.forEach((w) => {
+          const [s, e] = w.w.split("/");
+          const wRuns = RUNS.filter((r) => r.date >= s && r.date <= e);
+          if (!wRuns.length) return;
+          const maxDist = Math.max(...wRuns.map((r) => r.dist));
+          labels.push(s.slice(2));
+          actuals.push(+maxDist.toFixed(1));
+          const wsMs = new Date(s + "T00:00:00").getTime();
+          const weekIdx = Math.round((wsMs - planStartMs) / (7 * 86400000));
+          let planKm = null;
+          if (weekIdx >= 0 && weekIdx < PLAN_DATA.length) {
+            const longDay = PLAN_DATA[weekIdx].days.find((d) => d.type === "long");
+            planKm = longDay ? _parseDetKm(longDay.det) : null;
+          }
+          planned.push(planKm);
+        });
+        const datasets = [
+          { data: actuals, color: getLime(), fill: true, fillColor: getLimeDim(), label: "Leghosszabb futás" },
+        ];
+        if (planned.some((v) => v)) {
+          datasets.push({ data: planned, color: "#f472b6", fill: false, dashed: true, label: "Terv (hosszú)" });
+        }
+        drawLine("longRunChart", labels, datasets, { rotateLabels: true, yFmt: (v) => v.toFixed(1) + " km", minVal: 0 });
+      }
+
       function _drawPRProgression() {
         const nav = document.getElementById("pr-prog-nav");
         if (!nav.dataset.built) {
