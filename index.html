@@ -1771,7 +1771,12 @@
           >
         </button>
       </div>
-      <div class="chart-card"><canvas id="easyPaceChart" height="160"></canvas></div>
+      <div class="chart-card">
+        <div style="display:flex; justify-content:flex-end; margin-bottom:8px">
+          <div id="easypace-nav" style="display:flex; gap:5px; flex-wrap:wrap"></div>
+        </div>
+        <canvas id="easyPaceChart" height="160"></canvas>
+      </div>
       <!-- HEATMAP -->
       <div class="slabel">Havi km heatmap</div>
       <div class="chart-card">
@@ -12173,6 +12178,12 @@
         );
         _drawRacePredictions();
         _drawFormaChart();
+        _buildNavPills(
+          "easypace-nav",
+          [[12, "1 év"], [24, "2 év"], [0, "Összes"]],
+          () => _easyPacePeriod,
+          (v) => { _easyPacePeriod = +v; _drawEasyPaceChart(); },
+        );
         _drawEasyPaceChart();
       }
 
@@ -12225,24 +12236,26 @@
       }
 
       // ── KÖNNYŰ TEMPÓ TREND ──
+      let _easyPacePeriod = 12;
       function _drawEasyPaceChart() {
         if (!MONTHLY.length) return;
-        const data = MONTHLY.map((m) => {
+        const cutYm = _easyPacePeriod
+          ? (() => { const d = new Date(); d.setMonth(d.getMonth() - _easyPacePeriod); return d.toISOString().slice(0, 7); })()
+          : null;
+        const months = MONTHLY.filter((m) => !cutYm || m.ym >= cutYm);
+        const showYear = _easyPacePeriod === 0 || _easyPacePeriod > 12;
+        const data = months.map((m) => {
           const easy = RUNS.filter((r) => r.ym === m.ym && r.z1 >= 50 && r.pace > 0);
           if (!easy.length) return null;
           return +(easy.reduce((s, r) => s + r.pace, 0) / easy.length).toFixed(3);
         });
-        const labels = MONTHLY.map((m) => m.ym.slice(2));
+        const labels = months.map((m) => showYear ? m.ym.slice(2) : m.ym.slice(5));
         if (!data.some((v) => v)) return;
         drawLine(
           "easyPaceChart",
           labels,
           [{ data, color: getLime(), fill: true, fillColor: getLimeDim(), label: "tempó" }],
-          {
-            rotateLabels: true,
-            yInvert: true,
-            yFmt: (v) => fmtPace(v) + "/km",
-          },
+          { rotateLabels: true, yInvert: true, yFmt: (v) => fmtPace(v) + "/km" },
         );
       }
 
