@@ -15,7 +15,29 @@
       "Bash(git commit -m 'Declutter Overview: remove TSB, VO2, Összesítő, Ez a hónap, Terv haladás, Heti sorozat *)",
       "Bash(git commit -m 'Fix crash: remove overview-stats JS render after HTML element removed *)",
       "Bash(git commit -m ' *)",
-      "WebFetch(domain:www.budapestfelmaraton.hu)"
+      "WebFetch(domain:www.budapestfelmaraton.hu)",
+      "Bash(node -e ' *)",
+      "Bash(node --check _tmp_check.js)",
+      "Bash(node --check \"D:\\\\Head of AI\\\\Claude Code\\\\RunDB Villo\\\\_tmp.js\")",
+      "mcp__claude_ai_Google_Drive__read_file_content",
+      "Bash(python *)",
+      "WebFetch(domain:script.google.com)",
+      "Bash(git commit *)",
+      "WebFetch(domain:script.googleusercontent.com)",
+      "Bash(python3 *)",
+      "Bash(where.exe python3 *)",
+      "Bash(where.exe python *)",
+      "Bash(where.exe py *)",
+      "Bash(C:/Users/Tomi/AppData/Local/Python/bin/python3.exe *)",
+      "Bash(node *)",
+      "Bash(PowerShell *)",
+      "Read(//usr/**)",
+      "Read(//usr/local/**)",
+      "Bash(/c/Users/Tomi/AppData/Local/Microsoft/WindowsApps/python3 *)",
+      "Read(//c/Users/Tomi/AppData/Local/Programs/**)",
+      "Read(//c/Program Files/**)",
+      "Bash(ls \"/c/Python\"*)",
+      "Bash(py *)"
     ]
   }
 }
