@@ -1742,9 +1742,7 @@
       <div class="slabel">
         Becsült versenyidők<button class="info-btn" tabindex="0">
           i<span class="info-tip"
-            >Riegel-formula alapján számított becslés a legutóbbi 180 nap legjobb edzésfutásaiból (T₂ = T₁ ×
-            (D₂/D₁)^1.06). Ha nincs elegendő adat az adott távhoz, VO₂ Max alapú becslés jelenik meg felső
-            határként. A félmaraton becslés a felső sávban látható.</span
+            >Riegel-formula alapján számított becslés a legutóbbi 180 nap összes edzésfutásából — minden futásra kiszámítja a becsült versenyidőt, és a legjobbat mutatja (T₂ = T₁ × (D₂/D₁)^1.06). Ha nincs elegendő adat, VO₂ Max alapú becslés jelenik meg. A félmaraton becslés a felső sávban látható.</span
           >
         </button>
       </div>
@@ -13568,17 +13566,22 @@
 
         // HM-et a race banner mutatja, itt nem ismételjük
         const raceDefs = [
-          { lbl: "5 km", dist: 5, minRef: 3, maxRef: 8, vo2pct: 0.96 },
-          { lbl: "10 km", dist: 10, minRef: 6, maxRef: 16, vo2pct: 0.92 },
-          { lbl: "Maraton", dist: 42.195, minRef: 18, maxRef: null, vo2pct: 0.79 },
+          { lbl: "5 km", dist: 5, minRef: 3, vo2pct: 0.96 },
+          { lbl: "10 km", dist: 10, minRef: 6, vo2pct: 0.92 },
+          { lbl: "Maraton", dist: 42.195, minRef: 18, vo2pct: 0.79 },
         ];
 
         el.innerHTML = raceDefs
           .map((race) => {
-            const pool = recentRuns.filter(
-              (r) => r.dist >= race.minRef && (race.maxRef === null || r.dist <= race.maxRef),
-            );
-            const ref = pool.length ? pool.reduce((a, r) => (r.pace < a.pace ? r : a)) : null;
+            const pool = recentRuns.filter((r) => r.dist >= race.minRef);
+            // pick the run that gives the fastest Riegel prediction for this race distance
+            const ref = pool.length
+              ? pool.reduce((best, r) => {
+                  const t = r.pace * r.dist * Math.pow(race.dist / r.dist, 1.06);
+                  const bt = best.pace * best.dist * Math.pow(race.dist / best.dist, 1.06);
+                  return t < bt ? r : best;
+                })
+              : null;
             let result;
             if (ref) {
               const predTime = ref.pace * ref.dist * Math.pow(race.dist / ref.dist, 1.06);
