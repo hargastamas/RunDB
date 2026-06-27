@@ -2193,17 +2193,6 @@
       </div>
       <div id="plan-progress-wrap"></div>
       <div id="plan-goals"></div>
-      <div class="slabel" style="margin-top: 24px">Napi kalóriacél</div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-        <button onclick="calNavWeek(-1)" style="padding:5px 12px;border-radius:8px;border:1px solid var(--card-border);background:var(--surface);color:var(--text2);font-size:15px;cursor:pointer;line-height:1;">←</button>
-        <span id="cal-nav-label" style="font-size:13px;font-weight:600;color:var(--text);min-width:130px;text-align:center;"></span>
-        <button onclick="calNavWeek(+1)" style="padding:5px 12px;border-radius:8px;border:1px solid var(--card-border);background:var(--surface);color:var(--text2);font-size:15px;cursor:pointer;line-height:1;">→</button>
-      </div>
-      <div id="cal-week-badge" style="font-size:12px;color:var(--text2);margin-bottom:8px;padding:5px 12px;background:var(--surface);border:1px solid var(--card-border);border-radius:8px;display:inline-block;"></div>
-      <div id="cal-table-wrap" style="background:var(--surface);border:1px solid var(--card-border);border-radius:14px;overflow:hidden;"></div>
-      <div style="font-size:13px;color:var(--text2);margin-top:10px;padding:10px 14px;background:var(--surface);border:1px solid var(--card-border);border-radius:10px;">
-        Fehérje minden nap: minimum <strong style="color:var(--text)">130–140 g</strong> (2 g/kg) — ez fontosabb, mint a kalória pontos száma. Augusztus közepétől tartsd a TDEE-t, ne fogyassz tovább.
-      </div>
       <div class="slabel" style="margin-top: 24px">Teljes terv</div>
       <div id="plan-full"></div>
     </div>
@@ -14058,9 +14047,6 @@
         // ── FULL PLAN ──
         _renderPlanFull(cwIdx, today);
 
-        // ── CAL TABLE ──
-        _calNavIdx = null; // reset to current week on each open
-        _renderCalTable();
       }
 
       function _renderPlanInsights(today, cwIdx) {
@@ -14198,6 +14184,33 @@
             .join("")}
         </div>
         ${summaryBlock}
+        ${(() => {
+          const cal = typeof CAL_PLAN !== "undefined" ? CAL_PLAN[wi] : null;
+          if (!cal) return "";
+          const dayNames = ["Hétfő","Kedd","Szerda","Csütörtök","Péntek","Szombat","Vasárnap"];
+          const rows = dayNames.map((day, i) => {
+            const pd = week.days[i];
+            const kcal = cal.days[i];
+            const border = i < 6 ? "border-bottom:1px solid var(--card-border);" : "";
+            const color = i === 4 ? "var(--lime)" : "var(--text)";
+            return `<tr style="${border}">
+              <td style="padding:6px 10px;color:var(--text);">${day}</td>
+              <td style="padding:6px 10px;color:var(--text2);">${pd ? pd.lbl : "–"}</td>
+              <td style="padding:6px 10px;text-align:right;font-weight:600;color:${color};">${kcal}${typeof kcal === "string" && kcal.includes("–") ? " kcal" : ""}</td>
+            </tr>`;
+          }).join("");
+          return `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
+            <div style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:8px;">Napi kalóriacél · átlag ~${cal.avg} kcal · ${cal.note}</div>
+            <table style="width:100%;border-collapse:collapse;font-size:13px;">
+              <thead><tr style="border-bottom:1px solid var(--card-border);">
+                <th style="text-align:left;padding:6px 10px;color:var(--text2);font-weight:600;">Nap</th>
+                <th style="text-align:left;padding:6px 10px;color:var(--text2);font-weight:600;">Edzés</th>
+                <th style="text-align:right;padding:6px 10px;color:var(--text2);font-weight:600;">Kalória</th>
+              </tr></thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>`;
+        })()}
       </div>
     </div>`;
         }).join("");
@@ -14247,62 +14260,6 @@
           days: ["1950–2050","2100–2200","1950–2050","2150–2300","2100–2300","2400–2600","Verseny nap 🏃"] },
       ];
 
-      const _CAL_DAYS_HU = ["Hétfő","Kedd","Szerda","Csütörtök","Péntek","Szombat","Vasárnap"];
-      let _calNavIdx = null;
-
-      function calNavWeek(delta) {
-        const base = _calNavIdx !== null ? _calNavIdx : _planCurrentWeekIdx();
-        _calNavIdx = Math.max(0, Math.min(PLAN_DATA.length - 1, base + delta));
-        _renderCalTable();
-      }
-
-      function _renderCalTable() {
-        const curIdx = _planCurrentWeekIdx();
-        const idx = _calNavIdx !== null ? _calNavIdx : curIdx;
-        const labelEl = document.getElementById("cal-nav-label");
-        const badgeEl = document.getElementById("cal-week-badge");
-        const wrapEl = document.getElementById("cal-table-wrap");
-        if (!labelEl || !badgeEl || !wrapEl) return;
-
-        const isCurrent = idx === curIdx;
-        labelEl.textContent = (idx + 1) + ". hét" + (isCurrent ? " (aktuális)" : "");
-        const week = PLAN_DATA[idx];
-        const cal = CAL_PLAN[idx];
-        badgeEl.textContent = week.phase + " · " + week.km + " km" + (cal ? " · ~" + cal.avg + " kcal átlag" : "");
-
-        if (!cal) {
-          wrapEl.innerHTML = '<div style="padding:16px;color:var(--text2);font-size:13px;">Múlt hét — nincs részletes kalória adat.</div>';
-          return;
-        }
-
-        const rows = _CAL_DAYS_HU.map((day, i) => {
-          const pd = week.days[i];
-          const kcal = cal.days[i];
-          const isFri = i === 4;
-          const color = isFri ? "var(--lime)" : "var(--text)";
-          const border = i < 6 ? "border-bottom:1px solid var(--card-border);" : "";
-          return `<tr style="${border}">
-            <td style="padding:9px 14px;color:var(--text);">${day}</td>
-            <td style="padding:9px 14px;color:var(--text2);">${pd ? pd.lbl : "–"}</td>
-            <td style="padding:9px 14px;text-align:right;font-weight:600;color:${color};">${kcal}${typeof kcal === "string" && kcal.includes("–") ? " kcal" : ""}</td>
-          </tr>`;
-        }).join("");
-
-        const avgRow = `<tr style="border-top:2px solid var(--card-border);">
-          <td style="padding:9px 14px;color:var(--text);font-weight:700;">Heti átlag</td>
-          <td style="padding:9px 14px;color:var(--text2);font-size:12px;">${cal.note}</td>
-          <td style="padding:9px 14px;text-align:right;font-weight:700;">~${cal.avg} kcal</td>
-        </tr>`;
-
-        wrapEl.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:13px;">
-          <thead><tr style="border-bottom:1px solid var(--card-border);">
-            <th style="text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;">Nap</th>
-            <th style="text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;">Edzés</th>
-            <th style="text-align:right;padding:10px 14px;color:var(--text2);font-weight:600;">Kalória</th>
-          </tr></thead>
-          <tbody>${rows}${avgRow}</tbody>
-        </table>`;
-      }
     </script>
   </body>
 </html>
