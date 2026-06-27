@@ -2179,116 +2179,13 @@
       <div id="plan-progress-wrap"></div>
       <div id="plan-goals"></div>
       <div class="slabel" style="margin-top: 24px">Napi kalóriacél</div>
-      <div style="display:flex;gap:8px;margin-bottom:10px;">
-        <button id="cal-btn-normal" onclick="switchCalTab('normal')" style="padding:6px 14px;border-radius:8px;border:1px solid var(--lime);background:var(--lime);color:#000;font-size:13px;font-weight:600;cursor:pointer;">Normál hét</button>
-        <button id="cal-btn-recovery" onclick="switchCalTab('recovery')" style="padding:6px 14px;border-radius:8px;border:1px solid var(--card-border);background:transparent;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;">Recovery hét</button>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <button onclick="calNavWeek(-1)" style="padding:5px 12px;border-radius:8px;border:1px solid var(--card-border);background:var(--surface);color:var(--text2);font-size:15px;cursor:pointer;line-height:1;">←</button>
+        <span id="cal-nav-label" style="font-size:13px;font-weight:600;color:var(--text);min-width:130px;text-align:center;"></span>
+        <button onclick="calNavWeek(+1)" style="padding:5px 12px;border-radius:8px;border:1px solid var(--card-border);background:var(--surface);color:var(--text2);font-size:15px;cursor:pointer;line-height:1;">→</button>
       </div>
-      <div id="cal-table-normal" style="background:var(--surface);border:1px solid var(--card-border);border-radius:14px;overflow:hidden;">
-        <table style="width:100%;border-collapse:collapse;font-size:13px;">
-          <thead>
-            <tr style="border-bottom:1px solid var(--card-border);">
-              <th style="text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;">Nap</th>
-              <th style="text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;">Edzés</th>
-              <th style="text-align:right;padding:10px 14px;color:var(--text2);font-weight:600;">Kalória</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr style="border-bottom:1px solid var(--card-border);">
-              <td style="padding:9px 14px;color:var(--text);">Hétfő</td>
-              <td style="padding:9px 14px;color:var(--text2);">Lábazás</td>
-              <td style="padding:9px 14px;text-align:right;font-weight:600;">2100–2200 kcal</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--card-border);">
-              <td style="padding:9px 14px;color:var(--text);">Kedd</td>
-              <td style="padding:9px 14px;color:var(--text2);">Könnyű futás</td>
-              <td style="padding:9px 14px;text-align:right;font-weight:600;">2200–2300 kcal</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--card-border);">
-              <td style="padding:9px 14px;color:var(--text);">Szerda</td>
-              <td style="padding:9px 14px;color:var(--text2);">Tempóedzés</td>
-              <td style="padding:9px 14px;text-align:right;font-weight:600;">2400 kcal</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--card-border);">
-              <td style="padding:9px 14px;color:var(--text);">Csütörtök</td>
-              <td style="padding:9px 14px;color:var(--text2);">Felső test + könnyű futás</td>
-              <td style="padding:9px 14px;text-align:right;font-weight:600;">2300 kcal</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--card-border);">
-              <td style="padding:9px 14px;color:var(--text);">Péntek</td>
-              <td style="padding:9px 14px;color:var(--text2);">Hosszú futás</td>
-              <td style="padding:9px 14px;text-align:right;font-weight:600;color:var(--lime);">2800–3000 kcal</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--card-border);">
-              <td style="padding:9px 14px;color:var(--text);">Szombat</td>
-              <td style="padding:9px 14px;color:var(--text2);">Úszás 2 km</td>
-              <td style="padding:9px 14px;text-align:right;font-weight:600;">2100–2200 kcal</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--card-border);">
-              <td style="padding:9px 14px;color:var(--text);">Vasárnap</td>
-              <td style="padding:9px 14px;color:var(--text2);">Pihenő</td>
-              <td style="padding:9px 14px;text-align:right;font-weight:600;">1800–1900 kcal</td>
-            </tr>
-            <tr>
-              <td style="padding:9px 14px;color:var(--text);font-weight:700;">Heti átlag</td>
-              <td style="padding:9px 14px;color:var(--text2);">~300–350 g zsír/hét</td>
-              <td style="padding:9px 14px;text-align:right;font-weight:700;">~2250 kcal</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div id="cal-table-recovery" style="display:none;background:var(--surface);border:1px solid var(--card-border);border-radius:14px;overflow:hidden;">
-        <table style="width:100%;border-collapse:collapse;font-size:13px;">
-          <thead>
-            <tr style="border-bottom:1px solid var(--card-border);">
-              <th style="text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;">Nap</th>
-              <th style="text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;">Edzés</th>
-              <th style="text-align:right;padding:10px 14px;color:var(--text2);font-weight:600;">Kalória</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr style="border-bottom:1px solid var(--card-border);">
-              <td style="padding:9px 14px;color:var(--text);">Hétfő</td>
-              <td style="padding:9px 14px;color:var(--text2);">Kondi (láb, könnyű)</td>
-              <td style="padding:9px 14px;text-align:right;font-weight:600;">1950–2050 kcal</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--card-border);">
-              <td style="padding:9px 14px;color:var(--text);">Kedd</td>
-              <td style="padding:9px 14px;color:var(--text2);">Könnyű futás 7 km, Z1</td>
-              <td style="padding:9px 14px;text-align:right;font-weight:600;">2000–2100 kcal</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--card-border);">
-              <td style="padding:9px 14px;color:var(--text);">Szerda</td>
-              <td style="padding:9px 14px;color:var(--text2);">Könnyű futás 6 km, Z1</td>
-              <td style="padding:9px 14px;text-align:right;font-weight:600;">2000–2100 kcal</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--card-border);">
-              <td style="padding:9px 14px;color:var(--text);">Csütörtök</td>
-              <td style="padding:9px 14px;color:var(--text2);">Kondi (felsőtest) + könnyű 4 km</td>
-              <td style="padding:9px 14px;text-align:right;font-weight:600;">2100–2200 kcal</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--card-border);">
-              <td style="padding:9px 14px;color:var(--text);">Péntek</td>
-              <td style="padding:9px 14px;color:var(--text2);">Hosszú futás 10 km, Z1</td>
-              <td style="padding:9px 14px;text-align:right;font-weight:600;color:var(--lime);">2300–2500 kcal</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--card-border);">
-              <td style="padding:9px 14px;color:var(--text);">Szombat</td>
-              <td style="padding:9px 14px;color:var(--text2);">Úszás 2 km</td>
-              <td style="padding:9px 14px;text-align:right;font-weight:600;">1900–2000 kcal</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--card-border);">
-              <td style="padding:9px 14px;color:var(--text);">Vasárnap</td>
-              <td style="padding:9px 14px;color:var(--text2);">Pihenő</td>
-              <td style="padding:9px 14px;text-align:right;font-weight:600;">1700–1800 kcal</td>
-            </tr>
-            <tr>
-              <td style="padding:9px 14px;color:var(--text);font-weight:700;">Heti átlag</td>
-              <td style="padding:9px 14px;color:var(--text2);">~200–250 g zsír/hét</td>
-              <td style="padding:9px 14px;text-align:right;font-weight:700;">~2050 kcal</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <div id="cal-week-badge" style="font-size:12px;color:var(--text2);margin-bottom:8px;padding:5px 12px;background:var(--surface);border:1px solid var(--card-border);border-radius:8px;display:inline-block;"></div>
+      <div id="cal-table-wrap" style="background:var(--surface);border:1px solid var(--card-border);border-radius:14px;overflow:hidden;"></div>
       <div style="font-size:13px;color:var(--text2);margin-top:10px;padding:10px 14px;background:var(--surface);border:1px solid var(--card-border);border-radius:10px;">
         Fehérje minden nap: minimum <strong style="color:var(--text)">130–140 g</strong> (2 g/kg) — ez fontosabb, mint a kalória pontos száma. Augusztus közepétől tartsd a TDEE-t, ne fogyassz tovább.
       </div>
@@ -14173,6 +14070,10 @@
 
         // ── FULL PLAN ──
         _renderPlanFull(cwIdx, today);
+
+        // ── CAL TABLE ──
+        _calNavIdx = null; // reset to current week on each open
+        _renderCalTable();
       }
 
       function _renderPlanInsights(today, cwIdx) {
@@ -14318,14 +14219,99 @@
       // ── INIT ──
       _bootstrap();
 
-      function switchCalTab(tab) {
-        const isRecovery = tab === 'recovery';
-        document.getElementById('cal-table-normal').style.display = isRecovery ? 'none' : '';
-        document.getElementById('cal-table-recovery').style.display = isRecovery ? '' : 'none';
-        const activeStyle = 'padding:6px 14px;border-radius:8px;border:1px solid var(--lime);background:var(--lime);color:#000;font-size:13px;font-weight:600;cursor:pointer;';
-        const inactiveStyle = 'padding:6px 14px;border-radius:8px;border:1px solid var(--card-border);background:transparent;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;';
-        document.getElementById('cal-btn-normal').style.cssText = isRecovery ? inactiveStyle : activeStyle;
-        document.getElementById('cal-btn-recovery').style.cssText = isRecovery ? activeStyle : inactiveStyle;
+      // ── CAL_PLAN — per-week daily calorie targets (indices match PLAN_DATA) ──
+      // Calculation base: TDEE 2000 kcal rest + exercise burn - 300 kcal deficit (weeks 8-14)
+      // Weeks 15-17: TDEE maintenance (no deficit), taper + carb load before race
+      // Thu always includes upper-body gym (+gym calories); Mon is lower-body gym day
+      const CAL_PLAN = [
+        null, null, null, null, null, null, null, // weeks 1–7 (past)
+        // Week 8 — Tempo recovery, 34 km
+        { avg: 2170, note: "Recovery · deficit ~300 kcal/nap · ~150 g zsír/hét",
+          days: ["1950–2050","2100–2200","2050–2150","2250–2350","2650–2800","2100–2250","1650–1750"] },
+        // Week 9 — Intervallum, 42 km
+        { avg: 2300, note: "Intervallum · deficit ~300 kcal/nap · ~300 g zsír/hét",
+          days: ["2150–2300","2200–2350","2450–2600","2300–2450","2750–2900","2100–2250","1650–1750"] },
+        // Week 10 — Intervallum, 46 km
+        { avg: 2340, note: "Intervallum · deficit ~300 kcal/nap · ~300 g zsír/hét",
+          days: ["2150–2300","2300–2450","2500–2650","2300–2450","2900–3050","2100–2250","1650–1750"] },
+        // Week 11 — Intervallum PEAK, 50 km
+        { avg: 2380, note: "Csúcshét · deficit ~300 kcal/nap · ~300 g zsír/hét",
+          days: ["2150–2300","2400–2550","2600–2750","2300–2450","2950–3100","2100–2250","1650–1750"] },
+        // Week 12 — Intervallum recovery, 37 km
+        { avg: 2180, note: "Recovery · deficit ~300 kcal/nap · ~150 g zsír/hét",
+          days: ["1950–2050","2150–2300","2100–2200","2150–2250","2700–2850","2100–2250","1650–1750"] },
+        // Week 13 — Versenyspecifikus, 41 km
+        { avg: 2290, note: "Versenyspecifikus · deficit ~300 kcal/nap · ~300 g zsír/hét",
+          days: ["2150–2300","2150–2300","2450–2600","2300–2450","2700–2900","2100–2250","1650–1750"] },
+        // Week 14 — Versenyspecifikus, 36 km — utolsó deficit hét
+        { avg: 2190, note: "Utolsó deficit hét · aug. közepétől váltás TDEE-re",
+          days: ["1950–2050","2100–2200","2300–2450","2200–2350","2550–2700","2100–2250","1650–1750"] },
+        // Week 15 — Taper, 24 km — MAINTENANCE
+        { avg: 2360, note: "Taper · TDEE fenntartás — ne fogyassz tovább",
+          days: ["2100–2300","2350–2450","2450–2600","2500–2650","2300–2400","2400–2600","1950–2050"] },
+        // Week 16 — Taper, 12 km — verseny előtti hét
+        { avg: 2140, note: "Verseny előtti hét · könnyű, normál étkezés",
+          days: ["2100–2200","2250–2400","2200–2350","1950–2050","1950–2050","2100–2250","1950–2050"] },
+        // Week 17 — Race week
+        { avg: 2200, note: "Verseny hét · P–Szo szénhidrát feltöltés (rizs, tészta)!",
+          days: ["1950–2050","2100–2200","1950–2050","2150–2300","2100–2300","2400–2600","Verseny nap 🏃"] },
+      ];
+
+      const _CAL_DAYS_HU = ["Hétfő","Kedd","Szerda","Csütörtök","Péntek","Szombat","Vasárnap"];
+      let _calNavIdx = null;
+
+      function calNavWeek(delta) {
+        const base = _calNavIdx !== null ? _calNavIdx : _planCurrentWeekIdx();
+        _calNavIdx = Math.max(0, Math.min(PLAN_DATA.length - 1, base + delta));
+        _renderCalTable();
+      }
+
+      function _renderCalTable() {
+        const curIdx = _planCurrentWeekIdx();
+        const idx = _calNavIdx !== null ? _calNavIdx : curIdx;
+        const labelEl = document.getElementById("cal-nav-label");
+        const badgeEl = document.getElementById("cal-week-badge");
+        const wrapEl = document.getElementById("cal-table-wrap");
+        if (!labelEl || !badgeEl || !wrapEl) return;
+
+        const isCurrent = idx === curIdx;
+        labelEl.textContent = (idx + 1) + ". hét" + (isCurrent ? " (aktuális)" : "");
+        const week = PLAN_DATA[idx];
+        const cal = CAL_PLAN[idx];
+        badgeEl.textContent = week.phase + " · " + week.km + " km" + (cal ? " · ~" + cal.avg + " kcal átlag" : "");
+
+        if (!cal) {
+          wrapEl.innerHTML = '<div style="padding:16px;color:var(--text2);font-size:13px;">Múlt hét — nincs részletes kalória adat.</div>';
+          return;
+        }
+
+        const rows = _CAL_DAYS_HU.map((day, i) => {
+          const pd = week.days[i];
+          const kcal = cal.days[i];
+          const isFri = i === 4;
+          const color = isFri ? "var(--lime)" : "var(--text)";
+          const border = i < 6 ? "border-bottom:1px solid var(--card-border);" : "";
+          return `<tr style="${border}">
+            <td style="padding:9px 14px;color:var(--text);">${day}</td>
+            <td style="padding:9px 14px;color:var(--text2);">${pd ? pd.lbl : "–"}</td>
+            <td style="padding:9px 14px;text-align:right;font-weight:600;color:${color};">${kcal}${typeof kcal === "string" && kcal.includes("–") ? " kcal" : ""}</td>
+          </tr>`;
+        }).join("");
+
+        const avgRow = `<tr style="border-top:2px solid var(--card-border);">
+          <td style="padding:9px 14px;color:var(--text);font-weight:700;">Heti átlag</td>
+          <td style="padding:9px 14px;color:var(--text2);font-size:12px;">${cal.note}</td>
+          <td style="padding:9px 14px;text-align:right;font-weight:700;">~${cal.avg} kcal</td>
+        </tr>`;
+
+        wrapEl.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead><tr style="border-bottom:1px solid var(--card-border);">
+            <th style="text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;">Nap</th>
+            <th style="text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;">Edzés</th>
+            <th style="text-align:right;padding:10px 14px;color:var(--text2);font-weight:600;">Kalória</th>
+          </tr></thead>
+          <tbody>${rows}${avgRow}</tbody>
+        </table>`;
       }
     </script>
   </body>
