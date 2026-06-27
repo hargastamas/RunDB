@@ -266,8 +266,8 @@
         gap: 12px;
         grid-column: 1 / -1;
       }
-      #thisweek-cal,
-      #thisweek-summary {
+      #thisweek-plan,
+      #thisweek-cal {
         grid-column: 1 / -1;
       }
       .daily-week-label {
@@ -1253,8 +1253,8 @@
         }
         .daily-week-label,
         #thisweek-stats,
-        #thisweek-cal,
-        #thisweek-summary {
+        #thisweek-plan,
+        #thisweek-cal {
           grid-column: 1 / -1;
         }
         #thisweek-stats {
@@ -1750,6 +1750,7 @@
         <div id="today-plan"></div>
         <div id="today-forma"></div>
         <div id="today-vo2"></div>
+        <div id="thisweek-plan"></div>
         <div id="thisweek-cal"></div>
       </div>
       <!-- JELENLEGI FITNESZ -->
@@ -12390,6 +12391,35 @@
           const [s, e] = w.w.split("/");
           return today >= s && today <= e;
         });
+
+        // Current week plan overview
+        const _planEl = document.getElementById("thisweek-plan");
+        if (_planEl && typeof PLAN_DATA !== "undefined") {
+          const _pwIdx = _planCurrentWeekIdx();
+          if (_pwIdx >= 0 && _pwIdx < PLAN_DATA.length) {
+            const _pw = PLAN_DATA[_pwIdx];
+            const _todayDow = new Date().getDay();
+            const _todayPdi = _todayDow === 0 ? 6 : _todayDow - 1;
+            const _days = _pw.days.map((d, di) => {
+              const dateStr = _planDayDate(_pwIdx, di);
+              const done = _sessionDone(_pwIdx, di, d.type);
+              const isToday = di === _todayPdi;
+              const typeClass = d.type === "gym" ? "is-gym" : d.type === "rest" ? "is-rest" : "is-run";
+              const col = _planTypeColor(d.type);
+              return `<div class="plan-mini-day ${typeClass} ${done ? "is-done" : ""}" style="${isToday ? "border-color:var(--lime);background:var(--lime)18;" : ""}">
+                <div class="pmd-dow" style="${isToday ? "color:var(--lime);" : ""}">${_PLAN_DAYS_HU[di]} ${_fmtPlanDate(dateStr)}</div>
+                <div class="pmd-type" style="color:${col};">${done ? "✓ " : ""}${d.lbl}</div>
+                ${d.det && d.type !== "rest" ? `<div class="pmd-detail">${d.det}</div>` : ""}
+              </div>`;
+            }).join("");
+            _planEl.innerHTML = `<div style="background:var(--surface);border:1px solid var(--card-border);border-radius:12px;padding:12px 14px;">
+              <div style="font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:10px;">${_pwIdx + 1}. hét · ${_pw.phase} · ${_pw.km} km</div>
+              <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;">${_days}</div>
+            </div>`;
+          } else {
+            _planEl.innerHTML = "";
+          }
+        }
 
         // Current week calorie widget
         const _calEl = document.getElementById("thisweek-cal");
