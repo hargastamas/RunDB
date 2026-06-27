@@ -266,6 +266,7 @@
         gap: 12px;
         grid-column: 1 / -1;
       }
+      #thisweek-cal,
       #thisweek-summary {
         grid-column: 1 / -1;
       }
@@ -1252,6 +1253,7 @@
         }
         .daily-week-label,
         #thisweek-stats,
+        #thisweek-cal,
         #thisweek-summary {
           grid-column: 1 / -1;
         }
@@ -1543,6 +1545,20 @@
         padding: 12px 14px;
         box-shadow: var(--card-shadow);
       }
+      .thisweek-ai-card .ai-body {
+        display: none;
+        margin-top: 8px;
+      }
+      .thisweek-ai-card.ai-open .ai-body {
+        display: block;
+      }
+      .thisweek-ai-card .ai-chevron {
+        font-size: 11px;
+        transition: transform 0.2s;
+      }
+      .thisweek-ai-card.ai-open .ai-chevron {
+        transform: rotate(90deg);
+      }
       .thisweek-ai-card .ai-label {
         font-size: 11px;
         color: var(--lime);
@@ -1736,6 +1752,7 @@
         <div id="today-vo2"></div>
         <div class="slabel daily-week-label">Ezen a héten</div>
         <div id="thisweek-stats"></div>
+        <div id="thisweek-cal"></div>
         <div id="thisweek-summary"></div>
       </div>
       <!-- JELENLEGI FITNESZ -->
@@ -12451,6 +12468,36 @@
       return `<div class="stat-box"><div class="stat-lbl">Kalória (Futásból)</div><div class="stat-num">${calThis != null ? Math.round(calThis).toLocaleString() : "—"}</div>${calDeltaStr}</div>`;
     })()}`;
 
+        // Current week calorie widget
+        const _calEl = document.getElementById("thisweek-cal");
+        if (_calEl && typeof CAL_PLAN !== "undefined" && typeof PLAN_DATA !== "undefined") {
+          const _cwCalIdx = _planCurrentWeekIdx();
+          const _cwCal = CAL_PLAN[_cwCalIdx];
+          const _cwPlan = PLAN_DATA[_cwCalIdx];
+          if (_cwCal && _cwPlan) {
+            const _calDays = ["H","K","Sze","Cs","P","Szo","V"];
+            const _today = new Date().getDay();
+            const _todayPdi = _today === 0 ? 6 : _today - 1;
+            const _cells = _calDays.map((d, i) => {
+              const isToday = i === _todayPdi;
+              const isFri = i === 4;
+              const kcal = _cwCal.days[i];
+              const kcalShort = typeof kcal === "string" ? kcal.split("–")[0] + "–" + kcal.split("–")[1] : kcal;
+              return `<div style="flex:1;min-width:0;text-align:center;padding:7px 4px;border-radius:8px;background:${isToday ? "var(--lime)" : "transparent"};border:1px solid ${isToday ? "var(--lime)" : "var(--card-border)"};box-sizing:border-box;">
+                <div style="font-size:10px;font-weight:700;color:${isToday ? "#000" : "var(--text3)"};">${d}</div>
+                <div style="font-size:9px;color:${isToday ? "#000" : isFri ? "var(--lime)" : "var(--text2)"};margin-top:3px;line-height:1.2;font-weight:${isFri || isToday ? "700" : "400"};">${typeof kcal === "string" && kcal.includes("–") ? kcal.split("–")[0] : kcal}</div>
+              </div>`;
+            }).join("");
+            _calEl.innerHTML = `<div style="background:var(--surface);border:1px solid var(--card-border);border-radius:12px;padding:10px 12px;">
+              <div style="font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:8px;">${_cwCalIdx + 1}. hét · Napi kalóriacél (kcal)</div>
+              <div style="display:flex;gap:4px;">${_cells}</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:7px;">Átlag ~${_cwCal.avg} kcal · Fehérje min. 130–140 g/nap</div>
+            </div>`;
+          } else {
+            _calEl.innerHTML = "";
+          }
+        }
+
         // AI summary for current week
         const _sumEl = document.getElementById("thisweek-summary");
         if (_sumEl) {
@@ -12458,9 +12505,14 @@
           const _weekSum = _wsDate ? SUMMARIES.find((s) => s.week_start === _wsDate) : null;
           _sumEl.innerHTML = _weekSum
             ? `<div class="thisweek-ai-card">
-                <div class="ai-label">✦ AI Összefoglaló</div>
-                <div class="ai-text">${_weekSum.summary.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>")}</div>
-                <div class="ai-meta">Generálva: ${_weekSum.generated_at ? _weekSum.generated_at.slice(0, 10) : "—"}</div>
+                <div class="ai-label" onclick="this.closest('.thisweek-ai-card').classList.toggle('ai-open')" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;">
+                  <span>✦ AI Összefoglaló</span>
+                  <span class="ai-chevron">▸</span>
+                </div>
+                <div class="ai-body">
+                  <div class="ai-text">${_weekSum.summary.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>")}</div>
+                  <div class="ai-meta">Generálva: ${_weekSum.generated_at ? _weekSum.generated_at.slice(0, 10) : "—"}</div>
+                </div>
               </div>`
             : "";
         }
