@@ -12475,19 +12475,12 @@
           let _cwCal = CAL_PLAN[_cwCalIdx];
           let _cwPlan = PLAN_DATA[_cwCalIdx];
           let _calLabel = _cwCalIdx + 1 + ". hét";
-          // Fall back to next week if current has no cal data (past weeks)
-          if (!_cwCal && _cwCalIdx + 1 < CAL_PLAN.length) {
-            _cwCalIdx = _cwCalIdx + 1;
-            _cwCal = CAL_PLAN[_cwCalIdx];
-            _cwPlan = PLAN_DATA[_cwCalIdx];
-            _calLabel = _cwCalIdx + 1 + ". hét (következő)";
-          }
           if (_cwCal && _cwPlan) {
             const _calDays = ["H","K","Sze","Cs","P","Szo","V"];
             const _today = new Date().getDay();
             const _todayPdi = _today === 0 ? 6 : _today - 1;
             const _cells = _calDays.map((d, i) => {
-              const isToday = i === _todayPdi && _calLabel.indexOf("következő") === -1;
+              const isToday = i === _todayPdi;
               const isFri = i === 4;
               const kcal = _cwCal.days[i];
               return `<div style="flex:1;min-width:0;text-align:center;padding:7px 4px;border-radius:8px;background:${isToday ? "var(--lime)" : "transparent"};border:1px solid ${isToday ? "var(--lime)" : "var(--card-border)"};box-sizing:border-box;">
@@ -14283,7 +14276,10 @@
       // Weeks 15-17: TDEE maintenance (no deficit), taper + carb load before race
       // Thu always includes upper-body gym (+gym calories); Mon is lower-body gym day
       const CAL_PLAN = [
-        null, null, null, null, null, null, null, // weeks 1–7 (past)
+        null, null, null, null, null, null, // weeks 1–6 (past)
+        // Week 7 — Tempo, 46 km
+        { avg: 2330, note: "Tempo · deficit ~300 kcal/nap · ~300 g zsír/hét",
+          days: ["2150–2300","2300–2450","2450–2600","2300–2450","2900–3050","2100–2250","1650–1750"] },
         // Week 8 — Tempo recovery, 34 km
         { avg: 2170, note: "Recovery · deficit ~300 kcal/nap · ~150 g zsír/hét",
           days: ["1950–2050","2100–2200","2050–2150","2250–2350","2650–2800","2100–2250","1650–1750"] },
