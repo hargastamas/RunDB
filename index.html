@@ -13836,7 +13836,11 @@
           days: [
             { type: "gym", lbl: "Terem", det: "Alsótest" },
             { type: "easy", lbl: "Könnyű futás", det: "10 km, Z1–Z2" },
-            { type: "interval", lbl: "Intervall", det: "11 km: 2 km bemu + 6×800m @ 4:03/km (90mp séta) + 2 km lev" },
+            {
+              type: "interval",
+              lbl: "Intervall",
+              det: "11 km: 2 km bemu + 6×800m @ 4:03/km (90mp séta) + 2 km lev — egyenletes iramban, ne indulj a célnál gyorsabban",
+            },
             { type: "easy", lbl: "Könnyű futás", det: "5 km, Z1 — regeneráló" },
             { type: "long", lbl: "Hosszú futás", det: "20 km, Z2 (utolsó 3 km @ 4:40/km)" },
             { type: "swim", lbl: "Úszás", det: "Úszás 2 km" },
@@ -13853,7 +13857,7 @@
             {
               type: "interval",
               lbl: "Intervall",
-              det: "12 km: 2 km bemu + 3×1600m @ 4:08/km (2 perc séta) + 2 km lev",
+              det: "12 km: 2 km bemu + 3×1600m @ 4:08/km (2 perc séta) + 2 km lev — egyenletes iramban, ne indulj a célnál gyorsabban",
             },
             { type: "easy", lbl: "Könnyű futás", det: "5 km, Z1 — regeneráló" },
             { type: "long", lbl: "Hosszú futás", det: "21 km, Z2 — tiszta könnyű (az intervall elég stressz)" },
@@ -14251,18 +14255,18 @@
         // Week 12 — Intervallum recovery, 37 km
         { avg: 2180, note: "Recovery · deficit ~300 kcal/nap · ~150 g zsír/hét",
           days: ["1950–2050","2150–2300","2100–2200","2150–2250","2700–2850","2100–2250","1650–1750"] },
-        // Week 13 — Versenyspecifikus, 41 km
-        { avg: 2290, note: "Versenyspecifikus · deficit ~300 kcal/nap · ~300 g zsír/hét",
-          days: ["2150–2300","2150–2300","2450–2600","2300–2450","2700–2900","2100–2250","1650–1750"] },
-        // Week 14 — Versenyspecifikus, 36 km — utolsó deficit hét
-        { avg: 2190, note: "Utolsó deficit hét · aug. közepétől váltás TDEE-re",
-          days: ["1950–2050","2100–2200","2300–2450","2200–2350","2550–2700","2100–2250","1650–1750"] },
-        // Week 15 — Taper, 24 km — MAINTENANCE
-        { avg: 2360, note: "Taper · TDEE fenntartás — ne fogyassz tovább",
-          days: ["2100–2300","2350–2450","2450–2600","2500–2650","2300–2400","2400–2600","1950–2050"] },
-        // Week 16 — Taper, 12 km — verseny előtti hét
-        { avg: 2140, note: "Verseny előtti hét · könnyű, normál étkezés",
-          days: ["2100–2200","2250–2400","2200–2350","1950–2050","1950–2050","2100–2250","1950–2050"] },
+        // Week 13 — Versenyspecifikus, 44 km
+        { avg: 2320, note: "Versenyspecifikus · deficit ~300 kcal/nap · ~300 g zsír/hét",
+          days: ["2150–2300","2200–2350","2450–2600","2300–2450","2850–3050","2100–2250","1650–1750"] },
+        // Week 14 — Versenyspecifikus, 44 km — utolsó deficit hét
+        { avg: 2280, note: "Utolsó deficit hét · aug. közepétől váltás TDEE-re",
+          days: ["1950–2050","2200–2350","2450–2600","2150–2300","2900–3100","2100–2250","1650–1750"] },
+        // Week 15 — Versenyspecifikus (főpróba), 42 km — MAINTENANCE
+        { avg: 2550, note: "Főpróba hét · TDEE fenntartás — kell az energia a 21 km-es záró tesztre, ne fogyassz",
+          days: ["2250–2400","2500–2650","2400–2550","2550–2700","3300–3500","2400–2550","1950–2050"] },
+        // Week 16 — Taper, 31 km — valódi visszavétel
+        { avg: 2430, note: "Taper · TDEE fenntartás, szénhidrát-hangsúly a hosszú táv napján",
+          days: ["2200–2400","2300–2450","2450–2600","2400–2550","2750–2950","2400–2550","1950–2050"] },
         // Week 17 — Race week
         { avg: 2200, note: "Verseny hét · P–Szo szénhidrát feltöltés (rizs, tészta)!",
           days: ["1950–2050","2100–2200","1950–2050","2150–2300","2100–2300","2400–2600","Verseny nap 🏃"] },
