@@ -1670,7 +1670,15 @@
         transform: rotate(90deg);
       }
       .plan-week-hdr.is-current {
+        background: var(--lime-dim);
         border-left: 3px solid var(--lime);
+      }
+      .plan-week-hdr.is-current:hover {
+        background: var(--lime-dim);
+      }
+      .plan-week-hdr.is-current .pwh-num {
+        color: var(--lime);
+        font-weight: 700;
       }
       .plan-week-body {
         display: none;
@@ -14203,6 +14211,7 @@
           return `<div class="plan-week-acc">
       <div class="${hdrClass}" onclick="this.classList.toggle('is-open');this.nextElementSibling.classList.toggle('is-open')">
         <span class="pwh-num">${wi + 1}. hét</span>
+        ${isCurrent ? `<span style="font-size:10px;font-weight:700;background:var(--lime);color:var(--on-lime);padding:2px 8px;border-radius:20px;letter-spacing:.5px;">MOST</span>` : ""}
         <span class="pwh-phase" style="background:${week.phaseColor}22;border-color:${week.phaseColor};color:${week.phaseColor}">${week.phase}</span>
         <span class="pwh-dates">${_fmtPlanDate(wkStart)} – ${_fmtPlanDate(wkEnd)}</span>
         <span class="pwh-km">${week.km} km</span>
