@@ -10630,6 +10630,8 @@
         "https://docs.google.com/spreadsheets/d/1V8XlThjn4eSIjU06WDeuPVFQ24G30di4rNzHgHOGUB0/gviz/tq?tqx=out:csv&sheet=Weight";
       const WEIGHT_CUT_START = "2026-06-22";
       const WEIGHT_GOAL = 65;
+      const SLEEP_CSV =
+        "https://docs.google.com/spreadsheets/d/1V8XlThjn4eSIjU06WDeuPVFQ24G30di4rNzHgHOGUB0/gviz/tq?tqx=out:csv&sheet=Sleep";
       let RUNS = [],
         MONTHLY = [],
         YEARLY = [],
@@ -10639,12 +10641,18 @@
         HEALTH = [],
         GYM_DATES = [],
         SUMMARIES = [],
-        WEIGHT = [];
+        WEIGHT = [],
+        SLEEP = [];
 
       function _tMin(s) {
         if (!s) return null;
         const m = s.match(/(\d+)h:(\d+)m:(\d+)s/);
         return m ? +m[1] * 60 + +m[2] + +m[3] / 60 : null;
+      }
+      function _tMinHM(s) {
+        if (!s) return null;
+        const m = s.match(/(\d+)h:(\d+)m/);
+        return m ? +m[1] * 60 + +m[2] : null;
       }
       function _tSec(s) {
         if (!s) return 0;
@@ -10984,6 +10992,46 @@
         if (!r.ok) throw new Error("HTTP " + r.status);
         return _parseWeight(await r.text());
       }
+      function _parseSleep(text) {
+        const records = [],
+          lines = text.trim().replace(/\r/g, "").split("\n");
+        for (let i = 1; i < lines.length; i++) {
+          const cols = [];
+          let cur = "",
+            inQ = false;
+          for (const ch of lines[i]) {
+            if (ch === '"') {
+              inQ = !inQ;
+            } else if (ch === "," && !inQ) {
+              cols.push(cur);
+              cur = "";
+            } else cur += ch;
+          }
+          cols.push(cur);
+          const isMain = (cols[1] || "").trim().toUpperCase() === "TRUE";
+          const date = _shDate(cols[0]);
+          const asleepMin = _tMinHM(cols[5]);
+          if (!isMain || !date || !asleepMin) continue;
+          records.push({
+            date,
+            asleepMin,
+            efficiency: _unit(cols[11], "%"),
+            wakeCount: _hun(cols[10]),
+            avgHrv: _unit(cols[22], "ms"),
+          });
+        }
+        // egy fő alvás/nap — ha duplikált, az utolsó sor nyer
+        const byDate = {};
+        records.forEach((r) => {
+          byDate[r.date] = r;
+        });
+        return Object.values(byDate).sort((a, b) => a.date.localeCompare(b.date));
+      }
+      async function _fetchSleep() {
+        const r = await _fetchUrl(SLEEP_CSV);
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return _parseSleep(await r.text());
+      }
       async function _fetchHrvLive() {
         const r = await _fetchUrl(HRV_LIVE_CSV);
         if (!r.ok) throw new Error("HTTP " + r.status);
@@ -11116,7 +11164,7 @@
       }
 
       async function _bootstrap() {
-        const [runsResult, healthResult, workoutsResult, hrvLiveResult, summariesResult, weightResult] =
+        const [runsResult, healthResult, workoutsResult, hrvLiveResult, summariesResult, weightResult, sleepResult] =
           await Promise.allSettled([
             _fetchSheet(),
             _fetchHealth(),
@@ -11124,17 +11172,21 @@
             _fetchHrvLive(),
             _fetchSummaries(),
             _fetchWeight(),
+            _fetchSleep(),
           ]);
         HEALTH = healthResult.status === "fulfilled" ? healthResult.value : [];
         GYM_DATES = workoutsResult.status === "fulfilled" ? workoutsResult.value : [];
         SUMMARIES = summariesResult.status === "fulfilled" ? summariesResult.value : [];
         WEIGHT = weightResult.status === "fulfilled" ? weightResult.value : [];
+        SLEEP = sleepResult.status === "fulfilled" ? sleepResult.value : [];
         if (healthResult.status !== "fulfilled")
           console.warn("RunDB: health fetch failed:", healthResult.reason?.message);
         if (workoutsResult.status !== "fulfilled")
           console.warn("RunDB: workouts fetch failed:", workoutsResult.reason?.message);
         if (weightResult.status !== "fulfilled")
           console.warn("RunDB: weight fetch failed:", weightResult.reason?.message);
+        if (sleepResult.status !== "fulfilled")
+          console.warn("RunDB: sleep fetch failed:", sleepResult.reason?.message);
         if (hrvLiveResult.status === "fulfilled") {
           const liveMap = hrvLiveResult.value;
           HEALTH.forEach((h) => {
@@ -13509,25 +13561,82 @@
       }
 
       // ── RECOVERY WIDGET ──
+      // Rolling personal-baseline z-score: last entry vs mean/SD of the preceding windowDays
+      function _rollingZ(series, windowDays) {
+        if (series.length < 6) return null;
+        const last = series[series.length - 1];
+        const cutoff = new Date(new Date(last.date + "T00:00:00").getTime() - windowDays * 86400000)
+          .toISOString()
+          .slice(0, 10);
+        const win = series.slice(0, -1).filter((r) => r.date >= cutoff);
+        if (win.length < 5) return null;
+        const vals = win.map((r) => r.v);
+        const mean = vals.reduce((s, v) => s + v, 0) / vals.length;
+        const std = Math.sqrt(vals.reduce((s, v) => s + (v - mean) ** 2, 0) / vals.length) || 1;
+        return { z: (last.v - mean) / std, date: last.date };
+      }
+
       function _drawRecovery() {
         const el = document.getElementById("today-forma");
         if (!el) return;
-        const allHRV = HEALTH.filter((h) => h.hrv > 0);
-        const allHR = HEALTH.filter((h) => h.resting_hr > 0);
-        if (!allHRV.length || !allHR.length) {
+        const staleCutoff = new Date(new Date().setDate(new Date().getDate() - 2)).toISOString().slice(0, 10);
+        const isFresh = (d) => d >= staleCutoff;
+
+        // HRV: éjszakai (Sleep lap) mérés preferált a napközbeni pontméréssel szemben, ha van
+        const hrvByDate = {};
+        HEALTH.filter((h) => h.hrv > 0).forEach((h) => {
+          hrvByDate[h.date] = h.hrv;
+        });
+        SLEEP.filter((s) => s.avgHrv > 0).forEach((s) => {
+          hrvByDate[s.date] = s.avgHrv;
+        });
+        const hrvSeries = Object.keys(hrvByDate)
+          .sort()
+          .map((d) => ({ date: d, v: hrvByDate[d] }));
+        const rhrSeries = HEALTH.filter((h) => h.resting_hr > 0).map((h) => ({ date: h.date, v: h.resting_hr }));
+
+        if (!hrvSeries.length && !rhrSeries.length && !SLEEP.length) {
           el.innerHTML = `<div class="stat-box" style="opacity:.5">
       <div class="stat-lbl">Edzéskészség</div>
-      <div style="font-size:13px;color:var(--text3);margin-top:6px">Nincs HRV adat</div>
+      <div style="font-size:13px;color:var(--text3);margin-top:6px">Nincs elég adat</div>
     </div>`;
           return;
         }
-        const avgHRV = allHRV.reduce((s, h) => s + h.hrv, 0) / allHRV.length;
-        const avgHR = allHR.reduce((s, h) => s + h.resting_hr, 0) / allHR.length;
-        const lastHRV = allHRV[allHRV.length - 1];
-        const lastHR = allHR[allHR.length - 1];
-        let forma = Math.round(
-          50 + ((lastHRV.hrv - avgHRV) / avgHRV) * 40 - ((lastHR.resting_hr - avgHR) / avgHR) * 20,
-        );
+
+        // Súlyozott komponensek: HRV és alvás 30-30%, nyugalmi HR 30% — csak friss (≤2 napos) adatból
+        const parts = [];
+        let sleepDetail = "";
+
+        const hrvR = _rollingZ(hrvSeries, 30);
+        if (hrvR && isFresh(hrvR.date)) parts.push({ score: Math.min(100, Math.max(0, 50 + hrvR.z * 20)), weight: 0.35 });
+
+        const rhrR = _rollingZ(rhrSeries, 30);
+        if (rhrR && isFresh(rhrR.date)) parts.push({ score: Math.min(100, Math.max(0, 50 - rhrR.z * 20)), weight: 0.3 });
+
+        if (SLEEP.length) {
+          const lastSleep = SLEEP[SLEEP.length - 1];
+          if (isFresh(lastSleep.date)) {
+            const durScore = Math.min(115, (lastSleep.asleepMin / 450) * 100); // 450 perc = 7.5 óra célérték
+            const effScore = lastSleep.efficiency != null ? lastSleep.efficiency : durScore;
+            const sleepScore = Math.min(100, Math.max(0, durScore * 0.6 + effScore * 0.4));
+            parts.push({ score: sleepScore, weight: 0.35 });
+            const h = Math.floor(lastSleep.asleepMin / 60),
+              m = Math.round(lastSleep.asleepMin % 60);
+            sleepDetail = `${h}ó ${m}p alvás az elmúlt éjszaka`;
+          }
+        }
+
+        if (!parts.length) {
+          el.innerHTML = `<div class="stat-box" style="opacity:.5">
+      <div class="stat-lbl">Edzéskészség</div>
+      <div style="font-size:13px;color:var(--text3);margin-top:6px">Nincs friss (2 napon belüli) adat</div>
+    </div>`;
+          return;
+        }
+
+        const totalWeight = parts.reduce((s, p) => s + p.weight, 0);
+        let forma = Math.round(parts.reduce((s, p) => s + p.score * p.weight, 0) / totalWeight);
+
         // TRIMP-alapú fáradtság-korrekció: ha az elmúlt 3 nap TRIMP > átlag 1.5×, csökkenti a formát
         const today = new Date().toISOString().slice(0, 10);
         const ag3 = new Date(new Date().setDate(new Date().getDate() - 3)).toISOString().slice(0, 10);
@@ -13563,10 +13672,14 @@
           advice = "Pihenj ma";
         }
         el.innerHTML = `<div class="stat-box" style="text-align:center">
-    <div class="stat-lbl" style="text-align:left;margin-bottom:8px">Edzéskészség</div>
+    <div class="stat-lbl" style="text-align:left;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+      <span>Edzéskészség</span>
+      <button class="info-btn" tabindex="0">i<span class="info-tip">HRV (éjszakai mérés, ha van) és nyugalmi pulzus a saját 30 napos alapvonalhoz viszonyítva, plusz az elmúlt éjszaka alvása (időtartam + hatékonyság) — súlyozott átlag (HRV 35% · alvás 35% · RHR 30%), majd levonás magas 3-napos edzésteher esetén. Csak 2 napon belüli adatból számol.</span></button>
+    </div>
     ${_ringsvg(forma, '', col, forma / 100, 30)}
     <div style="margin-top:6px">
       <div class="stat-unit" style="color:${col};font-weight:700">${status} <span style="font-weight:400;color:var(--text2)">· ${advice}</span></div>
+      ${sleepDetail ? `<div class="stat-unit" style="font-size:10px;color:var(--text3);margin-top:2px">${sleepDetail}</div>` : ""}
       ${fatigueNote ? `<div class="stat-unit" style="font-size:10px;color:var(--text3);margin-top:2px">${fatigueNote}</div>` : ""}
     </div>
   </div>`;
