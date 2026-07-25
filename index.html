@@ -1612,7 +1612,7 @@
       .plan-week-hdr.is-open .pwh-arr {
         transform: rotate(90deg);
       }
-      .plan-week-acc:has(.plan-week-hdr.is-current) {
+      .plan-week-acc.is-current {
         box-shadow: 0 0 0 1.5px var(--lime) inset;
       }
       .plan-week-hdr.is-current .pwh-num {
@@ -14093,7 +14093,7 @@
               ? `<span style="color:var(--lime)">${completedSessions}/${totalSessions} ✓</span>`
               : "";
 
-          return `<div class="plan-week-acc">
+          return `<div class="plan-week-acc ${isCurrent ? "is-current" : ""}">
       <div class="${hdrClass}" onclick="this.classList.toggle('is-open');this.nextElementSibling.classList.toggle('is-open')">
         <span class="pwh-num">${wi + 1}. hét</span>
         ${isCurrent ? `<span style="font-size:10px;font-weight:700;background:var(--lime);color:var(--on-lime);padding:2px 8px;border-radius:20px;letter-spacing:.5px;">MOST</span>` : ""}
