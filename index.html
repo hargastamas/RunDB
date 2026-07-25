@@ -243,9 +243,6 @@
         gap: 12px;
         margin-bottom: 0;
       }
-      .race-pred-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
       #daily-stats {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -267,7 +264,7 @@
         grid-column: 1 / -1;
       }
       #thisweek-plan,
-      #thisweek-cal {
+      #thisweek-weight {
         grid-column: 1 / -1;
       }
       .daily-week-label {
@@ -1245,16 +1242,13 @@
         .stat-row {
           grid-template-columns: repeat(2, 1fr);
         }
-        .race-pred-grid {
-          grid-template-columns: repeat(2, 1fr);
-        }
         #daily-stats {
           grid-template-columns: repeat(2, 1fr);
         }
         .daily-week-label,
         #thisweek-stats,
         #thisweek-plan,
-        #thisweek-cal {
+        #thisweek-weight {
           grid-column: 1 / -1;
         }
         #thisweek-stats {
@@ -1750,18 +1744,9 @@
         <div id="today-plan"></div>
         <div id="today-forma"></div>
         <div id="today-vo2"></div>
-        <div id="thisweek-cal"></div>
+        <div id="thisweek-weight"></div>
         <div id="thisweek-plan"></div>
       </div>
-      <!-- JELENLEGI FITNESZ -->
-      <div class="slabel">
-        Becsült versenyidők<button class="info-btn" tabindex="0">
-          i<span class="info-tip"
-            >Riegel-formula alapján számított becslés a legutóbbi 180 nap összes edzésfutásából — minden futásra kiszámítja a becsült versenyidőt, és a legjobbat mutatja (T₂ = T₁ × (D₂/D₁)^1.06). Ha nincs elegendő adat, VO₂ Max alapú becslés jelenik meg. A félmaraton becslés a felső sávban látható.</span
-          >
-        </button>
-      </div>
-      <div class="stat-row race-pred-grid" id="race-pred-stats"></div>
       <!-- PERSONAL RECORDS -->
       <div class="slabel">Personal Records — kattints a futáshoz</div>
       <div class="pr-grid" id="pr-grid"></div>
@@ -10641,6 +10626,8 @@
         "https://docs.google.com/spreadsheets/d/1V8XlThjn4eSIjU06WDeuPVFQ24G30di4rNzHgHOGUB0/gviz/tq?tqx=out:csv&sheet=HRV%20Live";
       const SUMMARIES_CSV =
         "https://docs.google.com/spreadsheets/d/192YsNtDn7y6VpjMWKDlWUaA_A6scMiqP3DIDLS3Pfeg/gviz/tq?tqx=out:csv&sheet=Summaries";
+      const WEIGHT_CSV =
+        "https://docs.google.com/spreadsheets/d/1V8XlThjn4eSIjU06WDeuPVFQ24G30di4rNzHgHOGUB0/gviz/tq?tqx=out:csv&sheet=Weight";
       let RUNS = [],
         MONTHLY = [],
         YEARLY = [],
@@ -10649,7 +10636,8 @@
         PR_DATES = {},
         HEALTH = [],
         GYM_DATES = [],
-        SUMMARIES = [];
+        SUMMARIES = [],
+        WEIGHT = [];
 
       function _tMin(s) {
         if (!s) return null;
@@ -10959,6 +10947,41 @@
         if (!r.ok) throw new Error("HTTP " + r.status);
         return _parseHealth(await r.text());
       }
+      function _parseWeight(text) {
+        const records = [],
+          lines = text.trim().replace(/\r/g, "").split("\n");
+        for (let i = 1; i < lines.length; i++) {
+          const cols = [];
+          let cur = "",
+            inQ = false;
+          for (const ch of lines[i]) {
+            if (ch === '"') {
+              inQ = !inQ;
+            } else if (ch === "," && !inQ) {
+              cols.push(cur);
+              cur = "";
+            } else cur += ch;
+          }
+          cols.push(cur);
+          const date = _shDate(cols[0]);
+          const kg = _unit(cols[1], "kg");
+          if (!date || !kg) continue;
+          records.push({ date, kg });
+        }
+        // a sheet lehet duplikált napokat tartalmaz (több mérés/nap) — napi átlag
+        const byDate = {};
+        records.forEach((r) => {
+          (byDate[r.date] = byDate[r.date] || []).push(r.kg);
+        });
+        return Object.keys(byDate)
+          .map((date) => ({ date, kg: +(byDate[date].reduce((s, v) => s + v, 0) / byDate[date].length).toFixed(2) }))
+          .sort((a, b) => a.date.localeCompare(b.date));
+      }
+      async function _fetchWeight() {
+        const r = await _fetchUrl(WEIGHT_CSV);
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return _parseWeight(await r.text());
+      }
       async function _fetchHrvLive() {
         const r = await _fetchUrl(HRV_LIVE_CSV);
         if (!r.ok) throw new Error("HTTP " + r.status);
@@ -11091,20 +11114,25 @@
       }
 
       async function _bootstrap() {
-        const [runsResult, healthResult, workoutsResult, hrvLiveResult, summariesResult] = await Promise.allSettled([
-          _fetchSheet(),
-          _fetchHealth(),
-          _fetchWorkouts(),
-          _fetchHrvLive(),
-          _fetchSummaries(),
-        ]);
+        const [runsResult, healthResult, workoutsResult, hrvLiveResult, summariesResult, weightResult] =
+          await Promise.allSettled([
+            _fetchSheet(),
+            _fetchHealth(),
+            _fetchWorkouts(),
+            _fetchHrvLive(),
+            _fetchSummaries(),
+            _fetchWeight(),
+          ]);
         HEALTH = healthResult.status === "fulfilled" ? healthResult.value : [];
         GYM_DATES = workoutsResult.status === "fulfilled" ? workoutsResult.value : [];
         SUMMARIES = summariesResult.status === "fulfilled" ? summariesResult.value : [];
+        WEIGHT = weightResult.status === "fulfilled" ? weightResult.value : [];
         if (healthResult.status !== "fulfilled")
           console.warn("RunDB: health fetch failed:", healthResult.reason?.message);
         if (workoutsResult.status !== "fulfilled")
           console.warn("RunDB: workouts fetch failed:", workoutsResult.reason?.message);
+        if (weightResult.status !== "fulfilled")
+          console.warn("RunDB: weight fetch failed:", weightResult.reason?.message);
         if (hrvLiveResult.status === "fulfilled") {
           const liveMap = hrvLiveResult.value;
           HEALTH.forEach((h) => {
@@ -12108,18 +12136,6 @@
           const totalDays = Math.round((raceDate - startDate) / 86400000);
           const doneDays = totalDays - daysLeft;
           const donePct = Math.round((doneDays / totalDays) * 100);
-          // Riegel HM prediction
-          const cutoff180 = new Date(new Date().setDate(new Date().getDate() - 180)).toISOString().slice(0, 10);
-          const hmPool = RUNS.filter((r) => r.date >= cutoff180 && r.dist >= 10 && r.pace > 0 && r.pace < 9.5);
-          let hmPred = "";
-          if (hmPool.length) {
-            const ref = hmPool.reduce((a, r) => (r.pace < a.pace ? r : a));
-            const t2 = ref.pace * ref.dist * Math.pow(21.097 / ref.dist, 1.06);
-            const h = Math.floor(t2 / 60),
-              m = Math.floor(t2 % 60),
-              s = Math.round((t2 % 1) * 60);
-            hmPred = `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-          }
           const cwI = _planCurrentWeekIdx(),
             planW = cwI >= 0 && cwI < PLAN_DATA.length ? PLAN_DATA[cwI] : null;
           rbEl.innerHTML = `<div style="position:relative;overflow:hidden;border-radius:16px;background:#0a0a0a">
@@ -12138,13 +12154,6 @@
                 <span style="font-size:13px;color:rgba(255,255,255,.55)">nap</span>
                 ${planW ? `<span style="font-size:11px;color:rgba(255,255,255,.45);margin-left:6px">· ${cwI + 1}. hét · ${planW.phase}</span>` : ""}
               </div>
-            </div>
-          </div>
-          <div style="text-align:right">
-            <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:3px">Becsült HM idő</div>
-            <div style="display:flex;align-items:baseline;gap:8px;justify-content:flex-end">
-              <span style="font-size:24px;font-weight:900;font-family:DINPro,sans-serif;letter-spacing:-1px;color:#fff">${hmPred || "—"}</span>
-              <span style="font-size:11px;color:rgba(255,255,255,.5)">A-cél <span style="color:#d50d8d;font-weight:700">1:35:00</span></span>
             </div>
           </div>
         </div>
@@ -12410,33 +12419,46 @@
           }
         }
 
-        // Current week calorie widget
-        const _calEl = document.getElementById("thisweek-cal");
-        if (_calEl && typeof CAL_PLAN !== "undefined" && typeof PLAN_DATA !== "undefined") {
-          let _cwCalIdx = _planCurrentWeekIdx();
-          let _cwCal = CAL_PLAN[_cwCalIdx];
-          let _cwPlan = PLAN_DATA[_cwCalIdx];
-          let _calLabel = _cwCalIdx + 1 + ". hét";
-          if (_cwCal && _cwPlan) {
-            const _calDays = ["H","K","Sze","Cs","P","Szo","V"];
-            const _today = new Date().getDay();
-            const _todayPdi = _today === 0 ? 6 : _today - 1;
-            const _cells = _calDays.map((d, i) => {
-              const isToday = i === _todayPdi;
-              const isFri = i === 4;
-              const kcal = _cwCal.days[i];
-              return `<div style="flex:1;min-width:0;text-align:center;padding:8px 4px;border-radius:8px;background:${isToday ? "var(--lime)" : "transparent"};border:1px solid ${isToday ? "var(--lime)" : "var(--card-border)"};box-sizing:border-box;">
-                <div style="font-size:13px;font-weight:700;color:${isToday ? "#000" : "var(--text3)"};">${d}</div>
-                <div style="font-size:13px;color:${isToday ? "#000" : isFri ? "var(--lime)" : "var(--text2)"};margin-top:4px;line-height:1.3;font-weight:${isFri || isToday ? "700" : "400"};">${typeof kcal === "string" && kcal.includes("–") ? kcal.split("–")[0] : kcal}</div>
+        // Weekly weight-loss widget
+        const _wtEl = document.getElementById("thisweek-weight");
+        if (_wtEl) {
+          const wM = {};
+          WEIGHT.forEach((r) => {
+            const ws = _wStart(r.date);
+            (wM[ws] = wM[ws] || []).push(r.kg);
+          });
+          const weeksSorted = Object.keys(wM).sort();
+          const weeklyAvg = weeksSorted.map((ws) => +(wM[ws].reduce((s, v) => s + v, 0) / wM[ws].length).toFixed(1));
+          const shownFrom = weeksSorted.length > 8 ? weeksSorted.length - 8 : 0;
+          const shown = weeksSorted.slice(shownFrom);
+          if (shown.length) {
+            const _today = new Date().toISOString().slice(0, 10);
+            const _cells = shown.map((ws, i) => {
+              const gi = shownFrom + i;
+              const avg = weeklyAvg[gi];
+              const prev = gi > 0 ? weeklyAvg[gi - 1] : null;
+              const delta = prev !== null ? +(avg - prev).toFixed(1) : null;
+              const isCur = ws === _wStart(_today);
+              const dCol = delta === null || delta === 0 ? "var(--text3)" : delta < 0 ? "var(--lime)" : "var(--orange)";
+              const dStr = delta === null ? "—" : (delta > 0 ? "+" : "") + delta.toFixed(1);
+              const d = new Date(ws + "T00:00:00");
+              const lbl = `${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
+              return `<div style="flex:1;min-width:0;text-align:center;padding:8px 4px;border-radius:8px;background:${isCur ? "var(--lime)" : "transparent"};border:1px solid ${isCur ? "var(--lime)" : "var(--card-border)"};box-sizing:border-box;">
+                <div style="font-size:10px;font-weight:700;color:${isCur ? "#000" : "var(--text3)"};">${lbl}</div>
+                <div style="font-size:13px;font-weight:700;margin-top:4px;color:${isCur ? "#000" : "var(--text)"};">${avg.toFixed(1)}</div>
+                <div style="font-size:10px;margin-top:2px;font-weight:700;color:${isCur ? "#000" : dCol};">${dStr}</div>
               </div>`;
             }).join("");
-            _calEl.innerHTML = `<div style="background:var(--surface);border:1px solid var(--card-border);border-radius:12px;padding:12px 14px;">
-              <div style="font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:10px;">${_calLabel} · Napi kalóriacél (kcal)</div>
+            const total = shown.length > 1 ? +(weeklyAvg[shownFrom + shown.length - 1] - weeklyAvg[shownFrom]).toFixed(1) : null;
+            const totCol = total === null || total === 0 ? "var(--text3)" : total < 0 ? "var(--lime)" : "var(--orange)";
+            const totStr = total === null ? "" : (total > 0 ? "+" : "") + total.toFixed(1);
+            _wtEl.innerHTML = `<div style="background:var(--surface);border:1px solid var(--card-border);border-radius:12px;padding:12px 14px;">
+              <div style="font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:10px;">Testsúly · heti átlag (kg)</div>
               <div style="display:flex;gap:5px;">${_cells}</div>
-              <div style="font-size:12px;color:var(--text3);margin-top:9px;">Átlag ~${_cwCal.avg} kcal · Fehérje min. 130–140 g/nap</div>
+              ${total !== null ? `<div style="font-size:12px;color:var(--text3);margin-top:9px;"><span style="color:${totCol};font-weight:700">${totStr} kg</span> az elmúlt ${shown.length} hétben</div>` : ""}
             </div>`;
           } else {
-            _calEl.innerHTML = "";
+            _wtEl.innerHTML = "";
           }
         }
 
@@ -13511,12 +13533,8 @@
   </div>`;
       }
 
-      // ── RACE PREDICTIONS ──
+      // ── VO₂ MAX CARD ──
       function _drawRacePredictions() {
-        const el = document.getElementById("race-pred-stats");
-        if (!el) return;
-
-        // VO₂ Max card
         const vo2vals = HEALTH.filter((h) => h.vo2max > 0).sort((a, b) => (a.date < b.date ? -1 : 1));
         const vo2 = vo2vals.length ? vo2vals[vo2vals.length - 1].vo2max : null;
         const bestVo2 = vo2vals.length ? Math.max(...vo2vals.map((h) => h.vo2max)) : null;
@@ -13530,67 +13548,6 @@
             vsel.innerHTML = `<div class="stat-box" style="opacity:.5"><div class="stat-lbl">VO₂ Max</div><div style="font-size:13px;color:var(--text3);margin-top:6px">Nincs adat</div></div>`;
           }
         }
-
-        function fmtTime(totalMin) {
-          const h = Math.floor(totalMin / 60),
-            m = Math.floor(totalMin % 60),
-            s = Math.round((totalMin % 1) * 60);
-          return h > 0
-            ? `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
-            : `${m}:${String(s).padStart(2, "0")}`;
-        }
-        function vo2Predict(pct, distKm) {
-          if (!vo2) return null;
-          const c = -4.6 - pct * vo2;
-          const v = (-0.182258 + Math.sqrt(0.182258 * 0.182258 - 4 * 0.000104 * c)) / (2 * 0.000104);
-          const pace = 1000 / v,
-            total = pace * distKm;
-          return { timeStr: fmtTime(total), paceStr: fmtPace(pace) + "/km", source: "vo2" };
-        }
-
-        const cutoff = new Date(new Date().setDate(new Date().getDate() - 180)).toISOString().slice(0, 10);
-        const recentRuns = RUNS.filter((r) => r.date >= cutoff && r.pace > 0 && r.pace < 9.5);
-
-        // HM-et a race banner mutatja, itt nem ismételjük
-        const raceDefs = [
-          { lbl: "5 km", dist: 5, minRef: 3, vo2pct: 0.96 },
-          { lbl: "10 km", dist: 10, minRef: 6, vo2pct: 0.92 },
-          { lbl: "Maraton", dist: 42.195, minRef: 18, vo2pct: 0.79 },
-        ];
-
-        el.innerHTML = raceDefs
-          .map((race) => {
-            const pool = recentRuns.filter((r) => r.dist >= race.minRef);
-            // pick the run that gives the fastest Riegel prediction for this race distance
-            const ref = pool.length
-              ? pool.reduce((best, r) => {
-                  const t = r.pace * r.dist * Math.pow(race.dist / r.dist, 1.06);
-                  const bt = best.pace * best.dist * Math.pow(race.dist / best.dist, 1.06);
-                  return t < bt ? r : best;
-                })
-              : null;
-            let result;
-            if (ref) {
-              const predTime = ref.pace * ref.dist * Math.pow(race.dist / ref.dist, 1.06);
-              result = {
-                timeStr: fmtTime(predTime),
-                paceStr: fmtPace(predTime / race.dist) + "/km",
-                sub: `${ref.dist.toFixed(1)}km · ${ref.date.slice(5)}`,
-              };
-            } else {
-              const fb = vo2Predict(race.vo2pct, race.dist);
-              if (!fb)
-                return `<div class="stat-box"><div class="stat-lbl">${race.lbl}</div><div class="stat-num" style="font-size:24px">—</div><div class="stat-unit">Nincs elég adat</div></div>`;
-              result = { ...fb, sub: `VO₂ Max alapján` };
-            }
-            return `<div class="stat-box">
-      <div class="stat-lbl">${race.lbl}</div>
-      <div class="stat-num" style="font-size:24px;letter-spacing:-1px">${result.timeStr}</div>
-      <div class="stat-unit">${result.paceStr}</div>
-      <div class="stat-unit" style="margin-top:4px">${result.sub}</div>
-    </div>`;
-          })
-          .join("");
       }
 
       // ── VS LAST YEAR ──
