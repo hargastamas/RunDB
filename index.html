@@ -11255,6 +11255,23 @@
       function tipBorder() {
         return gv("--tip-border");
       }
+      // Positions a position:fixed tooltip near (clientX, clientY), then nudges it back
+      // inside the viewport if it would otherwise run off the edge (mainly a mobile issue,
+      // where a tap near the screen edge would push the tooltip out of view).
+      function _positionTip(el, clientX, clientY, dx = 14, dy = -8) {
+        const margin = 8;
+        el.style.left = clientX + dx + "px";
+        el.style.top = clientY + dy + "px";
+        const rect = el.getBoundingClientRect();
+        let left = rect.left,
+          top = rect.top;
+        if (rect.right > window.innerWidth - margin) left = window.innerWidth - rect.width - margin;
+        if (left < margin) left = margin;
+        if (rect.bottom > window.innerHeight - margin) top = window.innerHeight - rect.height - margin;
+        if (top < margin) top = margin;
+        el.style.left = left + "px";
+        el.style.top = top + "px";
+      }
       function toggleTheme() {
         const isLight = document.documentElement.classList.toggle("light");
         document.getElementById("theme-icon").textContent = isLight ? "🌙" : "☀️";
@@ -11506,8 +11523,7 @@
                   .join("<br>") +
                 (opts.extraTip ? "<br>" + opts.extraTip(i) : "");
               _bTip.style.display = "block";
-              _bTip.style.left = e.clientX + 14 + "px";
-              _bTip.style.top = e.clientY - 8 + "px";
+              _positionTip(_bTip, e.clientX, e.clientY);
               canvas.style.cursor = opts.onClick ? "pointer" : "default";
               return;
             }
@@ -11693,8 +11709,7 @@
                 )
                 .join("<br>");
             _lTip.style.display = "block";
-            _lTip.style.left = e.clientX + 14 + "px";
-            _lTip.style.top = e.clientY - 8 + "px";
+            _positionTip(_lTip, e.clientX, e.clientY);
           } else {
             _lTip.style.display = "none";
           }
@@ -11831,8 +11846,7 @@
               (prName ? `<span style="color:${getLime()};font-weight:600">${prName}</span><br>` : "") +
               `<b>${r.date}</b> &nbsp;${r.dist.toFixed(1)}km<br>${fmtPace(r.pace)}/km &nbsp;·&nbsp; ${r.avg_hr} bpm &nbsp;·&nbsp; Z1:${r.z1.toFixed(0)}%`;
             tip.style.display = "block";
-            tip.style.left = e.clientX + 16 + "px";
-            tip.style.top = e.clientY - 8 + "px";
+            _positionTip(tip, e.clientX, e.clientY, 16);
           } else {
             canvas.style.cursor = "default";
             tip.style.display = "none";
@@ -12903,8 +12917,7 @@
                 tt.style.display = "block";
               });
               cell.addEventListener("mousemove", (e) => {
-                tt.style.left = e.clientX + 14 + "px";
-                tt.style.top = e.clientY - 36 + "px";
+                _positionTip(tt, e.clientX, e.clientY, 14, -36);
               });
               cell.addEventListener("mouseleave", () => {
                 tt.style.display = "none";
