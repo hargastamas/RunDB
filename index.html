@@ -1277,10 +1277,12 @@
 
         /* Weekly plan mini-calendar: a 2-column grid forces short cells to match
            the height of the longest one (e.g. the interval day's detail text) —
-           one row per day instead, so each card is only as tall as it needs to be */
+           one row per day instead, so each card is only as tall as it needs to be.
+           !important: the base .plan-week-grid/.plan-mini-days rules are declared
+           later in this file (same specificity), which would otherwise win. */
         .plan-week-grid,
         .plan-mini-days {
-          grid-template-columns: 1fr;
+          grid-template-columns: 1fr !important;
         }
         .plan-week-grid .plan-mini-day,
         .plan-mini-days .plan-mini-day {
