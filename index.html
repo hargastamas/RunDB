@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="hu">
+<html lang="hu" class="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -1798,8 +1798,8 @@
             transition: all 0.2s;
           "
         >
-          <span id="theme-icon" style="font-size: 13px">☀️</span>
-          <span id="theme-label">Light</span>
+          <span id="theme-icon" style="font-size: 13px">🌙</span>
+          <span id="theme-label">Dark</span>
         </button>
       </div>
     </nav>
@@ -11309,13 +11309,15 @@
         const activeTab = document.querySelector(".page.active")?.id?.replace("page-", "");
         if (activeTab) redrawTab(activeTab);
       }
-      // Init theme from localStorage
+      // Init theme from localStorage — light is the default (already applied via the
+      // <html class="light"> in the markup, to avoid a dark-mode flash on load);
+      // only remove it if the user explicitly chose dark before.
       (function () {
         const saved = localStorage.getItem("rundb-theme");
-        if (saved === "light") {
-          document.documentElement.classList.add("light");
-          document.getElementById("theme-icon").textContent = "🌙";
-          document.getElementById("theme-label").textContent = "Dark";
+        if (saved === "dark") {
+          document.documentElement.classList.remove("light");
+          document.getElementById("theme-icon").textContent = "☀️";
+          document.getElementById("theme-label").textContent = "Light";
         }
       })();
 
