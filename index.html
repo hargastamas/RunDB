@@ -1797,7 +1797,7 @@
       </div>
       <!-- HETI KM with plan overlay -->
       <div class="slabel">
-        Heti km — futási volumen (utolsó 52 hét)<button class="info-btn" tabindex="0">
+        Heti km — futási volumen (utolsó 3 hónap)<button class="info-btn" tabindex="0">
           i<span class="info-tip"
             >Heti összes futott km. A szaggatott rózsaszín vonal a tervezett heti km a futási tervből (Wizzair
             Félmaraton 2026.09.06.).</span
@@ -12254,11 +12254,11 @@
     </div>`;
         }
 
-        const wk52 = WEEKLY.slice(-52);
+        const wkRecent = WEEKLY.slice(-13);
         const isLight = document.documentElement.classList.contains("light");
         // Plan overlay: a tervezett heti km a futási tervből, ha a hét beleesik a tervbe
         const planStartMs = new Date(PLAN_START + "T00:00:00").getTime();
-        const planLine = wk52.map((w) => {
+        const planLine = wkRecent.map((w) => {
           const wsMs = new Date(w.w.split("/")[0] + "T00:00:00").getTime();
           const weekIdx = Math.round((wsMs - planStartMs) / (7 * 86400000));
           if (weekIdx >= 0 && weekIdx < PLAN_DATA.length) return PLAN_DATA[weekIdx].km;
@@ -12266,18 +12266,18 @@
         });
         drawBar(
           "weeklyKmChart",
-          wk52.map((w) => { const [y,mo,d] = w.date.split("-"); return `${MONTHS_HU[+mo-1]} '${y.slice(2)}`; }),
+          wkRecent.map((w) => { const [y,mo,d] = w.date.split("-"); return `${MONTHS_HU[+mo-1]} '${y.slice(2)}`; }),
           [
             {
-              data: wk52.map((w) => w.km),
-              color: wk52.map((w) => (w.km >= 50 ? getStrain() : w.km >= 25 ? getStrainDim(0.6) : getStrainDim(0.3))),
+              data: wkRecent.map((w) => w.km),
+              color: wkRecent.map((w) => (w.km >= 50 ? getStrain() : w.km >= 25 ? getStrainDim(0.6) : getStrainDim(0.3))),
               label: "km",
             },
           ],
           {
             rotateLabels: true,
             yFmt: (v) => Math.round(v) + "km",
-            extraTip: (i) => (wk52[i].runs || "?") + " futás" + (planLine[i] != null ? ` · terv: ${planLine[i]}km` : ""),
+            extraTip: (i) => (wkRecent[i].runs || "?") + " futás" + (planLine[i] != null ? ` · terv: ${planLine[i]}km` : ""),
             lineOverlay: { data: planLine, color: "#d50d8d", label: "terv" },
           },
         );
