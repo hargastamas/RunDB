@@ -12123,38 +12123,38 @@
         );
       }
 
-      function drawWeightTrendChart() {
-        const cutData = WEIGHT.filter((r) => r.date >= WEIGHT_CUT_START);
-        if (cutData.length < 2 || !document.getElementById("weightTrendChart")) return;
-        const vals = cutData.map((r) => r.kg);
-        const minV = Math.min(WEIGHT_GOAL, ...vals);
-        const maxV = Math.max(...vals);
-        const pad = (maxV - minV) * 0.08 || 1;
-        drawLine(
-          "weightTrendChart",
-          cutData.map((r) => r.date.slice(5)),
-          [
-            {
-              data: vals,
-              color: getLime(),
-              fill: true,
-              fillColor: getLimeDim(),
-              label: "kg",
-            },
-          ],
-          {
-            minVal: minV - pad,
-            maxVal: maxV + pad,
-            yFmt: (v) => v.toFixed(1),
-            refLines: [{ value: WEIGHT_GOAL, label: `Cél ${WEIGHT_GOAL} kg`, color: axisColor() }],
-          },
-        );
+      // Weekly average weight rows, one week per line, each with delta vs previous week
+      function _weeklyWeightRows(cutData) {
+        const wM = {};
+        cutData.forEach((r) => {
+          const ws = _wStart(r.date);
+          (wM[ws] = wM[ws] || []).push(r.kg);
+        });
+        const weeksSorted = Object.keys(wM).sort();
+        const weeklyAvg = weeksSorted.map((ws) => +(wM[ws].reduce((s, v) => s + v, 0) / wM[ws].length).toFixed(1));
+        const curWs = _wStart(new Date().toISOString().slice(0, 10));
+        return weeksSorted
+          .map((ws, i) => {
+            const avg = weeklyAvg[i];
+            const delta = i > 0 ? +(avg - weeklyAvg[i - 1]).toFixed(1) : null;
+            const isCur = ws === curWs;
+            const isLast = i === weeksSorted.length - 1;
+            const dCol = delta === null || delta === 0 ? "var(--text3)" : delta < 0 ? "var(--lime)" : "var(--orange)";
+            const dStr = delta === null ? "—" : (delta > 0 ? "+" : "") + delta.toFixed(1) + " kg";
+            return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 8px;margin:0 -8px;border-radius:8px;${isCur ? "background:var(--lime)18;" : ""}${!isLast && !isCur ? "border-bottom:1px solid var(--border);" : ""}">
+              <span style="font-size:12px;color:var(--text2);">${_fmtPlanDate(ws)}–${_fmtPlanDate(_wEnd(ws))}</span>
+              <span style="display:flex;align-items:center;gap:14px;">
+                <span style="font-family:DINPro,sans-serif;font-size:15px;font-weight:700;color:var(--text);">${avg.toFixed(1)} kg</span>
+                <span style="font-size:12px;font-weight:700;color:${dCol};min-width:56px;text-align:right;">${dStr}</span>
+              </span>
+            </div>`;
+          })
+          .join("");
       }
 
       function drawOverviewCharts() {
         _refreshHeatmap();
         _drawRecovery();
-        drawWeightTrendChart();
 
         // ── RACE BANNER ──
         const rbEl = document.getElementById("race-banner");
@@ -12480,7 +12480,7 @@
                   <div style="height:100%;border-radius:3px;background:var(--lime);width:${pct}%"></div>
                 </div>
               </div>
-              <canvas id="weightTrendChart" height="120"></canvas>
+              <div>${_weeklyWeightRows(cutData)}</div>
             </div>`;
           } else {
             _wtEl.innerHTML = "";
