@@ -1289,24 +1289,6 @@
         .plan-mini-days {
           grid-template-columns: 1fr !important;
         }
-        .plan-week-grid .plan-mini-day,
-        .plan-mini-days .plan-mini-day {
-          display: flex;
-          align-items: baseline;
-          gap: 8px;
-          flex-wrap: wrap;
-        }
-        .plan-week-grid .pmd-dow {
-          flex: 0 0 auto;
-          margin-bottom: 0;
-        }
-        .plan-week-grid .pmd-type {
-          flex: 0 0 auto;
-        }
-        .plan-week-grid .pmd-detail {
-          flex: 1 1 100%;
-        }
-
         /* PR grid: 1 oszlop (2 too tight for large numbers) */
         .pr-grid {
           grid-template-columns: 1fr;
@@ -14243,33 +14225,6 @@
             .join("")}
         </div>
         ${summaryBlock}
-        ${(() => {
-          const cal = typeof CAL_PLAN !== "undefined" ? CAL_PLAN[wi] : null;
-          if (!cal) return "";
-          const dayNames = ["Hétfő","Kedd","Szerda","Csütörtök","Péntek","Szombat","Vasárnap"];
-          const rows = dayNames.map((day, i) => {
-            const pd = week.days[i];
-            const kcal = cal.days[i];
-            const border = i < 6 ? "border-bottom:1px solid var(--card-border);" : "";
-            const color = i === 4 ? "var(--lime)" : "var(--text)";
-            return `<tr style="${border}">
-              <td style="padding:6px 10px;color:var(--text);">${day}</td>
-              <td style="padding:6px 10px;color:var(--text2);">${pd ? pd.lbl : "–"}</td>
-              <td style="padding:6px 10px;text-align:right;font-weight:500;color:${color};">${kcal}${typeof kcal === "string" && kcal.includes("–") ? " kcal" : ""}</td>
-            </tr>`;
-          }).join("");
-          return `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
-            <div style="font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:8px;">Napi kalóriacél · átlag ~${cal.avg} kcal · ${cal.note}</div>
-            <table style="width:100%;border-collapse:collapse;font-size:13px;">
-              <thead><tr style="border-bottom:1px solid var(--card-border);">
-                <th style="text-align:left;padding:6px 10px;color:var(--text2);font-weight:500;">Nap</th>
-                <th style="text-align:left;padding:6px 10px;color:var(--text2);font-weight:500;">Edzés</th>
-                <th style="text-align:right;padding:6px 10px;color:var(--text2);font-weight:500;">Kalória</th>
-              </tr></thead>
-              <tbody>${rows}</tbody>
-            </table>
-          </div>`;
-        })()}
       </div>
     </div>`;
         }).join("");
@@ -14278,46 +14233,6 @@
       // ── INIT ──
       _bootstrap();
 
-      // ── CAL_PLAN — per-week daily calorie targets (indices match PLAN_DATA) ──
-      // Calculation base: TDEE 2000 kcal rest + exercise burn - 300 kcal deficit (weeks 8-14)
-      // Weeks 15-17: TDEE maintenance (no deficit), taper + carb load before race
-      // Thu always includes upper-body gym (+gym calories); Mon is lower-body gym day
-      const CAL_PLAN = [
-        null, null, null, null, null, null, // weeks 1–6 (past)
-        // Week 7 — Tempo, 46 km
-        { avg: 2330, note: "Tempo · deficit ~300 kcal/nap · ~300 g zsír/hét",
-          days: ["2150–2300","2300–2450","2450–2600","2300–2450","2900–3050","2100–2250","1650–1750"] },
-        // Week 8 — Tempo recovery, 34 km
-        { avg: 2170, note: "Recovery · deficit ~300 kcal/nap · ~150 g zsír/hét",
-          days: ["1950–2050","2100–2200","2050–2150","2250–2350","2650–2800","2100–2250","1650–1750"] },
-        // Week 9 — Intervallum, 40 km
-        { avg: 2280, note: "Intervallum · deficit ~300 kcal/nap · ~300 g zsír/hét",
-          days: ["2150–2300","2200–2350","2300–2450","2300–2450","2750–2900","2100–2250","1650–1750"] },
-        // Week 10 — Intervallum, 44 km
-        { avg: 2320, note: "Intervallum · deficit ~300 kcal/nap · ~300 g zsír/hét",
-          days: ["2150–2300","2300–2450","2350–2450","2300–2450","2900–3050","2100–2250","1650–1750"] },
-        // Week 11 — Intervallum PEAK, 47 km
-        { avg: 2340, note: "Csúcshét · deficit ~300 kcal/nap · ~300 g zsír/hét",
-          days: ["2150–2300","2400–2550","2350–2450","2300–2450","2950–3100","2100–2250","1650–1750"] },
-        // Week 12 — Intervallum recovery, 37 km
-        { avg: 2180, note: "Recovery · deficit ~300 kcal/nap · ~150 g zsír/hét",
-          days: ["1950–2050","2150–2300","2100–2200","2150–2250","2700–2850","2100–2250","1650–1750"] },
-        // Week 13 — Versenyspecifikus, 50 km
-        { avg: 2340, note: "Versenyspecifikus · deficit ~300 kcal/nap · ~300 g zsír/hét",
-          days: ["1950–2050","2400–2500","2450–2600","2450–2600","2900–3050","2100–2250","1650–1750"] },
-        // Week 14 — Versenyspecifikus, 55 km — utolsó deficit hét
-        { avg: 2380, note: "Utolsó deficit hét · aug. közepétől váltás TDEE-re",
-          days: ["1950–2050","2400–2500","2450–2600","2700–2850","2900–3100","2100–2250","1650–1750"] },
-        // Week 15 — Versenyspecifikus, 60 km — csúcshét + FŐPRÓBA — MAINTENANCE
-        { avg: 2710, note: "Csúcshét + főpróba · TDEE fenntartás — kell az energia a 60 km-es hétre és a 21 km-es záró tesztre",
-          days: ["2250–2350","2800–2950","2700–2850","3050–3200","3350–3500","2400–2550","1950–2050"] },
-        // Week 16 — Taper, 42 km — valódi visszavétel
-        { avg: 2570, note: "Taper · TDEE fenntartás, szénhidrát-hangsúly a hosszú táv napján",
-          days: ["2200–2400","2550–2700","2500–2650","2900–3050","2900–3100","2400–2550","1950–2050"] },
-        // Week 17 — Race week
-        { avg: 2200, note: "Verseny hét · P–Szo szénhidrát feltöltés (rizs, tészta)!",
-          days: ["1950–2050","2100–2200","1950–2050","2150–2300","2100–2300","2400–2600","Verseny nap 🏃"] },
-      ];
 
     </script>
   </body>
