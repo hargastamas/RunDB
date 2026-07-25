@@ -10,6 +10,12 @@
     <meta name="apple-mobile-web-app-title" content="RunDB" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
     <style>
       @font-face {
         font-family: "Proxima Nova";
@@ -87,6 +93,12 @@
         margin: 0;
         padding: 0;
       }
+      /* Redesign 2026-07-25: Plus Jakarta Sans everywhere, overrides the many inline
+         Proxima Nova / DINPro font-family declarations scattered through the JS templates */
+      body,
+      body * {
+        font-family: "Plus Jakarta Sans", "Proxima Nova", sans-serif !important;
+      }
       :root {
         --lime: #00f19f;
         --lime-dim: rgba(0, 241, 159, 0.15);
@@ -111,26 +123,32 @@
         --card-shadow: none;
       }
       :root.light {
-        --lime: #00b896;
-        --lime-dim: rgba(0, 184, 150, 0.15);
-        --bg: #eef0f3;
+        /* Redesign 2026-07-25: palette extracted from Tamas's reference screenshot.
+           Decorative fills use the exact extracted hues; anything used as text is a
+           darker tint of the same hue so it still clears WCAG AA on white (see
+           feedback_ui_readability memory) — the screenshot's own light tones (e.g. the
+           raw #FFBB6E orange or #8E98A4 gray) fail contrast as text. */
+        --lime: #3d6fe0;
+        --lime-dim: rgba(61, 111, 224, 0.15);
+        --on-lime: #ffffff;
+        --bg: #eaebef;
         --surface: #ffffff;
-        --surface2: #f0f2f5;
-        --border: #e0e3e8;
-        --border2: #d0d4db;
-        --text: #0a0a0a;
-        --text2: #3a3a3a;
-        --text3: #6b7280;
+        --surface2: #f2f4fa;
+        --border: #e4e7ef;
+        --border2: #d6dae5;
+        --text: #0d0f2b;
+        --text2: #4b5567;
+        --text3: #6b7684;
         --red: #d92b2b;
-        --orange: #c47000;
+        --orange: #b85c08;
         --grid-line: #e8eaed;
         --axis-text: #9ca3af;
         --tip-bg: #ffffff;
         --tip-border: #d0d4db;
-        --tip-text: #0a0a0a;
-        --card-border: #e0e3e8;
+        --tip-text: #0d0f2b;
+        --card-border: #e4e7ef;
         --card-shadow: 0 1px 8px rgba(0, 0, 0, 0.07);
-        background: #eef0f3;
+        background: #eaebef;
       }
 
       html {
@@ -943,28 +961,28 @@
         box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
       }
       :root.light .winner-b {
-        background: rgba(0, 184, 150, 0.18);
-        color: #00b896;
+        background: var(--lime-dim);
+        color: var(--lime);
       }
       :root.light .best-badge {
-        background: rgba(0, 184, 150, 0.2);
-        color: #00b896;
+        background: var(--lime-dim);
+        color: var(--lime);
       }
       :root.light .pr-tag {
-        background: rgba(0, 184, 150, 0.2);
-        color: #00b896;
+        background: var(--lime-dim);
+        color: var(--lime);
       }
       :root.light .pr-link {
-        color: #00b896;
+        color: var(--lime);
       }
       :root.light .stat-num.lime {
-        color: #00b896;
+        color: var(--lime);
       }
       :root.light .data-table tbody td.lime {
-        color: #00b896;
+        color: var(--lime);
       }
       :root.light .data-table tbody tr.is-z1 td.primary {
-        color: #00b896;
+        color: var(--lime);
       }
       :root.light canvas {
         background: transparent;
@@ -1026,7 +1044,7 @@
         color: var(--lime);
       }
       .cal-week-km.light-lime {
-        color: #00b896;
+        color: #3d6fe0;
       }
       .cal-cell {
         display: flex;
@@ -11172,10 +11190,10 @@
       }
       const LIME = "#00F19F";
       function getLime() {
-        return document.documentElement.classList.contains("light") ? "#00B896" : "#00F19F";
+        return document.documentElement.classList.contains("light") ? "#3D6FE0" : "#00F19F";
       }
       function getLimeDim() {
-        return document.documentElement.classList.contains("light") ? "rgba(0,184,150,.15)" : "rgba(0,241,159,.08)";
+        return document.documentElement.classList.contains("light") ? "rgba(61,111,224,.15)" : "rgba(0,241,159,.08)";
       }
       function getStrain() {
         return "#0093E7";
@@ -11185,7 +11203,7 @@
       }
       function _hmCellColor(cell, alpha) {
         const isLight = document.documentElement.classList.contains("light");
-        cell.style.background = isLight ? `rgba(0,184,150,${alpha})` : `rgba(0,241,159,${alpha})`;
+        cell.style.background = isLight ? `rgba(61,111,224,${alpha})` : `rgba(0,241,159,${alpha})`;
       }
       function _refreshHeatmap() {
         document.querySelectorAll(".hm-cell[data-alpha]").forEach((c) => _hmCellColor(c, c.dataset.alpha));
@@ -11987,7 +12005,7 @@
                 // color by zone
                 let bg, textCol;
                 if (r.z1 >= 50) {
-                  bg = isLight ? "#00B896" : "#00F19F";
+                  bg = isLight ? "#3D6FE0" : "#00F19F";
                   textCol = "#111111";
                 } else if (r.z3 + r.z4 >= 50) {
                   bg = "#ff6622";
@@ -12030,7 +12048,7 @@
               const pe = _planForDate(dateStr);
               if (pe && pe.day.type !== "rest") {
                 let col = _planTypeColor(pe.day.type);
-                if (col.startsWith("var(")) col = isLight ? "#00B896" : "#00F19F";
+                if (col.startsWith("var(")) col = isLight ? "#3D6FE0" : "#00F19F";
                 const isPast = dateStr < _calToday;
                 const pill = document.createElement("div");
                 pill.className = "cal-plan-pill";
@@ -12271,7 +12289,7 @@
           "formaChart",
           labels,
           [
-            { data: recent.map((x) => x.ctl), color: isLight ? "#00B896" : "#00F19F", label: "Fitnesz (CTL)" },
+            { data: recent.map((x) => x.ctl), color: isLight ? "#3D6FE0" : "#00F19F", label: "Fitnesz (CTL)" },
             { data: recent.map((x) => x.atl), color: "#ff6622", label: "Fáradtság (ATL)" },
             { data: recent.map((x) => x.tsb), color: isLight ? "#0078D4" : "#4DB8FF", label: "Forma (TSB)" },
           ],
@@ -12356,7 +12374,7 @@
         const mixed = runs.length - easy - hard;
         const isLight = document.documentElement.classList.contains("light");
         drawDonut("intensityDonut", [
-          { label: "Könnyű (Z1)", value: easy, color: isLight ? "#00B896" : "#00F19F" },
+          { label: "Könnyű (Z1)", value: easy, color: isLight ? "#3D6FE0" : "#00F19F" },
           { label: "Vegyes", value: mixed, color: "#6dbf6d" },
           { label: "Kemény (Z3–4)", value: hard, color: "#ff6622" },
         ]);
