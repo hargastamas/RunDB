@@ -13622,7 +13622,7 @@
             parts.push({ score: sleepScore, weight: 0.35 });
             const h = Math.floor(lastSleep.asleepMin / 60),
               m = Math.round(lastSleep.asleepMin % 60);
-            sleepDetail = `${h}ó ${m}p alvás az elmúlt éjszaka`;
+            sleepDetail = `${h}ó ${m}p alvás · ${_fmtPlanDate(lastSleep.date)} éjjel`;
           }
         }
 
