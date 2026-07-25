@@ -1736,6 +1736,32 @@
       .plan-mini-day.is-rest {
         border-left: 2px solid var(--surface2);
       }
+      /* Redesign 2026-07-25 (light mode only): pastel activity-colored card instead
+         of the left border, reference-inspired. --type-color is set inline per card
+         from _planTypeColorLight(). Dark mode keeps the border-left treatment above. */
+      :root.light .plan-mini-day {
+        background: color-mix(in srgb, var(--type-color, var(--border)) 14%, white);
+        border-left: none;
+        border-radius: 10px;
+      }
+      :root.light .plan-mini-day.is-today {
+        box-shadow: 0 0 0 1.5px var(--lime) inset;
+      }
+      :root.light .plan-mini-day .pmd-dow {
+        display: inline-block;
+        background: color-mix(in srgb, var(--type-color, var(--border)) 22%, white);
+        color: color-mix(in srgb, var(--type-color, var(--border)) 70%, black);
+        border-radius: 20px;
+        padding: 2px 8px;
+        text-transform: none;
+        font-size: 10px;
+        font-weight: 600;
+      }
+      :root.light .plan-mini-day .pmd-type {
+        color: var(--text) !important;
+        font-weight: 600;
+        margin-top: 5px;
+      }
     </style>
   </head>
   <body>
@@ -12502,7 +12528,8 @@
               const isToday = di === _todayPdi;
               const typeClass = d.type === "gym" ? "is-gym" : d.type === "rest" ? "is-rest" : "is-run";
               const col = _planTypeColor(d.type);
-              return `<div class="plan-mini-day ${typeClass} ${done ? "is-done" : ""}" style="${isToday ? "border-color:var(--lime);background:var(--lime)18;" : ""}">
+              const colLight = _planTypeColorLight(d.type);
+              return `<div class="plan-mini-day ${typeClass} ${done ? "is-done" : ""} ${isToday ? "is-today" : ""}" style="--type-color:${colLight};">
                 <div class="pmd-dow" style="${isToday ? "color:var(--lime);" : ""}">${_PLAN_DAYS_HU[di]} ${_fmtPlanDate(dateStr)}</div>
                 <div class="pmd-type" style="color:${col};">${done ? "✓ " : ""}${d.lbl}</div>
                 ${d.det && d.type !== "rest" ? `<div class="pmd-detail">${d.det}</div>` : ""}
@@ -13973,6 +14000,20 @@
         if (t === "race") return "var(--lime)";
         return "var(--border)";
       }
+      // Light-mode-only categorical palette for the weekly plan cards, feeding the
+      // --type-color custom property (see .plan-mini-day CSS). Kept separate from
+      // _planTypeColor() above because --lime is now the light-mode brand blue, which
+      // would otherwise collide with "long" run's blue.
+      function _planTypeColorLight(t) {
+        if (t === "easy") return "#16A34A";
+        if (t === "long") return "#2563EB";
+        if (t === "tempo") return "#D97706";
+        if (t === "interval") return "#DC2626";
+        if (t === "gym") return "#7C3AED";
+        if (t === "swim") return "#0891B2";
+        if (t === "race") return "#3D6FE0";
+        return "var(--text3)";
+      }
 
       function _planWeekStart(weekIdx) {
         // Returns Monday date string for the given 0-based week index
@@ -14184,7 +14225,7 @@
               const dateStr = _planDayDate(wi, di);
               const done = _sessionDone(wi, di, d.type);
               const typeClass = d.type === "gym" ? "is-gym" : d.type === "rest" ? "is-rest" : "is-run";
-              return `<div class="plan-mini-day ${typeClass} ${done ? "is-done" : ""}">
+              return `<div class="plan-mini-day ${typeClass} ${done ? "is-done" : ""}" style="--type-color:${_planTypeColorLight(d.type)};">
               <div class="pmd-dow">${_PLAN_DAYS_HU[di]} ${_fmtPlanDate(dateStr)}</div>
               <div class="pmd-type" style="color:${_planTypeColor(d.type)}">${done ? "✓ " : ""} ${d.lbl}</div>
               ${d.det && d.type !== "rest" ? `<div class="pmd-detail">${d.det}</div>` : ""}
