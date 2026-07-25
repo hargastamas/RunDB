@@ -12123,8 +12123,8 @@
         );
       }
 
-      // Weekly average weight rows, one week per line, each with delta vs previous week
-      function _weeklyWeightRows(cutData) {
+      // Group weight entries into Mon-Sun weekly averages
+      function _weeklyAvgSeries(cutData) {
         const wM = {};
         cutData.forEach((r) => {
           const ws = _wStart(r.date);
@@ -12132,6 +12132,11 @@
         });
         const weeksSorted = Object.keys(wM).sort();
         const weeklyAvg = weeksSorted.map((ws) => +(wM[ws].reduce((s, v) => s + v, 0) / wM[ws].length).toFixed(1));
+        return { weeksSorted, weeklyAvg };
+      }
+
+      // Weekly average weight rows, one week per line, each with delta vs previous week
+      function _weeklyWeightRowsHtml(weeksSorted, weeklyAvg) {
         const curWs = _wStart(new Date().toISOString().slice(0, 10));
         return weeksSorted
           .map((ws, i) => {
@@ -12464,12 +12469,21 @@
             const lostCol = lost > 0 ? "var(--lime)" : lost < 0 ? "var(--orange)" : "var(--text3)";
             const lostStr = (lost > 0 ? "-" : lost < 0 ? "+" : "") + Math.abs(lost).toFixed(1);
             const remainStr = remain > 0 ? remain.toFixed(1) : "Cél elérve";
+            const { weeksSorted, weeklyAvg } = _weeklyAvgSeries(cutData);
+            const avgLoss =
+              weeksSorted.length > 1
+                ? +((weeklyAvg[0] - weeklyAvg[weeklyAvg.length - 1]) / (weeksSorted.length - 1)).toFixed(2)
+                : null;
+            const avgLossCol = avgLoss === null || avgLoss === 0 ? "var(--text3)" : avgLoss > 0 ? "var(--lime)" : "var(--orange)";
+            const avgLossStr =
+              avgLoss === null ? "—" : (avgLoss > 0 ? "-" : avgLoss < 0 ? "+" : "") + Math.abs(avgLoss).toFixed(2);
             _wtEl.innerHTML = `<div style="background:var(--surface);border:1px solid var(--card-border);border-radius:12px;padding:14px 16px;">
               <div style="font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:12px;">Szálkásítás · ${_fmtPlanDate(WEIGHT_CUT_START)} óta</div>
               <div style="display:flex;gap:22px;flex-wrap:wrap;margin-bottom:14px;">
                 <div><div style="font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:3px;">Jelenlegi</div><div style="font-family:DINPro,sans-serif;font-size:22px;font-weight:900;color:var(--text);">${curW.toFixed(1)}<span style="font-size:12px;font-weight:400;color:var(--text3);margin-left:2px;">kg</span></div></div>
                 <div><div style="font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:3px;">Eddig</div><div style="font-family:DINPro,sans-serif;font-size:22px;font-weight:900;color:${lostCol};">${lostStr}<span style="font-size:12px;font-weight:400;color:var(--text3);margin-left:2px;">kg</span></div></div>
                 <div><div style="font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:3px;">Hátra a célig</div><div style="font-family:DINPro,sans-serif;font-size:22px;font-weight:900;color:var(--text);">${remainStr}${remain > 0 ? `<span style="font-size:12px;font-weight:400;color:var(--text3);margin-left:2px;">kg</span>` : ""}</div></div>
+                <div><div style="font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:3px;">Átlag heti fogyás</div><div style="font-family:DINPro,sans-serif;font-size:22px;font-weight:900;color:${avgLossCol};">${avgLossStr}<span style="font-size:12px;font-weight:400;color:var(--text3);margin-left:2px;">kg/hét</span></div></div>
               </div>
               <div style="margin-bottom:14px;">
                 <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
@@ -12480,7 +12494,7 @@
                   <div style="height:100%;border-radius:3px;background:var(--lime);width:${pct}%"></div>
                 </div>
               </div>
-              <div>${_weeklyWeightRows(cutData)}</div>
+              <div>${_weeklyWeightRowsHtml(weeksSorted, weeklyAvg)}</div>
             </div>`;
           } else {
             _wtEl.innerHTML = "";
