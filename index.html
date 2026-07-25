@@ -1275,6 +1275,12 @@
           font-size: 26px;
         }
 
+        /* Weekly plan mini-calendar: 7/5 columns don't fit narrow screens */
+        .plan-week-grid,
+        .plan-mini-days {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
         /* PR grid: 1 oszlop (2 too tight for large numbers) */
         .pr-grid {
           grid-template-columns: 1fr;
@@ -1669,9 +1675,14 @@
       }
       .plan-mini-days {
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(5, minmax(0, 1fr));
         gap: 6px;
         margin-top: 6px;
+      }
+      .plan-week-grid {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 6px;
       }
       .plan-mini-day {
         background: var(--surface2);
@@ -12464,7 +12475,7 @@
             }).join("");
             _planEl.innerHTML = `<div style="background:var(--surface);border:1px solid var(--card-border);border-radius:12px;padding:12px 14px;">
               <div style="font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:10px;">${_pwIdx + 1}. hét · ${_pw.phase} · ${_pw.km} km</div>
-              <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;">${_days}</div>
+              <div class="plan-week-grid">${_days}</div>
             </div>`;
           } else {
             _planEl.innerHTML = "";
