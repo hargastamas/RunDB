@@ -1612,12 +1612,8 @@
       .plan-week-hdr.is-open .pwh-arr {
         transform: rotate(90deg);
       }
-      .plan-week-hdr.is-current {
-        background: var(--lime-dim);
-        border-left: 3px solid var(--lime);
-      }
-      .plan-week-hdr.is-current:hover {
-        background: var(--lime-dim);
+      .plan-week-acc:has(.plan-week-hdr.is-current) {
+        box-shadow: 0 0 0 1.5px var(--lime) inset;
       }
       .plan-week-hdr.is-current .pwh-num {
         color: var(--lime);
