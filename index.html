@@ -10650,6 +10650,7 @@
         PR_DATES = {},
         HEALTH = [],
         GYM_DATES = [],
+        SWIM_DATES = [],
         WEIGHT = [];
 
       function _tMin(s) {
@@ -11038,9 +11039,10 @@
       }
 
       function _parseWorkoutCSV(text) {
-        const dates = [];
+        const gymDates = [];
+        const swimDates = [];
         const lines = text.trim().replace(/\r/g, "").split("\n");
-        if (lines.length < 2) return dates;
+        if (lines.length < 2) return { gym: gymDates, swim: swimDates };
         // detect column indices from header
         const hdrCols = [];
         let cur = "",
@@ -11070,14 +11072,17 @@
           }
           cols.push(cur);
           const typeVal = (typeIdx >= 0 ? cols[typeIdx] : cols[2]) || "";
-          if (!typeVal.toLowerCase().includes("strength")) continue;
+          const typeLc = typeVal.toLowerCase();
+          if (!typeLc.includes("strength") && !typeLc.includes("swim")) continue;
           const rawDate = dateIdx >= 0 ? cols[dateIdx] : cols[0];
           const date =
             _shDate(rawDate) || (rawDate && rawDate.trim().match(/^\d{4}-\d{2}-\d{2}$/) ? rawDate.trim() : null);
-          if (date) dates.push(date);
+          if (!date) continue;
+          if (typeLc.includes("strength")) gymDates.push(date);
+          if (typeLc.includes("swim")) swimDates.push(date);
         }
-        console.log("RunDB: gym sessions detected:", dates.length);
-        return dates;
+        console.log("RunDB: gym sessions detected:", gymDates.length, "· swim sessions detected:", swimDates.length);
+        return { gym: gymDates, swim: swimDates };
       }
       async function _fetchWorkouts() {
         const r = await _fetchUrl(WORKOUT_CSV);
@@ -11095,7 +11100,8 @@
             _fetchWeight(),
           ]);
         HEALTH = healthResult.status === "fulfilled" ? healthResult.value : [];
-        GYM_DATES = workoutsResult.status === "fulfilled" ? workoutsResult.value : [];
+        GYM_DATES = workoutsResult.status === "fulfilled" ? workoutsResult.value.gym : [];
+        SWIM_DATES = workoutsResult.status === "fulfilled" ? workoutsResult.value.swim : [];
         WEIGHT = weightResult.status === "fulfilled" ? weightResult.value : [];
         if (healthResult.status !== "fulfilled")
           console.warn("RunDB: health fetch failed:", healthResult.reason?.message);
@@ -13930,8 +13936,15 @@
         return GYM_DATES.some((d) => d >= wkStart && d <= wkEnd);
       }
 
+      function _swimDone(weekIdx) {
+        const wkStart = _planWeekStart(weekIdx);
+        const wkEnd = _planDayDate(weekIdx, 6);
+        return SWIM_DATES.some((d) => d >= wkStart && d <= wkEnd);
+      }
+
       function _sessionDone(weekIdx, dayIdx, type) {
         if (type === "gym") return _gymDone(weekIdx);
+        if (type === "swim") return _swimDone(weekIdx);
         if (type === "rest") return false;
         if (type === "race") return false;
         // runs: week-flexible — the Nth planned run is done if N actual runs exist in the week
@@ -13941,7 +13954,7 @@
         const week = PLAN_DATA[weekIdx];
         const plannedRunsUpToDay = week.days
           .slice(0, dayIdx + 1)
-          .filter((d) => d.type !== "rest" && d.type !== "gym" && d.type !== "race").length;
+          .filter((d) => d.type !== "rest" && d.type !== "gym" && d.type !== "race" && d.type !== "swim").length;
         const actualRuns = RUNS.filter((r) => r.date >= wkStart && r.date <= wkEnd && r.dist > 0).length;
         return actualRuns >= plannedRunsUpToDay;
       }
