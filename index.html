@@ -10638,6 +10638,8 @@
         "https://docs.google.com/spreadsheets/d/192YsNtDn7y6VpjMWKDlWUaA_A6scMiqP3DIDLS3Pfeg/export?format=csv&gid=1";
       const WORKOUT_CSV =
         "https://docs.google.com/spreadsheets/d/192YsNtDn7y6VpjMWKDlWUaA_A6scMiqP3DIDLS3Pfeg/export?format=csv&gid=6";
+      const SWIM_CSV =
+        "https://docs.google.com/spreadsheets/d/192YsNtDn7y6VpjMWKDlWUaA_A6scMiqP3DIDLS3Pfeg/gviz/tq?tqx=out:csv&sheet=Swimming";
       const HEALTH_CSV =
         "https://docs.google.com/spreadsheets/d/1V8XlThjn4eSIjU06WDeuPVFQ24G30di4rNzHgHOGUB0/export?format=csv&gid=0";
       const HRV_LIVE_CSV =
@@ -11043,10 +11045,9 @@
       }
 
       function _parseWorkoutCSV(text) {
-        const gymDates = [];
-        const swimDates = [];
+        const dates = [];
         const lines = text.trim().replace(/\r/g, "").split("\n");
-        if (lines.length < 2) return { gym: gymDates, swim: swimDates };
+        if (lines.length < 2) return dates;
         // detect column indices from header
         const hdrCols = [];
         let cur = "",
@@ -11076,36 +11077,62 @@
           }
           cols.push(cur);
           const typeVal = (typeIdx >= 0 ? cols[typeIdx] : cols[2]) || "";
-          const typeLc = typeVal.toLowerCase();
-          if (!typeLc.includes("strength") && !typeLc.includes("swim")) continue;
+          if (!typeVal.toLowerCase().includes("strength")) continue;
           const rawDate = dateIdx >= 0 ? cols[dateIdx] : cols[0];
           const date =
             _shDate(rawDate) || (rawDate && rawDate.trim().match(/^\d{4}-\d{2}-\d{2}$/) ? rawDate.trim() : null);
-          if (!date) continue;
-          if (typeLc.includes("strength")) gymDates.push(date);
-          if (typeLc.includes("swim")) swimDates.push(date);
+          if (date) dates.push(date);
         }
-        console.log("RunDB: gym sessions detected:", gymDates.length, "· swim sessions detected:", swimDates.length);
-        return { gym: gymDates, swim: swimDates };
+        console.log("RunDB: gym sessions detected:", dates.length);
+        return dates;
       }
       async function _fetchWorkouts() {
         const r = await _fetchUrl(WORKOUT_CSV);
         if (!r.ok) throw new Error("HTTP " + r.status);
         return _parseWorkoutCSV(await r.text());
       }
+      function _parseSwimCSV(text) {
+        const dates = [];
+        const lines = text.trim().replace(/\r/g, "").split("\n");
+        for (let i = 1; i < lines.length; i++) {
+          const cols = [];
+          let cur = "",
+            inQ = false;
+          for (const ch of lines[i]) {
+            if (ch === '"') {
+              inQ = !inQ;
+            } else if (ch === "," && !inQ) {
+              cols.push(cur);
+              cur = "";
+            } else cur += ch;
+          }
+          cols.push(cur);
+          if (!(cols[2] || "").toLowerCase().includes("swim")) continue;
+          const date = _shDate(cols[0]);
+          if (date) dates.push(date);
+        }
+        console.log("RunDB: swim sessions detected:", dates.length);
+        return dates;
+      }
+      async function _fetchSwim() {
+        const r = await _fetchUrl(SWIM_CSV);
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return _parseSwimCSV(await r.text());
+      }
 
       async function _bootstrap() {
-        const [runsResult, healthResult, workoutsResult, hrvLiveResult, weightResult] =
+        const [runsResult, healthResult, workoutsResult, hrvLiveResult, weightResult, swimResult] =
           await Promise.allSettled([
             _fetchSheet(),
             _fetchHealth(),
             _fetchWorkouts(),
             _fetchHrvLive(),
             _fetchWeight(),
+            _fetchSwim(),
           ]);
         HEALTH = healthResult.status === "fulfilled" ? healthResult.value : [];
-        GYM_DATES = workoutsResult.status === "fulfilled" ? workoutsResult.value.gym : [];
-        SWIM_DATES = workoutsResult.status === "fulfilled" ? workoutsResult.value.swim : [];
+        GYM_DATES = workoutsResult.status === "fulfilled" ? workoutsResult.value : [];
+        SWIM_DATES = swimResult.status === "fulfilled" ? swimResult.value : [];
         WEIGHT = weightResult.status === "fulfilled" ? weightResult.value : [];
         if (healthResult.status !== "fulfilled")
           console.warn("RunDB: health fetch failed:", healthResult.reason?.message);
@@ -11113,6 +11140,8 @@
           console.warn("RunDB: workouts fetch failed:", workoutsResult.reason?.message);
         if (weightResult.status !== "fulfilled")
           console.warn("RunDB: weight fetch failed:", weightResult.reason?.message);
+        if (swimResult.status !== "fulfilled")
+          console.warn("RunDB: swim fetch failed:", swimResult.reason?.message);
         if (hrvLiveResult.status === "fulfilled") {
           const liveMap = hrvLiveResult.value;
           HEALTH.forEach((h) => {
