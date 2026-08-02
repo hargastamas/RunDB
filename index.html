@@ -13999,8 +13999,19 @@
         const week = PLAN_DATA[weekIdx];
         const plannedRunsUpToDay = week.days
           .slice(0, dayIdx + 1)
-          .filter((d) => d.type !== "rest" && d.type !== "gym" && d.type !== "race" && d.type !== "swim").length;
-        const actualRuns = RUNS.filter((r) => r.date >= wkStart && r.date <= wkEnd && r.dist > 0).length;
+          .filter(
+            (d) => d.type !== "rest" && d.type !== "gym" && d.type !== "race" && d.type !== "swim" && d.type !== "long"
+          ).length;
+        const weekRuns = RUNS.filter((r) => r.date >= wkStart && r.date <= wkEnd && r.dist > 0);
+        // the run satisfying the week's long-run check is already accounted for by
+        // _longRunDone — drop it here so it isn't also counted toward easy/tempo/interval days
+        const longDay = week.days.find((d) => d.type === "long");
+        let actualRuns = weekRuns.length;
+        if (longDay) {
+          const plannedLongKm = parseFloat(longDay.det);
+          const longRunIdx = weekRuns.findIndex((r) => r.dist >= plannedLongKm * 0.7);
+          if (longRunIdx !== -1) actualRuns -= 1;
+        }
         return actualRuns >= plannedRunsUpToDay;
       }
 
