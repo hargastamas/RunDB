@@ -13973,9 +13973,23 @@
         return SWIM_DATES.some((d) => d >= wkStart && d <= wkEnd);
       }
 
+      function _longRunDone(weekIdx, dayIdx) {
+        // distance-based, like gym/swim: a long run in the week within 70% of the
+        // planned distance counts as done, regardless of how other runs that week
+        // are ordered/missing (ordinal counting shifts everything when a run is skipped)
+        const wkStart = _planWeekStart(weekIdx);
+        const wkEnd = _planDayDate(weekIdx, 6);
+        const det = PLAN_DATA[weekIdx].days[dayIdx].det;
+        const plannedKm = parseFloat(det);
+        return RUNS.some(
+          (r) => r.date >= wkStart && r.date <= wkEnd && r.dist >= plannedKm * 0.7
+        );
+      }
+
       function _sessionDone(weekIdx, dayIdx, type) {
         if (type === "gym") return _gymDone(weekIdx);
         if (type === "swim") return _swimDone(weekIdx);
+        if (type === "long") return _longRunDone(weekIdx, dayIdx);
         if (type === "rest") return false;
         if (type === "race") return false;
         // runs: week-flexible — the Nth planned run is done if N actual runs exist in the week
