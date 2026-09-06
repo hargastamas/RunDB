@@ -254,6 +254,34 @@
         margin-top: 0;
       }
 
+      /* HERO — the one bold element on the overview page; everything else stays quiet */
+      .dash-hero {
+        margin-bottom: 32px;
+      }
+      .dash-hero-headline {
+        font-size: clamp(22px, 3vw, 28px);
+        font-weight: 500;
+        color: var(--text2);
+        letter-spacing: -0.2px;
+        line-height: 1.2;
+      }
+      .dash-hero-headline .hero-num {
+        display: inline-block;
+        font-family: DINPro, "Proxima Nova", sans-serif;
+        font-size: clamp(48px, 6vw, 68px);
+        font-weight: 700;
+        line-height: 1;
+        color: var(--lime);
+        letter-spacing: -1.5px;
+        margin-right: 8px;
+        vertical-align: -8px;
+      }
+      .dash-hero-sub {
+        margin-top: 10px;
+        font-size: 14px;
+        color: var(--text3);
+      }
+
       /* STAT ROW */
       .stat-row {
         display: grid;
@@ -311,10 +339,8 @@
         box-shadow: var(--card-shadow);
       }
       .stat-lbl {
-        font-size: 11px;
+        font-size: 12.5px;
         font-weight: 600;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
         color: var(--text3);
         margin-bottom: 8px;
       }
@@ -401,10 +427,8 @@
         opacity: 1;
       }
       .pr-lbl {
-        font-size: 11px;
+        font-size: 13px;
         font-weight: 600;
-        letter-spacing: 1px;
-        text-transform: uppercase;
         color: var(--text3);
         margin-bottom: 12px;
       }
@@ -737,10 +761,8 @@
         padding: 14px 16px;
       }
       .modal-stat-lbl {
-        font-size: 10px;
+        font-size: 12px;
         font-weight: 600;
-        letter-spacing: 1px;
-        text-transform: uppercase;
         color: var(--text3);
         margin-bottom: 5px;
       }
@@ -751,10 +773,8 @@
         font-family: DINPro, "Proxima Nova", sans-serif;
       }
       .modal-zone-lbl {
-        font-size: 11px;
+        font-size: 13px;
         font-weight: 600;
-        letter-spacing: 1px;
-        text-transform: uppercase;
         color: var(--text3);
         margin-bottom: 8px;
       }
@@ -1752,6 +1772,7 @@
 
     <!-- ═══ OVERVIEW ═══ -->
     <div class="page active" id="page-overview">
+      <div id="dash-hero"></div>
       <!-- MA + EZEN A HÉTEN -->
       <div class="slabel" style="border-top: none; padding-top: 0; margin-top: 0">Ma</div>
       <div id="daily-stats">
@@ -12181,6 +12202,41 @@
       function drawOverviewCharts() {
         _refreshHeatmap();
 
+        // ── HERO ──
+        const heroEl = document.getElementById("dash-hero");
+        if (heroEl && typeof PLAN_RACE !== "undefined") {
+          const raceDate = new Date(PLAN_RACE + "T00:00:00");
+          const todayD = new Date();
+          todayD.setHours(0, 0, 0, 0);
+          const daysLeft = Math.round((raceDate - todayD) / 86400000);
+          const cwI = _planCurrentWeekIdx();
+          const planW = cwI >= 0 && cwI < PLAN_DATA.length ? PLAN_DATA[cwI] : null;
+
+          const prTypes = [
+            { key: "half", lbl: "félmaraton" },
+            { key: "mid_10k", lbl: "10 km" },
+            { key: "short_5k", lbl: "5 km" },
+          ];
+          const prCandidates = prTypes.map((t) => ({ ...t, pr: PRS[t.key] })).filter((t) => t.pr && t.pr.date);
+          const recentPR = prCandidates.length ? prCandidates.reduce((a, b) => (b.pr.date > a.pr.date ? b : a)) : null;
+
+          const countdownHtml =
+            daysLeft > 0
+              ? `<span class="hero-num">${daysLeft}</span>nap a 10 km-ig`
+              : daysLeft === 0
+                ? `Ma van a 10 km-es verseny`
+                : `<span class="hero-num">${Math.abs(daysLeft)}</span>napja lezajlott a 10 km`;
+
+          const subParts = [];
+          if (planW) subParts.push(`${cwI + 1}. hét · ${planW.phase}`);
+          if (recentPR) subParts.push(`legutóbbi PR: ${recentPR.lbl} ${fmtPace(recentPR.pr.pace)}/km (${recentPR.pr.date})`);
+
+          heroEl.innerHTML = `<div class="dash-hero">
+      <div class="dash-hero-headline">${countdownHtml}</div>
+      ${subParts.length ? `<div class="dash-hero-sub">${subParts.join(" · ")}</div>` : ""}
+    </div>`;
+        }
+
         const wkRecent = WEEKLY.slice(-13);
         const isLight = document.documentElement.classList.contains("light");
         // Plan overlay: a tervezett heti km a futási tervből, ha a hét beleesik a tervbe
@@ -12368,7 +12424,7 @@
               if (tmrPd) {
                 const tmrCol = tmrPd.type === "rest" ? "var(--text3)" : _planTypeColor(tmrPd.type);
                 tmrHtml = `<div style="margin-top:6px;border-top:1px solid var(--border);padding-top:6px">
-            <div style="font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:3px">Holnap</div>
+            <div style="font-size:10px;font-weight:600;color:var(--text3);margin-bottom:3px">Holnap</div>
             <div style="font-size:13px;font-weight:600;color:${tmrCol}">${tmrPd.lbl}</div>
             ${tmrPd.type !== "rest" && tmrPd.det ? `<div class="stat-unit" style="margin-top:2px;line-height:1.5">${tmrPd.det}</div>` : ""}
           </div>`;
@@ -12423,7 +12479,7 @@
               </div>`;
             }).join("");
             _planEl.innerHTML = `<div style="background:var(--surface);border:1px solid var(--card-border);border-radius:12px;padding:12px 14px;">
-              <div style="font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:10px;">${_pwIdx + 1}. hét · ${_pw.phase} · ${_pw.km} km</div>
+              <div style="font-size:12px;font-weight:600;color:var(--text3);margin-bottom:10px;">${_pwIdx + 1}. hét · ${_pw.phase} · ${_pw.km} km</div>
               <div class="plan-week-grid">${_days}</div>
             </div>`;
           } else {
@@ -12454,16 +12510,16 @@
             const avgLossStr =
               avgLoss === null ? "—" : (avgLoss > 0 ? "-" : avgLoss < 0 ? "+" : "") + Math.abs(avgLoss).toFixed(2);
             _wtEl.innerHTML = `<div style="background:var(--surface);border:1px solid var(--card-border);border-radius:12px;padding:14px 16px;">
-              <div style="font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:12px;">Szálkásítás · ${_fmtPlanDate(WEIGHT_CUT_START)} óta</div>
+              <div style="font-size:12px;font-weight:600;color:var(--text3);margin-bottom:12px;">Szálkásítás · ${_fmtPlanDate(WEIGHT_CUT_START)} óta</div>
               <div style="display:flex;gap:22px;flex-wrap:wrap;margin-bottom:14px;">
-                <div><div style="font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:3px;">Jelenlegi</div><div style="font-family:DINPro,sans-serif;font-size:22px;font-weight:800;color:var(--text);">${curW.toFixed(1)}<span style="font-size:12px;font-weight:300;color:var(--text3);margin-left:2px;">kg</span></div></div>
-                <div><div style="font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:3px;">Eddig</div><div style="font-family:DINPro,sans-serif;font-size:22px;font-weight:800;color:${lostCol};">${lostStr}<span style="font-size:12px;font-weight:300;color:var(--text3);margin-left:2px;">kg</span></div></div>
-                <div><div style="font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:3px;">Hátra a célig</div><div style="font-family:DINPro,sans-serif;font-size:22px;font-weight:800;color:var(--text);">${remainStr}${remain > 0 ? `<span style="font-size:12px;font-weight:300;color:var(--text3);margin-left:2px;">kg</span>` : ""}</div></div>
-                <div><div style="font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:3px;">Átlag heti fogyás</div><div style="font-family:DINPro,sans-serif;font-size:22px;font-weight:800;color:${avgLossCol};">${avgLossStr}<span style="font-size:12px;font-weight:300;color:var(--text3);margin-left:2px;">kg/hét</span></div></div>
+                <div><div style="font-size:10px;font-weight:600;color:var(--text3);margin-bottom:3px;">Jelenlegi</div><div style="font-family:DINPro,sans-serif;font-size:22px;font-weight:800;color:var(--text);">${curW.toFixed(1)}<span style="font-size:12px;font-weight:300;color:var(--text3);margin-left:2px;">kg</span></div></div>
+                <div><div style="font-size:10px;font-weight:600;color:var(--text3);margin-bottom:3px;">Eddig</div><div style="font-family:DINPro,sans-serif;font-size:22px;font-weight:800;color:${lostCol};">${lostStr}<span style="font-size:12px;font-weight:300;color:var(--text3);margin-left:2px;">kg</span></div></div>
+                <div><div style="font-size:10px;font-weight:600;color:var(--text3);margin-bottom:3px;">Hátra a célig</div><div style="font-family:DINPro,sans-serif;font-size:22px;font-weight:800;color:var(--text);">${remainStr}${remain > 0 ? `<span style="font-size:12px;font-weight:300;color:var(--text3);margin-left:2px;">kg</span>` : ""}</div></div>
+                <div><div style="font-size:10px;font-weight:600;color:var(--text3);margin-bottom:3px;">Átlag heti fogyás</div><div style="font-family:DINPro,sans-serif;font-size:22px;font-weight:800;color:${avgLossCol};">${avgLossStr}<span style="font-size:12px;font-weight:300;color:var(--text3);margin-left:2px;">kg/hét</span></div></div>
               </div>
               <div style="margin-bottom:14px;">
                 <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
-                  <span style="font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);">${pct}% a célig</span>
+                  <span style="font-size:10px;font-weight:600;color:var(--text3);">${pct}% a célig</span>
                   <span style="font-size:10px;color:var(--text3);">${startW.toFixed(1)} → ${WEIGHT_GOAL.toFixed(1)} kg</span>
                 </div>
                 <div style="width:100%;height:6px;background:var(--border);border-radius:3px;">
@@ -12697,7 +12753,7 @@
         const trendStr = (trend > 0 ? "+" : "") + trend;
         document.getElementById("modal-content").innerHTML = `
     <div style="margin-bottom:20px">
-      <div style="font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:6px">VO₂ Max — ${yr}</div>
+      <div style="font-size:13px;font-weight:600;color:var(--text3);margin-bottom:6px">VO₂ Max — ${yr}</div>
       <div style="font-size:32px;font-weight:800;color:var(--text);letter-spacing:-1.5px;line-height:1">${vals[vals.length - 1].toFixed(1)}<span style="font-size:14px;font-weight:300;color:var(--text3);margin-left:5px">ml/kg/min</span></div>
       <div style="font-size:12px;color:var(--text2);margin-top:6px">${yr}-ben: ${min.toFixed(1)}–${max.toFixed(1)} · Változás: <span style="color:${trendCol};font-weight:600">${trendStr}</span></div>
     </div>
