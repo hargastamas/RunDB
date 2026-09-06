@@ -1752,8 +1752,6 @@
 
     <!-- ═══ OVERVIEW ═══ -->
     <div class="page active" id="page-overview">
-      <!-- VERSENY BANNER -->
-      <div id="race-banner" style="margin-bottom: 20px"></div>
       <!-- MA + EZEN A HÉTEN -->
       <div class="slabel" style="border-top: none; padding-top: 0; margin-top: 0">Ma</div>
       <div id="daily-stats">
@@ -12182,51 +12180,6 @@
 
       function drawOverviewCharts() {
         _refreshHeatmap();
-
-        // ── RACE BANNER ──
-        const rbEl = document.getElementById("race-banner");
-        if (rbEl && typeof PLAN_RACE !== "undefined") {
-          const raceDate = new Date(PLAN_RACE + "T00:00:00");
-          const startDate = new Date(PLAN_START + "T00:00:00");
-          const todayD = new Date();
-          todayD.setHours(0, 0, 0, 0);
-          const daysLeft = Math.round((raceDate - todayD) / 86400000);
-          const totalDays = Math.round((raceDate - startDate) / 86400000);
-          const doneDays = totalDays - daysLeft;
-          const donePct = Math.round((doneDays / totalDays) * 100);
-          const cwI = _planCurrentWeekIdx(),
-            planW = cwI >= 0 && cwI < PLAN_DATA.length ? PLAN_DATA[cwI] : null;
-          rbEl.innerHTML = `<div style="position:relative;overflow:hidden;border-radius:16px;background:#0a0a0a">
-      <video autoplay muted loop playsinline
-        style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none">
-        <source src="banner.mp4" type="video/mp4">
-      </video>
-      <div style="position:absolute;inset:0;background:rgba(0,0,0,.6)"></div>
-      <div style="position:relative;z-index:1;padding:14px 18px">
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
-          <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap">
-            <div>
-              <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:3px"><span style="color:#d50d8d">10 km verseny</span> · 2026.10.10.</div>
-              <div style="display:flex;align-items:baseline;gap:6px">
-                <span style="font-family:DINPro,sans-serif;font-size:32px;font-weight:600;color:#d50d8d;line-height:1;letter-spacing:-.5px">${daysLeft}</span>
-                <span style="font-size:13px;color:rgba(255,255,255,.55)">nap</span>
-                ${planW ? `<span style="font-size:11px;color:rgba(255,255,255,.45);margin-left:6px">· ${cwI + 1}. hét · ${planW.phase}</span>` : ""}
-              </div>
-            </div>
-          </div>
-        </div>
-        <div style="margin-top:10px">
-          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
-            <span style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.55)">${donePct}% felkészülés</span>
-            <span style="font-size:10px;color:rgba(255,255,255,.45)">${doneDays} / ${totalDays} nap</span>
-          </div>
-          <div style="width:100%;height:6px;background:rgba(255,255,255,.15);border-radius:3px">
-            <div style="height:100%;border-radius:3px;background:#d50d8d;width:${donePct}%"></div>
-          </div>
-        </div>
-      </div>
-    </div>`;
-        }
 
         const wkRecent = WEEKLY.slice(-13);
         const isLight = document.documentElement.classList.contains("light");
