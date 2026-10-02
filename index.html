@@ -10653,6 +10653,7 @@
       ];
 
       // ─── LIVE SHEET INTEGRATION ──────────────────────────────────────────────────────
+      // v5: HealthFit export pair, frozen 2026-09-13 (full history lives here)
       const SHEET_CSV =
         "https://docs.google.com/spreadsheets/d/192YsNtDn7y6VpjMWKDlWUaA_A6scMiqP3DIDLS3Pfeg/export?format=csv&gid=1";
       const WORKOUT_CSV =
@@ -10665,6 +10666,20 @@
         "https://docs.google.com/spreadsheets/d/1V8XlThjn4eSIjU06WDeuPVFQ24G30di4rNzHgHOGUB0/gviz/tq?tqx=out:csv&sheet=HRV%20Live";
       const WEIGHT_CSV =
         "https://docs.google.com/spreadsheets/d/1V8XlThjn4eSIjU06WDeuPVFQ24G30di4rNzHgHOGUB0/gviz/tq?tqx=out:csv&sheet=Weight";
+      // v6: HealthFit export pair, continuation from 2026-09-14 onward (requires "anyone with the link" sharing)
+      const SHEET_CSV_V6 =
+        "https://docs.google.com/spreadsheets/d/1TIoJRz5d18-6zokzvevXAHak5mSOrJpdE4no9Tu5Lfk/gviz/tq?tqx=out:csv&sheet=Running";
+      const WORKOUT_CSV_V6 =
+        "https://docs.google.com/spreadsheets/d/1TIoJRz5d18-6zokzvevXAHak5mSOrJpdE4no9Tu5Lfk/gviz/tq?tqx=out:csv&sheet=Others";
+      const SWIM_CSV_V6 =
+        "https://docs.google.com/spreadsheets/d/1TIoJRz5d18-6zokzvevXAHak5mSOrJpdE4no9Tu5Lfk/gviz/tq?tqx=out:csv&sheet=Swimming";
+      const HEALTH_CSV_V6 =
+        "https://docs.google.com/spreadsheets/d/1Tw4oAhFdid2_FJ41kXrj-zPxydhLZWa2tNIxA6cr_js/gviz/tq?tqx=out:csv&sheet=Daily%20Metrics";
+      const WEIGHT_CSV_V6 =
+        "https://docs.google.com/spreadsheets/d/1Tw4oAhFdid2_FJ41kXrj-zPxydhLZWa2tNIxA6cr_js/gviz/tq?tqx=out:csv&sheet=Weight";
+      // v6 "Running" tab added an HR Zone Count column and expanded HRZ0-5 → HRZ1-9; v5 stays on the old layout.
+      const SCHEMA_V5 = { hrz: [18, 19, 20, 21, 22, 23], hrzOffset: 1, gct: 28, vo: 29, sl: 30, steps: 31 };
+      const SCHEMA_V6 = { hrz: [19, 20, 21, 22, 23, 24, 25, 26, 27], hrzOffset: 0, gct: 32, vo: 33, sl: 34, steps: 35 };
       const WEIGHT_CUT_START = "2026-06-22";
       const WEIGHT_GOAL = 65;
       let RUNS = [],
@@ -10699,7 +10714,7 @@
         return m ? m[1] + "-" + m[2] + "-" + m[3] : null;
       }
 
-      function _row2run(c) {
+      function _row2run(c, schema = SCHEMA_V5) {
         const date = _shDate(c[0]);
         if (!date) return null;
         if (!(c[2] || "").toLowerCase().includes("run")) {
@@ -10717,21 +10732,22 @@
         const avg_hr = Math.round(_unit(c[12], "bpm") || _hun(c[12]) || 0) || null;
         const max_hr = Math.round(_unit(c[13], "bpm") || _hun(c[13]) || 0) || null;
         const trimp = +(_hun(c[14]) || 0).toFixed(1);
-        const hrzS = [18, 19, 20, 21, 22, 23].map((i) => _tSec(c[i]));
+        const hrzS = schema.hrz.map((i) => _tSec(c[i]));
         const tot = hrzS.reduce((s, v) => s + v, 0) || dur * 60;
         const hrPct = hrzS.map((v) => +((v / tot) * 100).toFixed(1));
-        const z1 = hrPct[1],
-          z2 = hrPct[2],
-          z3 = hrPct[3],
-          z4 = hrPct[4],
-          z5 = hrPct[5];
+        const o = schema.hrzOffset;
+        const z1 = hrPct[o],
+          z2 = hrPct[o + 1],
+          z3 = hrPct[o + 2],
+          z4 = hrPct[o + 3],
+          z5 = hrPct[o + 4];
         const aei = avg_hr && pace ? +((60 / pace / avg_hr) * 100).toFixed(3) : null;
         const elev = _unit(c[9], "m");
         const cal = _unit(c[10], "kcal") || _hun(c[10]);
-        const gct = _unit(c[28], "ms");
-        const vo = _unit(c[29], "cm");
-        const sl = _unit(c[30], "cm");
-        const steps = _hun(c[31]);
+        const gct = _unit(c[schema.gct], "ms");
+        const vo = _unit(c[schema.vo], "cm");
+        const sl = _unit(c[schema.sl], "cm");
+        const steps = _hun(c[schema.steps]);
         const [yr, mo] = date.split("-").map(Number);
         return {
           date,
@@ -10760,7 +10776,7 @@
         };
       }
 
-      function _parseCSV(text) {
+      function _parseCSV(text, schema = SCHEMA_V5) {
         const runs = [],
           lines = text.trim().replace(/\r/g, "").split("\n");
         console.log("RunDB: sheet sorok száma:", lines.length - 1);
@@ -10777,7 +10793,7 @@
             } else cur += ch;
           }
           cols.push(cur);
-          const r = _row2run(cols);
+          const r = _row2run(cols, schema);
           if (r) runs.push(r);
         }
         console.log(
@@ -10805,6 +10821,13 @@
           +result.reduce((s, r) => s + r.dist, 0).toFixed(1),
         );
         return result;
+      }
+
+      function _mergeByDate(base, sheet) {
+        const sheetDates = new Set(sheet.map((r) => r.date));
+        return [...base.filter((r) => !sheetDates.has(r.date)), ...sheet].sort((a, b) =>
+          a.date.localeCompare(b.date),
+        );
       }
 
       function _wStart(d) {
@@ -10944,7 +10967,12 @@
       async function _fetchSheet() {
         const r = await _fetchUrl(SHEET_CSV);
         if (!r.ok) throw new Error("HTTP " + r.status);
-        return _parseCSV(await r.text());
+        return _parseCSV(await r.text(), SCHEMA_V5);
+      }
+      async function _fetchSheetV6() {
+        const r = await _fetchUrl(SHEET_CSV_V6);
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return _parseCSV(await r.text(), SCHEMA_V6);
       }
 
       function _parseHealth(text) {
@@ -10986,6 +11014,11 @@
         if (!r.ok) throw new Error("HTTP " + r.status);
         return _parseHealth(await r.text());
       }
+      async function _fetchHealthV6() {
+        const r = await _fetchUrl(HEALTH_CSV_V6);
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return _parseHealth(await r.text());
+      }
       function _parseWeight(text) {
         const records = [],
           lines = text.trim().replace(/\r/g, "").split("\n");
@@ -11018,6 +11051,11 @@
       }
       async function _fetchWeight() {
         const r = await _fetchUrl(WEIGHT_CSV);
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return _parseWeight(await r.text());
+      }
+      async function _fetchWeightV6() {
+        const r = await _fetchUrl(WEIGHT_CSV_V6);
         if (!r.ok) throw new Error("HTTP " + r.status);
         return _parseWeight(await r.text());
       }
@@ -11110,6 +11148,11 @@
         if (!r.ok) throw new Error("HTTP " + r.status);
         return _parseWorkoutCSV(await r.text());
       }
+      async function _fetchWorkoutsV6() {
+        const r = await _fetchUrl(WORKOUT_CSV_V6);
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return _parseWorkoutCSV(await r.text());
+      }
       function _parseSwimCSV(text) {
         const dates = [];
         const lines = text.trim().replace(/\r/g, "").split("\n");
@@ -11138,29 +11181,66 @@
         if (!r.ok) throw new Error("HTTP " + r.status);
         return _parseSwimCSV(await r.text());
       }
+      async function _fetchSwimV6() {
+        const r = await _fetchUrl(SWIM_CSV_V6);
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return _parseSwimCSV(await r.text());
+      }
 
       async function _bootstrap() {
-        const [runsResult, healthResult, workoutsResult, hrvLiveResult, weightResult, swimResult] =
-          await Promise.allSettled([
-            _fetchSheet(),
-            _fetchHealth(),
-            _fetchWorkouts(),
-            _fetchHrvLive(),
-            _fetchWeight(),
-            _fetchSwim(),
-          ]);
-        HEALTH = healthResult.status === "fulfilled" ? healthResult.value : [];
-        GYM_DATES = workoutsResult.status === "fulfilled" ? workoutsResult.value : [];
-        SWIM_DATES = swimResult.status === "fulfilled" ? swimResult.value : [];
-        WEIGHT = weightResult.status === "fulfilled" ? weightResult.value : [];
+        const [
+          runsResult,
+          runsV6Result,
+          healthResult,
+          healthV6Result,
+          workoutsResult,
+          workoutsV6Result,
+          hrvLiveResult,
+          weightResult,
+          weightV6Result,
+          swimResult,
+          swimV6Result,
+        ] = await Promise.allSettled([
+          _fetchSheet(),
+          _fetchSheetV6(),
+          _fetchHealth(),
+          _fetchHealthV6(),
+          _fetchWorkouts(),
+          _fetchWorkoutsV6(),
+          _fetchHrvLive(),
+          _fetchWeight(),
+          _fetchWeightV6(),
+          _fetchSwim(),
+          _fetchSwimV6(),
+        ]);
+        const health5 = healthResult.status === "fulfilled" ? healthResult.value : [];
+        const health6 = healthV6Result.status === "fulfilled" ? healthV6Result.value : [];
+        HEALTH = _mergeByDate(health5, health6);
+        const gym5 = workoutsResult.status === "fulfilled" ? workoutsResult.value : [];
+        const gym6 = workoutsV6Result.status === "fulfilled" ? workoutsV6Result.value : [];
+        GYM_DATES = [...new Set([...gym5, ...gym6])];
+        const swim5 = swimResult.status === "fulfilled" ? swimResult.value : [];
+        const swim6 = swimV6Result.status === "fulfilled" ? swimV6Result.value : [];
+        SWIM_DATES = [...new Set([...swim5, ...swim6])];
+        const weight5 = weightResult.status === "fulfilled" ? weightResult.value : [];
+        const weight6 = weightV6Result.status === "fulfilled" ? weightV6Result.value : [];
+        WEIGHT = _mergeByDate(weight5, weight6);
         if (healthResult.status !== "fulfilled")
           console.warn("RunDB: health fetch failed:", healthResult.reason?.message);
+        if (healthV6Result.status !== "fulfilled")
+          console.warn("RunDB: health v6 fetch failed:", healthV6Result.reason?.message);
         if (workoutsResult.status !== "fulfilled")
           console.warn("RunDB: workouts fetch failed:", workoutsResult.reason?.message);
+        if (workoutsV6Result.status !== "fulfilled")
+          console.warn("RunDB: workouts v6 fetch failed:", workoutsV6Result.reason?.message);
         if (weightResult.status !== "fulfilled")
           console.warn("RunDB: weight fetch failed:", weightResult.reason?.message);
+        if (weightV6Result.status !== "fulfilled")
+          console.warn("RunDB: weight v6 fetch failed:", weightV6Result.reason?.message);
         if (swimResult.status !== "fulfilled")
           console.warn("RunDB: swim fetch failed:", swimResult.reason?.message);
+        if (swimV6Result.status !== "fulfilled")
+          console.warn("RunDB: swim v6 fetch failed:", swimV6Result.reason?.message);
         if (hrvLiveResult.status === "fulfilled") {
           const liveMap = hrvLiveResult.value;
           HEALTH.forEach((h) => {
@@ -11182,9 +11262,11 @@
             HEALTH.sort((a, b) => a.date.localeCompare(b.date));
           }
         }
-        const runs = runsResult.status === "fulfilled" ? _merge(BASE_RUNS, runsResult.value) : BASE_RUNS.slice();
-        if (runsResult.status !== "fulfilled")
-          console.warn("RunDB: sheet fetch sikertelen:", runsResult.reason?.message);
+        let runs = BASE_RUNS.slice();
+        if (runsResult.status === "fulfilled") runs = _merge(runs, runsResult.value);
+        else console.warn("RunDB: sheet fetch sikertelen:", runsResult.reason?.message);
+        if (runsV6Result.status === "fulfilled") runs = _merge(runs, runsV6Result.value);
+        else console.warn("RunDB: sheet v6 fetch sikertelen:", runsV6Result.reason?.message);
         _render(runs);
       }
       // ─────────────────────────────────────────────────────────────────────────────

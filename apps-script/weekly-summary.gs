@@ -16,9 +16,12 @@
 //   Duplikátumvédelem: ugyanarra a hétre csak egyszer generál.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const SPREADSHEET_ID        = '192YsNtDn7y6VpjMWKDlWUaA_A6scMiqP3DIDLS3Pfeg';
-const HEALTH_SPREADSHEET_ID = '1V8XlThjn4eSIjU06WDeuPVFQ24G30di4rNzHgHOGUB0';
-const RUNS_GID              = 1;
+// v6 export pair (HealthFit rotated off the old v5 pair on 2026-09-13; this script
+// must be re-bound — copy it into the v6 spreadsheet's Apps Script editor and run
+// setupTrigger() there, since a bound script's triggers don't follow an ID change).
+const SPREADSHEET_ID        = '1TIoJRz5d18-6zokzvevXAHak5mSOrJpdE4no9Tu5Lfk';
+const HEALTH_SPREADSHEET_ID = '1Tw4oAhFdid2_FJ41kXrj-zPxydhLZWa2tNIxA6cr_js';
+const RUNS_SHEET_NAME       = 'Running';
 const MODEL                 = 'llama-3.3-70b-versatile';
 
 // ── Edzésterv (17 hét, 2026-05-11 – 2026-09-06) ──────────────────────────────
@@ -60,8 +63,8 @@ function generateWeeklySummary() {
   if (!apiKey) throw new Error('Nincs GROQ_API_KEY beállítva a Script Properties-ben');
 
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  const runsSheet = ss.getSheets().find(s => s.getSheetId() === RUNS_GID);
-  if (!runsSheet) throw new Error('Futásokat tartalmazó sheet (gid=' + RUNS_GID + ') nem található');
+  const runsSheet = ss.getSheetByName(RUNS_SHEET_NAME);
+  if (!runsSheet) throw new Error("Futásokat tartalmazó sheet ('" + RUNS_SHEET_NAME + "') nem található");
 
   const runs = parseRuns(runsSheet.getDataRange().getValues());
   if (!runs.length) throw new Error('Nem találtam futásokat a sheetben');
@@ -547,7 +550,7 @@ function onRunAdded(e) {
 
   const todayStr = Utilities.formatDate(today, Session.getScriptTimeZone(), 'yyyy-MM-dd');
   const ss       = SpreadsheetApp.openById(SPREADSHEET_ID);
-  const runsSheet = ss.getSheets().find(s => s.getSheetId() === RUNS_GID);
+  const runsSheet = ss.getSheetByName(RUNS_SHEET_NAME);
   if (!runsSheet) return;
 
   const runs = parseRuns(runsSheet.getDataRange().getValues());
@@ -609,7 +612,7 @@ function doGet(e) {
 
 function getWeeklyData() {
   const ss        = SpreadsheetApp.openById(SPREADSHEET_ID);
-  const runsSheet = ss.getSheets().find(s => s.getSheetId() === RUNS_GID);
+  const runsSheet = ss.getSheetByName(RUNS_SHEET_NAME);
   if (!runsSheet) throw new Error('Futásokat tartalmazó sheet nem található');
 
   const allRuns  = parseRuns(runsSheet.getDataRange().getValues());
@@ -709,7 +712,7 @@ function initPlanSheet() { setupPlanSheet(); }
 // Diagnosztika: megnézi az első néhány sor nyers cellaértékeit
 function diagnoseCols() {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  const sheet = ss.getSheets().find(s => s.getSheetId() === RUNS_GID);
+  const sheet = ss.getSheetByName(RUNS_SHEET_NAME);
   const data = sheet.getDataRange().getValues();
   for (let i = 1; i <= Math.min(3, data.length - 1); i++) {
     const c = data[i];

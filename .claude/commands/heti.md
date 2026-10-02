@@ -4,13 +4,17 @@ Generálj heti edzéselemzést Tamásnak az alábbi lépésekkel és formátumba
 
 ## 1. ADATOK BETÖLTÉSE
 
-Töltsd be mindkét Google Sheet-et a Google Drive MCP-vel:
-- Futásnapló: fileId = `192YsNtDn7y6VpjMWKDlWUaA_A6scMiqP3DIDLS3Pfeg`
-- Egészségügyi adatok: fileId = `1V8XlThjn4eSIjU06WDeuPVFQ24G30di4rNzHgHOGUB0`
+A HealthFit 2026-09-13-án lezárta a "v5" exportpárt és egy új "v6" párra váltott — a teljes történethez mindkettő kell:
+- Futásnapló (v5, adatok 2026-09-13-ig): fileId = `192YsNtDn7y6VpjMWKDlWUaA_A6scMiqP3DIDLS3Pfeg`, "Running" fül
+- Egészségügyi adatok (v5, adatok 2026-09-12-ig): fileId = `1V8XlThjn4eSIjU06WDeuPVFQ24G30di4rNzHgHOGUB0`, "Daily Metrics" fül
+- Workouts_v6 (2026-09-14-től folytatólagosan): fileId = `1TIoJRz5d18-6zokzvevXAHak5mSOrJpdE4no9Tu5Lfk`, "Running" fül
+- Health Metrics_v6 (2026-09-13-tól folytatólagosan): fileId = `1Tw4oAhFdid2_FJ41kXrj-zPxydhLZWa2tNIxA6cr_js`, "Daily Metrics" fül
+
+Töltsd be mind a négyet a Google Drive MCP-vel.
 
 Ha a fájlok túl nagyok a közvetlen olvasáshoz (jellemzően igen), használj subagent-et a következő utasítással:
-- Futásnaplóból: kinyerni az összes futást 2026-05-11-től (Date, Distance km, Total Time, Avg HR, Max HR, TRIMP, RPE)
-- Egészségügyi adatokból: kinyerni az összes VO₂ Max értéket 2026-05-11-től (Date, VO₂ max)
+- Futásnapló/Workouts_v6-ból: kinyerni az összes futást 2026-05-11-től (Date, Distance km, Total Time, Avg HR, Max HR, TRIMP, RPE) — a v5 és v6 "Running" fülének oszlopai eltérnek (v6-ban külön HR Zone Count oszlop van, és HRZ1-9 van HRZ0-5 helyett), de a fenti mezők mindkét fülön ugyanott/ugyanúgy elérhetők
+- Egészségügyi adatok/Health Metrics_v6-ból: kinyerni az összes VO₂ Max értéket 2026-05-11-től (Date, VO₂ max) — ugyanaz az oszlopsorrend mindkét fájlban
 
 ---
 
