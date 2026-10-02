@@ -1785,8 +1785,7 @@
       <div class="slabel">
         Heti km — futási volumen (utolsó 3 hónap)<button class="info-btn" tabindex="0">
           i<span class="info-tip"
-            >Heti összes futott km. A szaggatott rózsaszín vonal a tervezett heti km a futási tervből (10 km verseny,
-            2026.10.10.).</span
+            >Heti összes futott km. Nincs aktív edzésterv, ezért tervezett-km vonal jelenleg nem jelenik meg.</span
           >
         </button>
       </div>
@@ -2209,7 +2208,7 @@
     <!-- ═══ TERV ═══ -->
     <div class="page" id="page-plan">
       <div class="slabel" style="border-top: none; padding-top: 0; margin-top: 0">
-        Edzésterv — 10 km verseny 2026.10.10.
+        Edzésterv — félmaraton, 2027.04.11.
       </div>
       <div id="plan-progress-wrap"></div>
       <div id="plan-goals"></div>
@@ -12273,14 +12272,7 @@
 
         // ── HERO ──
         const heroEl = document.getElementById("dash-hero");
-        if (heroEl && typeof PLAN_RACE !== "undefined") {
-          const raceDate = new Date(PLAN_RACE + "T00:00:00");
-          const todayD = new Date();
-          todayD.setHours(0, 0, 0, 0);
-          const daysLeft = Math.round((raceDate - todayD) / 86400000);
-          const cwI = _planCurrentWeekIdx();
-          const planW = cwI >= 0 && cwI < PLAN_DATA.length ? PLAN_DATA[cwI] : null;
-
+        if (heroEl) {
           const prTypes = [
             { key: "half", lbl: "félmaraton" },
             { key: "mid_10k", lbl: "10 km" },
@@ -12289,21 +12281,38 @@
           const prCandidates = prTypes.map((t) => ({ ...t, pr: PRS[t.key] })).filter((t) => t.pr && t.pr.date);
           const recentPR = prCandidates.length ? prCandidates.reduce((a, b) => (b.pr.date > a.pr.date ? b : a)) : null;
 
-          const countdownHtml =
-            daysLeft > 0
-              ? `<span class="hero-num">${daysLeft}</span>nap a 10 km-ig`
-              : daysLeft === 0
-                ? `Ma van a 10 km-es verseny`
-                : `<span class="hero-num">${Math.abs(daysLeft)}</span>napja lezajlott a 10 km`;
+          if (PLAN_DATA.length > 0 && typeof PLAN_RACE !== "undefined") {
+            const raceDate = new Date(PLAN_RACE + "T00:00:00");
+            const todayD = new Date();
+            todayD.setHours(0, 0, 0, 0);
+            const daysLeft = Math.round((raceDate - todayD) / 86400000);
+            const cwI = _planCurrentWeekIdx();
+            const planW = cwI >= 0 && cwI < PLAN_DATA.length ? PLAN_DATA[cwI] : null;
 
-          const subParts = [];
-          if (planW) subParts.push(`${cwI + 1}. hét · ${planW.phase}`);
-          if (recentPR) subParts.push(`legutóbbi PR: ${recentPR.lbl} ${fmtPace(recentPR.pr.pace)}/km (${recentPR.pr.date})`);
+            const countdownHtml =
+              daysLeft > 0
+                ? `<span class="hero-num">${daysLeft}</span>nap a 10 km-ig`
+                : daysLeft === 0
+                  ? `Ma van a 10 km-es verseny`
+                  : `<span class="hero-num">${Math.abs(daysLeft)}</span>napja lezajlott a 10 km`;
 
-          heroEl.innerHTML = `<div class="dash-hero">
+            const subParts = [];
+            if (planW) subParts.push(`${cwI + 1}. hét · ${planW.phase}`);
+            if (recentPR) subParts.push(`legutóbbi PR: ${recentPR.lbl} ${fmtPace(recentPR.pr.pace)}/km (${recentPR.pr.date})`);
+
+            heroEl.innerHTML = `<div class="dash-hero">
       <div class="dash-hero-headline">${countdownHtml}</div>
       ${subParts.length ? `<div class="dash-hero-sub">${subParts.join(" · ")}</div>` : ""}
     </div>`;
+          } else if (recentPR) {
+            // No active plan right now — show the most recent PR instead of a stale/nonexistent countdown.
+            heroEl.innerHTML = `<div class="dash-hero">
+      <div class="dash-hero-headline">Legutóbbi PR: ${recentPR.lbl} <span class="hero-num">${fmtPace(recentPR.pr.pace)}</span>/km</div>
+      <div class="dash-hero-sub">${recentPR.pr.date}</div>
+    </div>`;
+          } else {
+            heroEl.innerHTML = "";
+          }
         }
 
         const wkRecent = WEEKLY.slice(-13);
@@ -13990,94 +13999,14 @@
         },
       ];
 
-      // ACTIVE PLAN: 10 km verseny-felkészülés, 2026-09-07 → 2026-10-10 (5 hét, heti max 3 futás).
-      // Kedd/Csütörtök/Szombat futásnapok, a többi pihenő — a félmaraton utáni regenerációt és a
-      // sérüléstörténetet (térd, vádli) figyelembe véve indul könnyű héttel, csúcsosodik a 4. héten,
-      // majd taper az 5. héten a szombati (10-10) versenyig.
-      const PLAN_START = "2026-09-07"; // Monday of week 1
-      const PLAN_RACE = "2026-10-10";
+      // ACTIVE PLAN: nincs. A 10 km-es verseny (2026-10-10) lekerült a naptárból — nem lesz megfutva.
+      // Következő cél: félmaraton, 2027-04-11, 3 futás/hét (az edzésterem a fő fókusz). A strukturált
+      // felkészülés kb. 2026-12-20 körül indul (~15-16 hét a versenyig); addig alapozó, laza futások.
+      // Amint a terv részletei összeállnak, PLAN_START/PLAN_RACE/PLAN_DATA itt kerül feltöltésre.
+      const PLAN_START = "2027-01-01";
+      const PLAN_RACE = "2027-04-11";
 
-      const PLAN_DATA = [
-        // HÉT 1 — Regeneráció (félmaraton után)
-        {
-          phase: "Regeneráció",
-          phaseColor: "#64748b",
-          km: 15,
-          days: [
-            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "easy", lbl: "Könnyű futás", det: "5 km, Z1 — nagyon laza, csak mozgás" },
-            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "easy", lbl: "Könnyű futás", det: "4 km, Z1" },
-            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "easy", lbl: "Könnyű futás", det: "6 km, Z1 — figyeld a lábad (térd/vádli)" },
-            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-          ],
-        },
-        // HÉT 2 — Visszaépítés
-        {
-          phase: "Visszaépítés",
-          phaseColor: "#3b82f6",
-          km: 21,
-          days: [
-            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "easy", lbl: "Könnyű futás", det: "6 km, Z1–Z2" },
-            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "easy", lbl: "Könnyű futás", det: "5 km, Z1 + 6×20mp strides" },
-            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "long", lbl: "Hosszú futás", det: "10 km, Z1–Z2" },
-            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-          ],
-        },
-        // HÉT 3 — 10 km-specifikus építés
-        {
-          phase: "10km építés",
-          phaseColor: "#f59e0b",
-          km: 26,
-          days: [
-            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "easy", lbl: "Könnyű futás", det: "7 km, Z1–Z2" },
-            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "tempo", lbl: "Tempó futás", det: "7 km: 2 km bemu + 4 km @ kb. 4:25/km (küszöb) + 1 km lev" },
-            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "long", lbl: "Hosszú futás", det: "12 km: első 9 km Z2, utolsó 3 km @ kb. 4:35/km" },
-            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-          ],
-        },
-        // HÉT 4 — Csúcshét
-        {
-          phase: "10km csúcs",
-          phaseColor: "#ef4444",
-          km: 31,
-          days: [
-            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "easy", lbl: "Könnyű futás", det: "8 km, Z1–Z2" },
-            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            {
-              type: "interval",
-              lbl: "Intervall",
-              det: "9 km: 2 km bemu + 5×1000m @ kb. 4:08/km (90mp könnyű futás) + 2 km lev",
-            },
-            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "long", lbl: "Hosszú futás", det: "14 km: első 10 km Z2, utolsó 4 km @ kb. 4:25/km" },
-            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-          ],
-        },
-        // HÉT 5 — Taper + verseny (szombat, 10-10)
-        {
-          phase: "Taper",
-          phaseColor: "#10b981",
-          km: 21,
-          days: [
-            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "easy", lbl: "Könnyű futás", det: "6 km, Z1 + 4×20mp strides" },
-            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "tempo", lbl: "Élénkítő", det: "5 km: 2 km bemu + 2×800m @ versenyiram + 1 km lev" },
-            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "race", lbl: "VERSENY", det: "10 km verseny — szombat 10.10. — cél: PR (becsült iram kb. 4:10/km)" },
-            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-          ],
-        },
-      ];
+      const PLAN_DATA = [];
 
       const _PLAN_DAYS_HU = ["Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek", "Szombat", "Vasárnap"];
       const _PLAN_FULL_DAYS_HU = ["Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek", "Szombat", "Vasárnap"];
@@ -14192,13 +14121,14 @@
         const today = new Date().toISOString().slice(0, 10);
         const cwIdx = _planCurrentWeekIdx();
 
-        // ── PROGRESS BAR ──
-        const totalWeeks = PLAN_DATA.length;
-        const doneWeeks = Math.max(0, cwIdx);
-        const pct = Math.round((doneWeeks / totalWeeks) * 100);
-        const raceDate = new Date(PLAN_RACE);
-        const daysLeft = Math.ceil((raceDate - new Date()) / 86400000);
-        document.getElementById("plan-progress-wrap").innerHTML = `
+        if (PLAN_DATA.length > 0) {
+          // ── PROGRESS BAR ──
+          const totalWeeks = PLAN_DATA.length;
+          const doneWeeks = Math.max(0, cwIdx);
+          const pct = Math.round((doneWeeks / totalWeeks) * 100);
+          const raceDate = new Date(PLAN_RACE);
+          const daysLeft = Math.ceil((raceDate - new Date()) / 86400000);
+          document.getElementById("plan-progress-wrap").innerHTML = `
     <div class="plan-progress-bar"><div class="plan-progress-fill" style="width:${pct}%"></div></div>
     <div class="plan-progress-lbl">${doneWeeks}/${totalWeeks} hét teljesítve · ${daysLeft} nap a versenyig</div>
     <div class="plan-phase-pills">${[...new Set(PLAN_DATA.map((w) => w.phase))]
@@ -14208,15 +14138,19 @@
       })
       .join("")}</div>`;
 
-        // ── GOAL BOXES ──
-        document.getElementById("plan-goals").innerHTML = `
+          // ── GOAL BOXES ──
+          document.getElementById("plan-goals").innerHTML = `
     <div class="plan-goal-grid">
       <div class="plan-goal-box"><div class="pg-lbl">Célpace</div><div class="pg-val" style="color:var(--lime)">~4:10<span style="font-size:13px">/km</span></div><div class="pg-sub">becslés, 3. héten pontosítva</div></div>
       <div class="plan-goal-box"><div class="pg-lbl">Céleredmény</div><div class="pg-val">~42:00</div><div class="pg-sub">PR-cél (HM alapján, Riegel)</div></div>
       <div class="plan-goal-box"><div class="pg-lbl">Verseny</div><div class="pg-val">okt. 10.</div><div class="pg-sub">10 km</div></div>
       <div class="plan-goal-box"><div class="pg-lbl">Heti km csúcs</div><div class="pg-val">31<span style="font-size:13px"> km</span></div><div class="pg-sub">4. hét</div></div>
     </div>`;
-
+        } else {
+          document.getElementById("plan-progress-wrap").innerHTML = `
+    <div class="plan-progress-lbl">Nincs aktív edzésterv — a 10 km-es verseny lekerült a naptárból. Következő cél: félmaraton, 2027.04.11.</div>`;
+          document.getElementById("plan-goals").innerHTML = "";
+        }
 
         // ── FULL PLAN ──
         _renderPlanFull(cwIdx, today);
