@@ -12291,10 +12291,10 @@
 
             const countdownHtml =
               daysLeft > 0
-                ? `<span class="hero-num">${daysLeft}</span>nap a 10 km-ig`
+                ? `<span class="hero-num">${daysLeft}</span>nap a félmaratonig`
                 : daysLeft === 0
-                  ? `Ma van a 10 km-es verseny`
-                  : `<span class="hero-num">${Math.abs(daysLeft)}</span>napja lezajlott a 10 km`;
+                  ? `Ma van a félmaraton`
+                  : `<span class="hero-num">${Math.abs(daysLeft)}</span>napja lezajlott a félmaraton`;
 
             const subParts = [];
             if (planW) subParts.push(`${cwI + 1}. hét · ${planW.phase}`);
@@ -13999,14 +13999,182 @@
         },
       ];
 
-      // ACTIVE PLAN: nincs. A 10 km-es verseny (2026-10-10) lekerült a naptárból — nem lesz megfutva.
-      // Következő cél: félmaraton, 2027-04-11, 3 futás/hét (az edzésterem a fő fókusz). A strukturált
-      // felkészülés kb. 2026-12-20 körül indul (~15-16 hét a versenyig); addig alapozó, laza futások.
-      // Amint a terv részletei összeállnak, PLAN_START/PLAN_RACE/PLAN_DATA itt kerül feltöltésre.
-      const PLAN_START = "2027-01-01";
+      // ACTIVE PLAN: "A" blokk, 2026-10-05 – 2026-12-20 (11 hét, heti 3 futás: K tempó/intervallum,
+      // Cs könnyű, Szo hosszú). Nem újraalapozás — a térd/vádli sérüléseknek nincs már jele, és egy friss
+      // 5×1000m @ 4:04/km intervallum igazolja, hogy a HM utáni (4:24/km, VO2max 55-56) szint megmaradt.
+      // Cél: tovább gyorsulni a decemberi, célorientált félmaraton-blokk (2027-04-11) előtt. A 8. héten
+      // (11.23-11.29) egy 10 km-es versenyteszt pontosítja a célpace-t a jelenlegi ~4:10-4:15/km becslés helyett.
+      // A "B" blokk (a tényleges félmaraton-felkészülés) 2026-12-21-én indul és felülírja majd ezt a PLAN_DATA-t.
+      const PLAN_START = "2026-10-05"; // Monday of week 1
       const PLAN_RACE = "2027-04-11";
 
-      const PLAN_DATA = [];
+      const PLAN_DATA = [
+        // HÉT 1 — Visszaépítés
+        {
+          phase: "Visszaépítés",
+          phaseColor: "#3b82f6",
+          km: 24,
+          days: [
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "tempo", lbl: "Tempó futás", det: "6 km: 1,5 km bemu + 3 km @ kb. 4:30/km (küszöb) + 1,5 km lev" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "easy", lbl: "Könnyű futás", det: "6 km, Z1–Z2" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "long", lbl: "Hosszú futás", det: "12 km, Z1–Z2" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+          ],
+        },
+        // HÉT 2 — Visszaépítés
+        {
+          phase: "Visszaépítés",
+          phaseColor: "#3b82f6",
+          km: 27,
+          days: [
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "interval", lbl: "Intervallum", det: "7 km: 2 km bemu + 5×600m @ kb. 4:00/km (90mp könnyű futás köztük) + 2 km lev" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "easy", lbl: "Könnyű futás", det: "7 km, Z1–Z2" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "long", lbl: "Hosszú futás", det: "13 km, Z1–Z2" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+          ],
+        },
+        // HÉT 3 — Visszaépítés
+        {
+          phase: "Visszaépítés",
+          phaseColor: "#3b82f6",
+          km: 30,
+          days: [
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "tempo", lbl: "Tempó futás", det: "8 km: 2 km bemu + 4 km @ kb. 4:28/km + 2 km lev" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "easy", lbl: "Könnyű futás", det: "7 km, Z1–Z2 + 4×20mp strides" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "long", lbl: "Hosszú futás", det: "15 km, Z1–Z2 (utolsó 3 km kb. 4:35/km)" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+          ],
+        },
+        // HÉT 4 — Tempó építés
+        {
+          phase: "Tempó építés",
+          phaseColor: "#f59e0b",
+          km: 31,
+          days: [
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "interval", lbl: "Intervallum", det: "9 km: 2 km bemu + 6×800m @ kb. 4:00/km (400m könnyű futás köztük) + 2 km lev" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "easy", lbl: "Könnyű futás", det: "8 km, Z1–Z2" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "long", lbl: "Hosszú futás", det: "15 km, Z1–Z2" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+          ],
+        },
+        // HÉT 5 — Tempó építés
+        {
+          phase: "Tempó építés",
+          phaseColor: "#f59e0b",
+          km: 33,
+          days: [
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "tempo", lbl: "Tempó futás", det: "9 km: 2 km bemu + 5 km @ kb. 4:24/km + 2 km lev" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "easy", lbl: "Könnyű futás", det: "8 km, Z1–Z2" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "long", lbl: "Hosszú futás", det: "16 km, Z1–Z2 (utolsó 4 km kb. 4:35/km)" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+          ],
+        },
+        // HÉT 6 — Tempó építés
+        {
+          phase: "Tempó építés",
+          phaseColor: "#f59e0b",
+          km: 35,
+          days: [
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "interval", lbl: "Intervallum", det: "10 km: 2 km bemu + 5×1000m @ kb. 4:02/km (90mp könnyű futás köztük) + 2 km lev" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "easy", lbl: "Könnyű futás", det: "8 km, Z1–Z2" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "long", lbl: "Hosszú futás", det: "17 km, Z1–Z2" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+          ],
+        },
+        // HÉT 7 — Csúcs
+        {
+          phase: "Csúcs",
+          phaseColor: "#ef4444",
+          km: 36,
+          days: [
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "tempo", lbl: "Tempó futás", det: "10 km: 2 km bemu + 6 km @ kb. 4:20/km + 2 km lev" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "easy", lbl: "Könnyű futás", det: "8 km, Z1–Z2" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "long", lbl: "Hosszú futás", det: "18 km, Z1–Z2 (utolsó 5 km kb. 4:30/km)" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+          ],
+        },
+        // HÉT 8 — Teszt
+        {
+          phase: "Teszt",
+          phaseColor: "#8b5cf6",
+          km: 26,
+          days: [
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "easy", lbl: "Könnyű futás", det: "6 km, Z1 — pihent lábak a tesztre" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "race", lbl: "TESZT", det: "10 km versenyteszt, max erőfeszítés — ez pontosítja az új félmaraton-céltempót" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "easy", lbl: "Könnyű futás", det: "10 km, Z1–Z2 — laza, teszt utáni kilazítás" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+          ],
+        },
+        // HÉT 9 — Levezetés
+        {
+          phase: "Levezetés",
+          phaseColor: "#64748b",
+          km: 32,
+          days: [
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "tempo", lbl: "Tempó futás", det: "9 km: 2 km bemu + 5 km a teszt alapján frissített küszöbiramon + 2 km lev" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "easy", lbl: "Könnyű futás", det: "8 km, Z1–Z2" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "long", lbl: "Hosszú futás", det: "16 km, Z1–Z2" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+          ],
+        },
+        // HÉT 10 — Levezetés
+        {
+          phase: "Levezetés",
+          phaseColor: "#64748b",
+          km: 24,
+          days: [
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "interval", lbl: "Intervallum", det: "8 km: 2 km bemu + 5×800m a teszt alapján frissített iramon + 2 km lev" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "easy", lbl: "Könnyű futás", det: "7 km, Z1" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "long", lbl: "Hosszú futás", det: "12 km, Z1" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+          ],
+        },
+        // HÉT 11 — Levezetés (átmenet a "B" blokk / ünnepek előtt)
+        {
+          phase: "Levezetés",
+          phaseColor: "#64748b",
+          km: 18,
+          days: [
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "easy", lbl: "Könnyű futás", det: "5 km, Z1 + 4×20mp strides" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "easy", lbl: "Könnyű futás", det: "4 km, Z1 — rugalmas, ünnepi időszak" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+            { type: "long", lbl: "Hosszú futás", det: "9 km, Z1 — laza, csak fenntartás" },
+            { type: "rest", lbl: "Pihenő", det: "Pihenő" },
+          ],
+        },
+      ];
 
       const _PLAN_DAYS_HU = ["Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek", "Szombat", "Vasárnap"];
       const _PLAN_FULL_DAYS_HU = ["Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek", "Szombat", "Vasárnap"];
@@ -14122,15 +14290,16 @@
         const cwIdx = _planCurrentWeekIdx();
 
         if (PLAN_DATA.length > 0) {
-          // ── PROGRESS BAR ──
+          // ── PROGRESS BAR ── (days-to-block-end, not days-to-race — PLAN_DATA covers only the
+          // current training block; PLAN_RACE is the actual, much later, half-marathon date)
           const totalWeeks = PLAN_DATA.length;
           const doneWeeks = Math.max(0, cwIdx);
           const pct = Math.round((doneWeeks / totalWeeks) * 100);
-          const raceDate = new Date(PLAN_RACE);
-          const daysLeft = Math.ceil((raceDate - new Date()) / 86400000);
+          const blockEndDate = new Date(_planDayDate(PLAN_DATA.length - 1, 6));
+          const daysLeft = Math.ceil((blockEndDate - new Date()) / 86400000);
           document.getElementById("plan-progress-wrap").innerHTML = `
     <div class="plan-progress-bar"><div class="plan-progress-fill" style="width:${pct}%"></div></div>
-    <div class="plan-progress-lbl">${doneWeeks}/${totalWeeks} hét teljesítve · ${daysLeft} nap a versenyig</div>
+    <div class="plan-progress-lbl">${doneWeeks}/${totalWeeks} hét teljesítve · ${daysLeft} nap a blokk végéig</div>
     <div class="plan-phase-pills">${[...new Set(PLAN_DATA.map((w) => w.phase))]
       .map((ph) => {
         const w = PLAN_DATA.find((x) => x.phase === ph);
@@ -14139,12 +14308,13 @@
       .join("")}</div>`;
 
           // ── GOAL BOXES ──
+          const peakWeek = PLAN_DATA.reduce((a, w, i) => (w.km > PLAN_DATA[a].km ? i : a), 0);
           document.getElementById("plan-goals").innerHTML = `
     <div class="plan-goal-grid">
-      <div class="plan-goal-box"><div class="pg-lbl">Célpace</div><div class="pg-val" style="color:var(--lime)">~4:10<span style="font-size:13px">/km</span></div><div class="pg-sub">becslés, 3. héten pontosítva</div></div>
-      <div class="plan-goal-box"><div class="pg-lbl">Céleredmény</div><div class="pg-val">~42:00</div><div class="pg-sub">PR-cél (HM alapján, Riegel)</div></div>
-      <div class="plan-goal-box"><div class="pg-lbl">Verseny</div><div class="pg-val">okt. 10.</div><div class="pg-sub">10 km</div></div>
-      <div class="plan-goal-box"><div class="pg-lbl">Heti km csúcs</div><div class="pg-val">31<span style="font-size:13px"> km</span></div><div class="pg-sub">4. hét</div></div>
+      <div class="plan-goal-box"><div class="pg-lbl">Célpace (HM)</div><div class="pg-val" style="color:var(--lime)">~4:10–4:15<span style="font-size:13px">/km</span></div><div class="pg-sub">becslés, a 8. heti teszt pontosítja</div></div>
+      <div class="plan-goal-box"><div class="pg-lbl">Blokk</div><div class="pg-val">A</div><div class="pg-sub">tempó/intervallum építés</div></div>
+      <div class="plan-goal-box"><div class="pg-lbl">Félmaraton</div><div class="pg-val">2027.04.11.</div><div class="pg-sub">a blokk ezután, dec. 21-től folytatódik</div></div>
+      <div class="plan-goal-box"><div class="pg-lbl">Heti km csúcs</div><div class="pg-val">${PLAN_DATA[peakWeek].km}<span style="font-size:13px"> km</span></div><div class="pg-sub">${peakWeek + 1}. hét</div></div>
     </div>`;
         } else {
           document.getElementById("plan-progress-wrap").innerHTML = `

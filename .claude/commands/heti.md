@@ -20,11 +20,12 @@ Ha a fájlok túl nagyok a közvetlen olvasáshoz (jellemzően igen), használj 
 
 ## 2. AZ AKTUÁLIS HÉT AZONOSÍTÁSA
 
-Terv kezdete: 2026-05-11 (H1 hétfő). Hetekre bontás:
-- H1: 05-11–05-17 | H2: 05-18–05-24 | H3: 05-25–05-31 | H4: 06-01–06-07
-- H5: 06-08–06-14 | H6: 06-15–06-21 | H7: 06-22–06-28 | H8: 06-29–07-05
-- H9: 07-06–07-12 | H10: 07-13–07-19 | H11: 07-20–07-26 | H12: 07-27–08-02
-- H13: 08-03–08-09 | H14: 08-10–08-16 | H15: 08-17–08-23 | H16: 08-24–08-30 | H17: 08-31–09-06
+**"A" blokk** (nem a félmaraton-felkészülés maga, hanem egy tempó/intervallum-építő blokk előtte). Terv kezdete: 2026-10-05 (H1 hétfő). Hetekre bontás:
+- H1: 10-05–10-11 | H2: 10-12–10-18 | H3: 10-19–10-25 | H4: 10-26–11-01
+- H5: 11-02–11-08 | H6: 11-09–11-15 | H7: 11-16–11-22 | H8: 11-23–11-29
+- H9: 11-30–12-06 | H10: 12-07–12-13 | H11: 12-14–12-20
+
+A "B" blokk (a tényleges félmaraton-felkészülés, 2027-04-11-i versenyig) 2026-12-21-én indul; ha az aktuális dátum már azután van, ez a fájl frissítésre szorul — jelezd, ne találj ki heteket.
 
 Pontosan számítsd ki, melyik hétben vagyunk és hány futás van már a héten.
 
@@ -32,35 +33,32 @@ Pontosan számítsd ki, melyik hétben vagyunk és hány futás van már a héte
 
 ## 3. HETI TERVEK (futások)
 
-H1 (28km): K 7km Z1-Z2 | Sze 6km Z1+strides | Cs 5km Z1 | Szo 10km Z1
-H2 (32km): K 8km Z1-Z2 | Sze 7km Z1+strides | Cs 5km Z1 | Szo 12km Z1
-H3 (36km): K 9km Z1-Z2 | Sze 7km Z1+strides | Cs 6km Z1 | Szo 14km Z1-Z2
-H4 (27km): K 7km Z1 | Sze 6km Z1+strides | Cs 4km Z1 | Szo 10km Z1
-H5 (37km): K 8km Z1-Z2 | Sze 9km (2km bemu+5km@4:45+2km lev) | Cs 4km Z1 | Szo 16km Z1-Z2
-H6 (42km): K 9km Z1-Z2 | Sze 10km (2km bemu+6km@4:42+2km lev) | Cs 5km Z1 | Szo 18km Z2
-H7 (46km): K 10km Z1-Z2 | Sze 11km (2km bemu+7km@4:40+2km lev) | Cs 5km Z1 | Szo 20km Z2
-H8 (34km): K 7km Z1 | Sze 6km Z1 | Cs 4km Z1 | Szo 17km Z1
-H9 (42km): K 9km Z1-Z2 | Sze 5×800m@4:05/km | Cs 5km Z1 | Szo 18km Z2
-H10 (46km): K 10km Z1-Z2 | Sze 6×800m@4:03/km | Cs 5km Z1 | Szo 20km Z2
-H11 (50km): K 12km Z1-Z2 | Sze 3×1600m@4:08/km | Cs 5km Z1 | Szo 21km Z2
-H12 (37km): K 8km Z1 | Sze 7km Z1 | Cs 4km Z1 | Szo 18km Z1
-H13 (41km): K 8km Z1-Z2 | Sze 7km@4:32/km | Cs 5km Z1 | Szo 17km (utolsó 5km@4:30)
-H14 (36km): K 7km Z1-Z2 | Sze 5km@4:30/km | Cs 5km Z1 | Szo 15km Z2
-H15 (24km): K 6km Z1-Z2 | Sze 3km@4:32/km | Cs 5km Z1 | Szo 6km Z1
-H16 (12km): K 5km Z1 | Sze 4km+strides | Szo 3km Z1
-H17: K 3km Z1 | Cs aktiváció | V VERSENY (09-06)
+Heti szerkezet: Kedd = tempó/intervallum, Csütörtök = könnyű, Szombat = hosszú (3 futás/hét — az edzőterem a fő fókusz, ezért nincs negyedik futónap).
+
+H1 (24km): K tempó 6km (1,5 bemu+3km@4:30+1,5 lev) | Cs könnyű 6km Z1-Z2 | Szo hosszú 12km Z1-Z2
+H2 (27km): K intervallum 7km (2 bemu+5×600m@4:00+2 lev) | Cs könnyű 7km Z1-Z2 | Szo hosszú 13km Z1-Z2
+H3 (30km): K tempó 8km (2 bemu+4km@4:28+2 lev) | Cs könnyű 7km Z1-Z2+strides | Szo hosszú 15km Z1-Z2 (utolsó 3km@4:35)
+H4 (31km): K intervallum 9km (2 bemu+6×800m@4:00+2 lev) | Cs könnyű 8km Z1-Z2 | Szo hosszú 15km Z1-Z2
+H5 (33km): K tempó 9km (2 bemu+5km@4:24+2 lev) | Cs könnyű 8km Z1-Z2 | Szo hosszú 16km Z1-Z2 (utolsó 4km@4:35)
+H6 (35km): K intervallum 10km (2 bemu+5×1000m@4:02+2 lev) | Cs könnyű 8km Z1-Z2 | Szo hosszú 17km Z1-Z2
+H7 (36km): K tempó 10km (2 bemu+6km@4:20+2 lev) | Cs könnyű 8km Z1-Z2 | Szo hosszú 18km Z1-Z2 (utolsó 5km@4:30)
+H8 (26km) — TESZT hét: K könnyű 6km Z1 (pihent lábak) | Cs **10km versenyteszt, max erőfeszítés — ez pontosítja az új HM-céltempót** | Szo könnyű 10km Z1-Z2 (kilazítás)
+H9 (32km): K tempó 9km (2 bemu+5km a teszt alapján frissített küszöbiramon+2 lev) | Cs könnyű 8km Z1-Z2 | Szo hosszú 16km Z1-Z2
+H10 (24km): K intervallum 8km (2 bemu+5×800m a teszt alapján frissített iramon+2 lev) | Cs könnyű 7km Z1 | Szo hosszú 12km Z1
+H11 (18km): K könnyű 5km Z1+strides | Cs könnyű 4km Z1 (rugalmas, ünnepek) | Szo hosszú 9km Z1 (laza, fenntartás)
 
 ---
 
 ## 4. HÁTTÉRPROFIL (kontextus az elemzéshez)
 
-- Előző HM: 4:37/km (2025-04-13), versenyeken max HR 179 bpm
-- VO₂ Max csúcs: 56,8 (2025 március); terv kezdeti szint: ~45,1; cél VDOT: ~52 (4:30/km HM-hez)
-- Jobb térd sérülés: 2026 márc–ápr, 45 napos kihagyás — ha a hosszú futások kapcsán térdjelzés jön, rögtön jelezd
+- Első HM (2026-09-06): **4:24/km, új PR** (előző: 4:37/km, 2025-04-13); versenyeken max HR historikusan ~179 bpm
+- Következő cél: **félmaraton, 2027-04-11**. Céltempó ezen a blokkon (A blokk) belül még nincs lezárva — jelenlegi becslés ~4:10-4:15/km, a 8. heti (11-23–11-29) 10km-es versenyteszt fogja pontosítani. Hosszú távú (2-3 ciklus) cél: 4:00/km.
+- VO₂ Max: csúcs 56,8 (2025 márc.); a 2026-09-06-i HM idején 55-56; 2026-10-02-én mérve még mindig 54-56 — nincs visszaesés a verseny óta.
+- **Sérülések rendezve (2026-10-02-i állás szerint):** a jobb térd sérülése (2026 márc–ápr) és a vádli-húzódás (2026-08-10) óta nincs tünet; egy friss 5×1000m @ 4:04/km intervallum-széria "fairly easily" ment, ami igazolja, hogy a HM utáni szint megmaradt. Nem kell már kiemelten óvatoskodni, de ha mégis jelezne valami (térd/vádli), természetesen azonnal jelezd.
 - HR zónák: Z1 ≤144 bpm | Z2 145–160 bpm | Z3+ 161+ bpm
-- Alap fázis avg HR plafon: 150 bpm (Alap, Recovery hetek könnyű futásain)
 - Strides/intervallum max HR spike irreleváns (túl rövid)
 - Drift a hosszú futás utolsó 20-30%-ában max 155-ig OK
+- Edzőterem jelenleg a fő fókusz (heti 2-3x) + heti 1x beltéri bouldering — ezért csak 3 futás/hét, a terv ezt tudatosan vállalja, nem hiányosság
 
 ---
 
@@ -91,7 +89,7 @@ Táblázat az összes mért értékkel 2026-05-11-től:
 |---|---|
 | ÉÉÉÉ.HH.NN. | XX,X |
 
-Az első és legutóbbi érték különbségét emeld ki. Számítsd ki: jelenlegi → 52,0 cél = X egység hiány.
+Nincs fix célszám jelenleg (a 52,0-ás célt már a nyár óta túlteljesítette) — a hangsúly azon van, hogy a 2026-09-06-i HM óta mért 54-56-os szint tartja-e magát vagy csúszik-e lefelé. Emeld ki, ha visszaesés látszik; ha stabil vagy nő, mondd pozitívan.
 
 ### Szekció 4: Tempófejlődés (azonos HR-en)
 Bullet pointok: konkrét futások összehasonlítása (dátum, tempó, HR). Ha a tempó javult azonos HR-en: ez az aerob fejlődés jele — mondj is így.

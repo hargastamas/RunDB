@@ -24,27 +24,27 @@ const HEALTH_SPREADSHEET_ID = '1Tw4oAhFdid2_FJ41kXrj-zPxydhLZWa2tNIxA6cr_js';
 const RUNS_SHEET_NAME       = 'Running';
 const MODEL                 = 'llama-3.3-70b-versatile';
 
-// ── Edzésterv (17 hét, 2026-05-11 – 2026-09-06) ──────────────────────────────
-const PLAN_START = '2026-05-11';
-const PLAN_RACE  = '2026-09-06';
+// ── "A" blokk (11 hét, 2026-10-05 – 2026-12-20) ──────────────────────────────
+// Nem a félmaraton-felkészülés maga — egy tempó/intervallum-építő blokk előtte.
+// A sérüléseknek (térd, vádli) 2026-10-02-én nincs már tünete; a HM utáni szint
+// (VO2max 54-56, 5×1000m @ 4:04/km) megmaradt, ezért ez a blokk tovább épít rá.
+// A "B" blokk (a tényleges félmaraton-felkészülés, cél: 2027-04-11) 2026-12-21-én
+// indul és felülírja majd ezt a PLAN_WEEKS tömböt — a korábbi (2026-05-11 –
+// 2026-09-06-i, 17 hetes) HM-terv teljesítve, 4:24/km PR-rel zárult.
+const PLAN_START = '2026-10-05';
+const PLAN_RACE  = '2027-04-11'; // a tényleges félmaraton; ez a blokk csak idáig épít
 const PLAN_WEEKS = [
-  { w:  1, phase: 'Alap',                   km: 28, key: 'Hosszú: 10 km Z1' },
-  { w:  2, phase: 'Alap',                   km: 32, key: 'Hosszú: 12 km Z1' },
-  { w:  3, phase: 'Alap',                   km: 36, key: 'Hosszú: 14 km Z1-Z2' },
-  { w:  4, phase: 'Alap (recovery)',         km: 27, key: 'Hosszú: 10 km Z1' },
-  { w:  5, phase: 'Tempo',                  km: 37, key: 'Tempó: 5 km @ 4:45/km · Hosszú: 16 km' },
-  { w:  6, phase: 'Tempo',                  km: 42, key: 'Tempó: 6 km @ 4:42/km · Hosszú: 18 km Z2' },
-  { w:  7, phase: 'Tempo',                  km: 46, key: 'Tempó: 7 km @ 4:40/km · Hosszú: 20 km Z2' },
-  { w:  8, phase: 'Tempo (recovery)',        km: 34, key: 'Hosszú: 17 km Z1' },
-  { w:  9, phase: 'Intervallum',            km: 42, key: '5×800m @ 4:05/km · Hosszú: 18 km' },
-  { w: 10, phase: 'Intervallum',            km: 46, key: '6×800m @ 4:03/km · Hosszú: 20 km' },
-  { w: 11, phase: 'Intervallum',            km: 50, key: '3×1600m @ 4:08/km · Hosszú: 21 km' },
-  { w: 12, phase: 'Intervallum (recovery)', km: 37, key: 'Hosszú: 18 km Z1' },
-  { w: 13, phase: 'Versenyspecifikus',      km: 41, key: '7 km @ 4:32/km · Hosszú: 17 km (utolsó 5 km @ 4:30)' },
-  { w: 14, phase: 'Versenyspecifikus',      km: 36, key: '5 km @ 4:30/km · Hosszú: 15 km Z2' },
-  { w: 15, phase: 'Taper',                  km: 24, key: '3 km @ 4:32/km · Hosszú: 6 km Z1' },
-  { w: 16, phase: 'Taper',                  km: 12, key: 'Csak könnyű futások' },
-  { w: 17, phase: 'Verseny',                km: 21, key: 'Félmaraton — 2026-09-06' },
+  { w:  1, phase: 'Visszaépítés',  km: 24, key: 'Tempó: 3 km @ 4:30/km · Hosszú: 12 km Z1-Z2' },
+  { w:  2, phase: 'Visszaépítés',  km: 27, key: '5×600m @ 4:00/km · Hosszú: 13 km Z1-Z2' },
+  { w:  3, phase: 'Visszaépítés',  km: 30, key: 'Tempó: 4 km @ 4:28/km · Hosszú: 15 km (utolsó 3 km @ 4:35)' },
+  { w:  4, phase: 'Tempó építés',  km: 31, key: '6×800m @ 4:00/km · Hosszú: 15 km Z1-Z2' },
+  { w:  5, phase: 'Tempó építés',  km: 33, key: 'Tempó: 5 km @ 4:24/km · Hosszú: 16 km (utolsó 4 km @ 4:35)' },
+  { w:  6, phase: 'Tempó építés',  km: 35, key: '5×1000m @ 4:02/km · Hosszú: 17 km Z1-Z2' },
+  { w:  7, phase: 'Csúcs',         km: 36, key: 'Tempó: 6 km @ 4:20/km · Hosszú: 18 km (utolsó 5 km @ 4:30)' },
+  { w:  8, phase: 'Teszt',         km: 26, key: '10 km versenyteszt, max erőfeszítés — ez pontosítja az új félmaraton-céltempót' },
+  { w:  9, phase: 'Levezetés',     km: 32, key: 'Tempó: 5 km a teszt alapján frissített iramon · Hosszú: 16 km' },
+  { w: 10, phase: 'Levezetés',     km: 24, key: '5×800m a teszt alapján frissített iramon · Hosszú: 12 km Z1' },
+  { w: 11, phase: 'Levezetés',     km: 18, key: 'Könnyű hét, ünnepi időszak · Hosszú: 9 km Z1' },
 ];
 
 // ── Fő függvény ───────────────────────────────────────────────────────────────
@@ -153,7 +153,7 @@ function readPlanSheet(ss) {
     if (!w || w < 1 || w > 20) continue;
     result.push({ w, phase: String(r[1] || ''), km: hun(r[2]) || 0, key: String(r[3] || '') });
   }
-  return result.length >= 17 ? result.sort((a, b) => a.w - b.w) : PLAN_WEEKS;
+  return result.length >= PLAN_WEEKS.length ? result.sort((a, b) => a.w - b.w) : PLAN_WEEKS;
 }
 
 // ── Health adatok beolvasása ──────────────────────────────────────────────────
