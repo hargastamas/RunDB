@@ -10680,8 +10680,6 @@
       // v6 "Running" tab added an HR Zone Count column and expanded HRZ0-5 → HRZ1-9; v5 stays on the old layout.
       const SCHEMA_V5 = { hrz: [18, 19, 20, 21, 22, 23], hrzOffset: 1, gct: 28, vo: 29, sl: 30, steps: 31 };
       const SCHEMA_V6 = { hrz: [19, 20, 21, 22, 23, 24, 25, 26, 27], hrzOffset: 0, gct: 32, vo: 33, sl: 34, steps: 35 };
-      const WEIGHT_CUT_START = "2026-06-22";
-      const WEIGHT_GOAL = 65;
       let RUNS = [],
         MONTHLY = [],
         YEARLY = [],
@@ -12247,38 +12245,27 @@
         );
       }
 
-      // Group weight entries into Mon-Sun weekly averages
-      function _weeklyAvgSeries(cutData) {
-        const wM = {};
-        cutData.forEach((r) => {
-          const ws = _wStart(r.date);
-          (wM[ws] = wM[ws] || []).push(r.kg);
+      // Trailing N-day moving average of weight, one value per record (robust to gaps)
+      function _weightTrendSeries(records, windowDays = 7) {
+        return records.map((r) => {
+          const lo = _addDays(r.date, -(windowDays - 1));
+          const inWindow = records.filter((x) => x.date >= lo && x.date <= r.date);
+          return +(inWindow.reduce((s, x) => s + x.kg, 0) / inWindow.length).toFixed(2);
         });
-        const weeksSorted = Object.keys(wM).sort();
-        const weeklyAvg = weeksSorted.map((ws) => +(wM[ws].reduce((s, v) => s + v, 0) / wM[ws].length).toFixed(1));
-        return { weeksSorted, weeklyAvg };
       }
-
-      // Weekly average weight rows, one week per line, each with delta vs previous week
-      function _weeklyWeightRowsHtml(weeksSorted, weeklyAvg) {
-        const curWs = _wStart(new Date().toISOString().slice(0, 10));
-        return weeksSorted
-          .map((ws, i) => {
-            const avg = weeklyAvg[i];
-            const delta = i > 0 ? +(avg - weeklyAvg[i - 1]).toFixed(1) : null;
-            const isCur = ws === curWs;
-            const isLast = i === weeksSorted.length - 1;
-            const dCol = delta === null || delta === 0 ? "var(--text3)" : delta < 0 ? "var(--lime)" : "var(--orange)";
-            const dStr = delta === null ? "—" : (delta > 0 ? "+" : "") + delta.toFixed(1) + " kg";
-            return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 8px;margin:0 -8px;border-radius:8px;${isCur ? "background:var(--lime)18;" : ""}${!isLast && !isCur ? "border-bottom:1px solid var(--border);" : ""}">
-              <span style="font-size:12px;color:var(--text2);">${_fmtPlanDate(ws)}–${_fmtPlanDate(_wEnd(ws))}</span>
-              <span style="display:flex;align-items:center;gap:14px;">
-                <span style="font-family:DINPro,sans-serif;font-size:15px;font-weight:600;color:var(--text);">${avg.toFixed(1)} kg</span>
-                <span style="font-size:12px;font-weight:600;color:${dCol};min-width:56px;text-align:right;">${dStr}</span>
-              </span>
-            </div>`;
-          })
-          .join("");
+      function _addDays(dateStr, n) {
+        const d = new Date(dateStr + "T12:00:00Z");
+        d.setUTCDate(d.getUTCDate() + n);
+        return d.toISOString().slice(0, 10);
+      }
+      // Trend value at/before a target date (null if no data that far back)
+      function _trendValueAt(records, trendSeries, targetDate) {
+        let idx = -1;
+        for (let i = 0; i < records.length; i++) {
+          if (records[i].date <= targetDate) idx = i;
+          else break;
+        }
+        return idx >= 0 ? trendSeries[idx] : null;
       }
 
       function drawOverviewCharts() {
@@ -12569,47 +12556,37 @@
           }
         }
 
-        // Weight-loss widget — progress toward WEIGHT_GOAL since WEIGHT_CUT_START
+        // Weight trend widget — maintenance view: daily weigh-ins + 7-day trend line, no goal
         const _wtEl = document.getElementById("thisweek-weight");
         if (_wtEl) {
-          const cutData = WEIGHT.filter((r) => r.date >= WEIGHT_CUT_START);
-          if (cutData.length >= 2) {
-            const startW = cutData[0].kg;
-            const curW = cutData[cutData.length - 1].kg;
-            const lost = +(startW - curW).toFixed(1);
-            const remain = +(curW - WEIGHT_GOAL).toFixed(1);
-            const span = startW - WEIGHT_GOAL;
-            const pct = span > 0 ? Math.max(0, Math.min(100, Math.round(((startW - curW) / span) * 100))) : 100;
-            const lostCol = lost > 0 ? "var(--lime)" : lost < 0 ? "var(--orange)" : "var(--text3)";
-            const lostStr = (lost > 0 ? "-" : lost < 0 ? "+" : "") + Math.abs(lost).toFixed(1);
-            const remainStr = remain > 0 ? remain.toFixed(1) : "Cél elérve";
-            const { weeksSorted, weeklyAvg } = _weeklyAvgSeries(cutData);
-            const avgLoss =
-              weeksSorted.length > 1
-                ? +((weeklyAvg[0] - weeklyAvg[weeklyAvg.length - 1]) / (weeksSorted.length - 1)).toFixed(2)
-                : null;
-            const avgLossCol = avgLoss === null || avgLoss === 0 ? "var(--text3)" : avgLoss > 0 ? "var(--lime)" : "var(--orange)";
-            const avgLossStr =
-              avgLoss === null ? "—" : (avgLoss > 0 ? "-" : avgLoss < 0 ? "+" : "") + Math.abs(avgLoss).toFixed(2);
+          const windowStart = _addDays(new Date().toISOString().slice(0, 10), -90);
+          const wData = WEIGHT.filter((r) => r.date >= windowStart);
+          if (wData.length >= 2) {
+            const trend = _weightTrendSeries(wData, 7);
+            const curTrend = trend[trend.length - 1];
+            const d7 = _trendValueAt(wData, trend, _addDays(wData[wData.length - 1].date, -7));
+            const d30 = _trendValueAt(wData, trend, _addDays(wData[wData.length - 1].date, -30));
+            const delta7 = d7 != null ? +(curTrend - d7).toFixed(1) : null;
+            const delta30 = d30 != null ? +(curTrend - d30).toFixed(1) : null;
+            const fmtDelta = (d) => (d == null ? "—" : (d > 0 ? "+" : d < 0 ? "−" : "±") + Math.abs(d).toFixed(1));
             _wtEl.innerHTML = `<div style="background:var(--surface);border:1px solid var(--card-border);border-radius:12px;padding:14px 16px;">
-              <div style="font-size:12px;font-weight:600;color:var(--text3);margin-bottom:12px;">Szálkásítás · ${_fmtPlanDate(WEIGHT_CUT_START)} óta</div>
-              <div style="display:flex;gap:22px;flex-wrap:wrap;margin-bottom:14px;">
-                <div><div style="font-size:10px;font-weight:600;color:var(--text3);margin-bottom:3px;">Jelenlegi</div><div style="font-family:DINPro,sans-serif;font-size:22px;font-weight:800;color:var(--text);">${curW.toFixed(1)}<span style="font-size:12px;font-weight:300;color:var(--text3);margin-left:2px;">kg</span></div></div>
-                <div><div style="font-size:10px;font-weight:600;color:var(--text3);margin-bottom:3px;">Eddig</div><div style="font-family:DINPro,sans-serif;font-size:22px;font-weight:800;color:${lostCol};">${lostStr}<span style="font-size:12px;font-weight:300;color:var(--text3);margin-left:2px;">kg</span></div></div>
-                <div><div style="font-size:10px;font-weight:600;color:var(--text3);margin-bottom:3px;">Hátra a célig</div><div style="font-family:DINPro,sans-serif;font-size:22px;font-weight:800;color:var(--text);">${remainStr}${remain > 0 ? `<span style="font-size:12px;font-weight:300;color:var(--text3);margin-left:2px;">kg</span>` : ""}</div></div>
-                <div><div style="font-size:10px;font-weight:600;color:var(--text3);margin-bottom:3px;">Átlag heti fogyás</div><div style="font-family:DINPro,sans-serif;font-size:22px;font-weight:800;color:${avgLossCol};">${avgLossStr}<span style="font-size:12px;font-weight:300;color:var(--text3);margin-left:2px;">kg/hét</span></div></div>
+              <div style="font-size:12px;font-weight:600;color:var(--text3);margin-bottom:12px;">Testsúly · trend (utolsó 90 nap)</div>
+              <div style="display:flex;gap:22px;flex-wrap:wrap;margin-bottom:12px;">
+                <div><div style="font-size:10px;font-weight:600;color:var(--text3);margin-bottom:3px;">Trend-súly</div><div style="font-family:DINPro,sans-serif;font-size:22px;font-weight:800;color:var(--text);">${curTrend.toFixed(1)}<span style="font-size:12px;font-weight:300;color:var(--text3);margin-left:2px;">kg</span></div></div>
+                <div><div style="font-size:10px;font-weight:600;color:var(--text3);margin-bottom:3px;">7 nap</div><div style="font-family:DINPro,sans-serif;font-size:22px;font-weight:800;color:var(--text2);">${fmtDelta(delta7)}<span style="font-size:12px;font-weight:300;color:var(--text3);margin-left:2px;">kg</span></div></div>
+                <div><div style="font-size:10px;font-weight:600;color:var(--text3);margin-bottom:3px;">30 nap</div><div style="font-family:DINPro,sans-serif;font-size:22px;font-weight:800;color:var(--text2);">${fmtDelta(delta30)}<span style="font-size:12px;font-weight:300;color:var(--text3);margin-left:2px;">kg</span></div></div>
               </div>
-              <div style="margin-bottom:14px;">
-                <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
-                  <span style="font-size:10px;font-weight:600;color:var(--text3);">${pct}% a célig</span>
-                  <span style="font-size:10px;color:var(--text3);">${startW.toFixed(1)} → ${WEIGHT_GOAL.toFixed(1)} kg</span>
-                </div>
-                <div style="width:100%;height:6px;background:var(--border);border-radius:3px;">
-                  <div style="height:100%;border-radius:3px;background:var(--lime);width:${pct}%"></div>
-                </div>
-              </div>
-              <div>${_weeklyWeightRowsHtml(weeksSorted, weeklyAvg)}</div>
+              <canvas id="weightTrendChart" height="140"></canvas>
             </div>`;
+            drawLine(
+              "weightTrendChart",
+              wData.map((r) => r.date.slice(5)),
+              [
+                { data: wData.map((r) => r.kg), color: gv("--text3"), label: "mérés" },
+                { data: trend, color: getLime(), fill: true, fillColor: getLimeDim(), label: "7 napos trend" },
+              ],
+              { rotateLabels: true, yFmt: (v) => v.toFixed(1) + " kg" },
+            );
           } else {
             _wtEl.innerHTML = "";
           }
