@@ -14005,6 +14005,8 @@
       // Cél: tovább gyorsulni a decemberi, célorientált félmaraton-blokk (2027-04-11) előtt. A 8. héten
       // (11.23-11.29) egy 10 km-es versenyteszt pontosítja a célpace-t a jelenlegi ~4:10-4:15/km becslés helyett.
       // A "B" blokk (a tényleges félmaraton-felkészülés) 2026-12-21-én indul és felülírja majd ezt a PLAN_DATA-t.
+      // Iramok (2026-10-05-i revízió): küszöb 4:15→4:08/km, intervallum 3:58→3:55/km — VDOT ~54-55-höz igazítva
+      // (az eredeti 4:30→4:20-as "tempó" lassabb volt a 4:24-es HM-versenytempónál). Csütörtökönként 6×20mp strides.
       const PLAN_START = "2026-10-05"; // Monday of week 1
       const PLAN_RACE = "2027-04-11";
 
@@ -14013,12 +14015,12 @@
         {
           phase: "Visszaépítés",
           phaseColor: "#3b82f6",
-          km: 24,
+          km: 25,
           days: [
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "tempo", lbl: "Tempó futás", det: "6 km: 1,5 km bemu + 3 km @ kb. 4:30/km (küszöb) + 1,5 km lev" },
+            { type: "tempo", lbl: "Tempó futás", det: "7 km: 1,5 km bemu + 4 km @ kb. 4:15/km (küszöb) + 1,5 km lev" },
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "easy", lbl: "Könnyű futás", det: "6 km, Z1–Z2" },
+            { type: "easy", lbl: "Könnyű futás", det: "6 km, Z1–Z2 + 6×20mp strides" },
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
             { type: "long", lbl: "Hosszú futás", det: "12 km, Z1–Z2" },
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
@@ -14028,12 +14030,12 @@
         {
           phase: "Visszaépítés",
           phaseColor: "#3b82f6",
-          km: 27,
+          km: 28,
           days: [
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "interval", lbl: "Intervallum", det: "7 km: 2 km bemu + 5×600m @ kb. 4:00/km (90mp könnyű futás köztük) + 2 km lev" },
+            { type: "interval", lbl: "Intervallum", det: "9 km: 1,5 km bemu + 6×800m @ kb. 3:58/km (90mp kocogás köztük) + 1,5 km lev" },
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "easy", lbl: "Könnyű futás", det: "7 km, Z1–Z2" },
+            { type: "easy", lbl: "Könnyű futás", det: "6 km, Z1–Z2 + 6×20mp strides" },
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
             { type: "long", lbl: "Hosszú futás", det: "13 km, Z1–Z2" },
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
@@ -14043,14 +14045,14 @@
         {
           phase: "Visszaépítés",
           phaseColor: "#3b82f6",
-          km: 30,
+          km: 31,
           days: [
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "tempo", lbl: "Tempó futás", det: "8 km: 2 km bemu + 4 km @ kb. 4:28/km + 2 km lev" },
+            { type: "tempo", lbl: "Tempó futás", det: "9 km: 2 km bemu + 5 km @ kb. 4:12/km (küszöb) + 2 km lev" },
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "easy", lbl: "Könnyű futás", det: "7 km, Z1–Z2 + 4×20mp strides" },
+            { type: "easy", lbl: "Könnyű futás", det: "7 km, Z1–Z2 + 6×20mp strides" },
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "long", lbl: "Hosszú futás", det: "15 km, Z1–Z2 (utolsó 3 km kb. 4:35/km)" },
+            { type: "long", lbl: "Hosszú futás", det: "15 km, Z1–Z2 (utolsó 3 km kb. 4:25/km)" },
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
           ],
         },
@@ -14058,12 +14060,12 @@
         {
           phase: "Tempó építés",
           phaseColor: "#f59e0b",
-          km: 31,
+          km: 32,
           days: [
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "interval", lbl: "Intervallum", det: "9 km: 2 km bemu + 6×800m @ kb. 4:00/km (400m könnyű futás köztük) + 2 km lev" },
+            { type: "interval", lbl: "Intervallum", det: "10 km: 2 km bemu + 5×1000m @ kb. 3:58/km (90mp kocogás köztük) + 2 km lev" },
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "easy", lbl: "Könnyű futás", det: "8 km, Z1–Z2" },
+            { type: "easy", lbl: "Könnyű futás", det: "7 km, Z1–Z2 + 6×20mp strides" },
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
             { type: "long", lbl: "Hosszú futás", det: "15 km, Z1–Z2" },
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
@@ -14076,11 +14078,11 @@
           km: 33,
           days: [
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "tempo", lbl: "Tempó futás", det: "9 km: 2 km bemu + 5 km @ kb. 4:24/km + 2 km lev" },
+            { type: "tempo", lbl: "Tempó futás", det: "10 km: 2 km bemu + 2×3 km @ kb. 4:08/km (küszöb, 2 perc kocogás köztük) + 2 km lev" },
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "easy", lbl: "Könnyű futás", det: "8 km, Z1–Z2" },
+            { type: "easy", lbl: "Könnyű futás", det: "7 km, Z1–Z2 + 6×20mp strides" },
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "long", lbl: "Hosszú futás", det: "16 km, Z1–Z2 (utolsó 4 km kb. 4:35/km)" },
+            { type: "long", lbl: "Hosszú futás", det: "16 km, Z1–Z2 (utolsó 4 km kb. 4:22/km)" },
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
           ],
         },
@@ -14091,9 +14093,9 @@
           km: 35,
           days: [
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "interval", lbl: "Intervallum", det: "10 km: 2 km bemu + 5×1000m @ kb. 4:02/km (90mp könnyű futás köztük) + 2 km lev" },
+            { type: "interval", lbl: "Intervallum", det: "11 km: 2 km bemu + 6×1000m @ kb. 3:55/km (90mp kocogás köztük) + 1,5 km lev" },
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "easy", lbl: "Könnyű futás", det: "8 km, Z1–Z2" },
+            { type: "easy", lbl: "Könnyű futás", det: "7 km, Z1–Z2 + 6×20mp strides" },
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
             { type: "long", lbl: "Hosszú futás", det: "17 km, Z1–Z2" },
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
@@ -14106,11 +14108,11 @@
           km: 36,
           days: [
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "tempo", lbl: "Tempó futás", det: "10 km: 2 km bemu + 6 km @ kb. 4:20/km + 2 km lev" },
+            { type: "tempo", lbl: "Tempó futás", det: "10 km: 2 km bemu + 6 km @ kb. 4:08/km (küszöb) + 2 km lev" },
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "easy", lbl: "Könnyű futás", det: "8 km, Z1–Z2" },
+            { type: "easy", lbl: "Könnyű futás", det: "8 km, Z1–Z2 + 6×20mp strides" },
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "long", lbl: "Hosszú futás", det: "18 km, Z1–Z2 (utolsó 5 km kb. 4:30/km)" },
+            { type: "long", lbl: "Hosszú futás", det: "18 km, Z1–Z2 (utolsó 5 km kb. 4:18/km)" },
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
           ],
         },
@@ -14138,7 +14140,7 @@
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
             { type: "tempo", lbl: "Tempó futás", det: "9 km: 2 km bemu + 5 km a teszt alapján frissített küszöbiramon + 2 km lev" },
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "easy", lbl: "Könnyű futás", det: "8 km, Z1–Z2" },
+            { type: "easy", lbl: "Könnyű futás", det: "8 km, Z1–Z2 + 6×20mp strides" },
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
             { type: "long", lbl: "Hosszú futás", det: "16 km, Z1–Z2" },
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
@@ -14153,7 +14155,7 @@
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
             { type: "interval", lbl: "Intervallum", det: "8 km: 2 km bemu + 5×800m a teszt alapján frissített iramon + 2 km lev" },
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
-            { type: "easy", lbl: "Könnyű futás", det: "7 km, Z1" },
+            { type: "easy", lbl: "Könnyű futás", det: "7 km, Z1 + 6×20mp strides" },
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },
             { type: "long", lbl: "Hosszú futás", det: "12 km, Z1" },
             { type: "rest", lbl: "Pihenő", det: "Pihenő" },

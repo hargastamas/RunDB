@@ -35,17 +35,22 @@ Pontosan számítsd ki, melyik hétben vagyunk és hány futás van már a héte
 
 Heti szerkezet: Kedd = tempó/intervallum, Csütörtök = könnyű, Szombat = hosszú (3 futás/hét — az edzőterem a fő fókusz, ezért nincs negyedik futónap).
 
-H1 (24km): K tempó 6km (1,5 bemu+3km@4:30+1,5 lev) | Cs könnyű 6km Z1-Z2 | Szo hosszú 12km Z1-Z2
-H2 (27km): K intervallum 7km (2 bemu+5×600m@4:00+2 lev) | Cs könnyű 7km Z1-Z2 | Szo hosszú 13km Z1-Z2
-H3 (30km): K tempó 8km (2 bemu+4km@4:28+2 lev) | Cs könnyű 7km Z1-Z2+strides | Szo hosszú 15km Z1-Z2 (utolsó 3km@4:35)
-H4 (31km): K intervallum 9km (2 bemu+6×800m@4:00+2 lev) | Cs könnyű 8km Z1-Z2 | Szo hosszú 15km Z1-Z2
-H5 (33km): K tempó 9km (2 bemu+5km@4:24+2 lev) | Cs könnyű 8km Z1-Z2 | Szo hosszú 16km Z1-Z2 (utolsó 4km@4:35)
-H6 (35km): K intervallum 10km (2 bemu+5×1000m@4:02+2 lev) | Cs könnyű 8km Z1-Z2 | Szo hosszú 17km Z1-Z2
-H7 (36km): K tempó 10km (2 bemu+6km@4:20+2 lev) | Cs könnyű 8km Z1-Z2 | Szo hosszú 18km Z1-Z2 (utolsó 5km@4:30)
+H1 (25km): K tempó 7km (1,5 bemu+4km@4:15+1,5 lev) | Cs könnyű 6km Z1-Z2+strides | Szo hosszú 12km Z1-Z2
+H2 (28km): K intervallum 9km (1,5 bemu+6×800m@3:58, 90mp kocogás+1,5 lev) | Cs könnyű 6km Z1-Z2+strides | Szo hosszú 13km Z1-Z2
+H3 (31km): K tempó 9km (2 bemu+5km@4:12+2 lev) | Cs könnyű 7km Z1-Z2+strides | Szo hosszú 15km Z1-Z2 (utolsó 3km@4:25)
+H4 (32km): K intervallum 10km (2 bemu+5×1000m@3:58, 90mp kocogás+2 lev) | Cs könnyű 7km Z1-Z2+strides | Szo hosszú 15km Z1-Z2
+H5 (33km): K tempó 10km (2 bemu+2×3km@4:08, 2 perc kocogás+2 lev) | Cs könnyű 7km Z1-Z2+strides | Szo hosszú 16km Z1-Z2 (utolsó 4km@4:22)
+H6 (35km): K intervallum 11km (2 bemu+6×1000m@3:55, 90mp kocogás+1,5 lev) | Cs könnyű 7km Z1-Z2+strides | Szo hosszú 17km Z1-Z2
+H7 (36km): K tempó 10km (2 bemu+6km@4:08+2 lev) | Cs könnyű 8km Z1-Z2+strides | Szo hosszú 18km Z1-Z2 (utolsó 5km@4:18)
 H8 (26km) — TESZT hét: K könnyű 6km Z1 (pihent lábak) | Cs **10km versenyteszt, max erőfeszítés — ez pontosítja az új HM-céltempót** | Szo könnyű 10km Z1-Z2 (kilazítás)
-H9 (32km): K tempó 9km (2 bemu+5km a teszt alapján frissített küszöbiramon+2 lev) | Cs könnyű 8km Z1-Z2 | Szo hosszú 16km Z1-Z2
-H10 (24km): K intervallum 8km (2 bemu+5×800m a teszt alapján frissített iramon+2 lev) | Cs könnyű 7km Z1 | Szo hosszú 12km Z1
+H9 (32km): K tempó 9km (2 bemu+5km a teszt alapján frissített küszöbiramon+2 lev) | Cs könnyű 8km Z1-Z2+strides | Szo hosszú 16km Z1-Z2
+H10 (24km): K intervallum 8km (2 bemu+5×800m a teszt alapján frissített iramon+2 lev) | Cs könnyű 7km Z1+strides | Szo hosszú 12km Z1
 H11 (18km): K könnyű 5km Z1+strides | Cs könnyű 4km Z1 (rugalmas, ünnepek) | Szo hosszú 9km Z1 (laza, fenntartás)
+
+
+**Iramok logikája (2026-10-05-i revízió):** küszöb (tempó) 4:15→4:08/km, intervallum 3:58→3:55/km — VDOT ~54-55-höz igazítva. Az eredeti terv "tempója" (4:30→4:20) lassabb volt a 4:24-es HM-versenytempónál, ezért lett átírva. A "strides" mindig 6×20mp laza gyorsítást jelent a könnyű futás végén.
+
+**Automatikus gyorsítás — minden elemzésben ellenőrizd:** ha a keddi minőségi edzés láthatóan könnyen ment (a tervezett iramot tartotta vagy gyorsabb volt, és a HR nem kúszott fel a szakasz/ismétlések végére), javasold, hogy a következő azonos típusú edzés (tempó→tempó, intervallum→intervallum) 2-3 mp/km-rel gyorsabb legyen a tervezettnél. Ha nehezen ment vagy nem sikerült tartani az iramot, maradjon a terv szerinti iram. A javaslatot konkrét számmal írd le a következő hétre vonatkozó részben.
 
 ---
 

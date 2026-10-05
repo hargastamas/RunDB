@@ -34,13 +34,13 @@ const MODEL                 = 'llama-3.3-70b-versatile';
 const PLAN_START = '2026-10-05';
 const PLAN_RACE  = '2027-04-11'; // a tényleges félmaraton; ez a blokk csak idáig épít
 const PLAN_WEEKS = [
-  { w:  1, phase: 'Visszaépítés',  km: 24, key: 'Tempó: 3 km @ 4:30/km · Hosszú: 12 km Z1-Z2' },
-  { w:  2, phase: 'Visszaépítés',  km: 27, key: '5×600m @ 4:00/km · Hosszú: 13 km Z1-Z2' },
-  { w:  3, phase: 'Visszaépítés',  km: 30, key: 'Tempó: 4 km @ 4:28/km · Hosszú: 15 km (utolsó 3 km @ 4:35)' },
-  { w:  4, phase: 'Tempó építés',  km: 31, key: '6×800m @ 4:00/km · Hosszú: 15 km Z1-Z2' },
-  { w:  5, phase: 'Tempó építés',  km: 33, key: 'Tempó: 5 km @ 4:24/km · Hosszú: 16 km (utolsó 4 km @ 4:35)' },
-  { w:  6, phase: 'Tempó építés',  km: 35, key: '5×1000m @ 4:02/km · Hosszú: 17 km Z1-Z2' },
-  { w:  7, phase: 'Csúcs',         km: 36, key: 'Tempó: 6 km @ 4:20/km · Hosszú: 18 km (utolsó 5 km @ 4:30)' },
+  { w:  1, phase: 'Visszaépítés',  km: 25, key: 'Tempó: 4 km @ 4:15/km · Hosszú: 12 km Z1-Z2' },
+  { w:  2, phase: 'Visszaépítés',  km: 28, key: '6×800m @ 3:58/km · Hosszú: 13 km Z1-Z2' },
+  { w:  3, phase: 'Visszaépítés',  km: 31, key: 'Tempó: 5 km @ 4:12/km · Hosszú: 15 km (utolsó 3 km @ 4:25)' },
+  { w:  4, phase: 'Tempó építés',  km: 32, key: '5×1000m @ 3:58/km · Hosszú: 15 km Z1-Z2' },
+  { w:  5, phase: 'Tempó építés',  km: 33, key: 'Tempó: 2×3 km @ 4:08/km · Hosszú: 16 km (utolsó 4 km @ 4:22)' },
+  { w:  6, phase: 'Tempó építés',  km: 35, key: '6×1000m @ 3:55/km · Hosszú: 17 km Z1-Z2' },
+  { w:  7, phase: 'Csúcs',         km: 36, key: 'Tempó: 6 km @ 4:08/km · Hosszú: 18 km (utolsó 5 km @ 4:18)' },
   { w:  8, phase: 'Teszt',         km: 26, key: '10 km versenyteszt, max erőfeszítés — ez pontosítja az új félmaraton-céltempót' },
   { w:  9, phase: 'Levezetés',     km: 32, key: 'Tempó: 5 km a teszt alapján frissített iramon · Hosszú: 16 km' },
   { w: 10, phase: 'Levezetés',     km: 24, key: '5×800m a teszt alapján frissített iramon · Hosszú: 12 km Z1' },
@@ -442,23 +442,20 @@ function buildPrompt(wsStr, weStr, thisWeek, ctl, atl, tsb, weeklyHistory, bestP
   return `Te egy személyes futóedző vagy. Írj tömör, személyes hangvételű heti elemzést magyarul Tamásnak.
 
 TAMÁS PROFILJA:
-- Előző félmaraton: 4:37/km (1:37:30, 2025-04-13), versenyen max HR 179 bpm
-- VO₂ Max csúcs: 56,8 (2025 március, 47 km/hetes edzésblokk — ez az igazi potenciálja)
-- Visszatérős forma: 45 napos kihagyás (jobb térd, IT band/patellofemoral, 2026 márc–ápr) — nem motivációs probléma
-- Edzésterv előtti alap: ~20 km/hét, 5 km @ ~4:45/km futóképesség
-- 4:30/km HM-hez kb. VO₂ Max 52 szükséges (VDOT-alapú becslés). Csúcson 56,8-nál volt (~1:29-es HM-forma), tehát a cél jóval a csúcs alatt van — reálisan visszaépíthető.
+- Félmaraton PR: 4:24/km (2026-09-06, előző: 4:37/km 2025-04-13), versenyen max HR ~179 bpm
+- VO₂ Max: csúcs 56,8 (2025 március); a 2026-09-06-i HM idején 55-56, 2026 októberében 54-56 — nincs visszaesés
+- Sérülések (jobb térd 2026 márc–ápr, vádli 2026-08) rendezve, nincs tünet. Ha új panasz jelenik meg, jelezd.
+- Heti 3 futás (K minőségi, Cs könnyű, Szo hosszú) — az edzőterem a fő fókusz, ez tudatos döntés, nem hiányosság
 
 KONTEXTUS:
-- Tapasztalt futó, HM-cél: sub-1:35 (4:30/km átlagtempó) — Wizzair Félmaraton, 2026-09-06
-- 17 hetes strukturált edzésterv, kezdet: ${PLAN_START}
-- TEMPÓ ÉRTELMEZÉS: Alap/Z1 futásoknál a 5:30–6:30/km tempó szándékosan lassú és HELYES. Ne hasonlítsd az alap futások tempóját a 4:30 célhoz — az irreleváns. Csak tempó- és intervalledzések tempóját értékeld a célhoz képest.
+- Következő cél: félmaraton, ${PLAN_RACE}. Most az "A" blokk fut (11 hét, kezdet: ${PLAN_START}): tempó/intervallum-építés a tényleges HM-felkészülés előtt
+- Becsült HM-céltempó: ~4:10-4:15/km (VDOT ~54-55); a 8. heti 10 km-es teszt pontosítja. Hosszú távú cél: 4:00/km
+- Edzésiramok: küszöb (tempó) 4:15→4:08/km, intervallum 3:58→3:55/km, hosszú futás végi szakaszok 4:25→4:18/km
+- TEMPÓ ÉRTELMEZÉS: könnyű/Z1-Z2 futásoknál az 5:15–6:15/km tempó szándékosan lassú és HELYES — ne hasonlítsd versenytempóhoz. Csak a keddi tempó-/intervalledzés és a hosszú futás végi szakasz tempóját értékeld a fenti tervezett iramokhoz képest.
+- AUTOMATIKUS GYORSÍTÁS: ha a keddi minőségi edzés a tervezett iramon vagy gyorsabban ment, és a HR nem kúszott fel a végére, javasold, hogy a következő azonos típusú edzés 2-3 mp/km-rel gyorsabb legyen.
 - TSB SZABÁLY: TSB > -20 = normális tervezett terhelés, NE javasolj pihenést vagy recovery hetet. Csak TSB < -20 esetén jelezz túlterhelést.
-- HR CÉLOK FÁZISONKÉNT:
-  • Alap (H1–4): minden futás avg HR ≤ 150 bpm. Hosszú futásnál drift max 155-ig OK a vége felé. Strides (Wed) max HR spike irreleváns — csak avg számít.
-  • Tempo (H5–8): könnyű futások avg ≤ 150, tempófutás Z3 (avg 155–165) normális.
-  • Intervallum (H9–12): könnyű/recovery avg ≤ 150, interval max HR spike ≥ 175 elvárható és irreleváns.
-  • Versenyspecifikus (H13–14): könnyű avg ≤ 150, versenyiramos futás avg ~160–165.
-- VO₂ MAX ÉRTELMEZÉS: Az Apple Watch VO₂ Max relatív trendet mutat, nem laboratóriumi értéket. 4:30/km HM-hez kb. 52+ szükséges. Jelenlegi érték alapján becsülhető a fejlesztendő gap.
+- HR CÉLOK: könnyű és hosszú futás avg ≤ 150 bpm (hosszú futás végén drift max 155-ig OK, a gyors záró szakasz HR-je ebbe nem számít bele). Tempófutás Z3 (avg 160–170) normális. Intervallum és strides max HR spike irreleváns.
+- VO₂ MAX ÉRTELMEZÉS: Az Apple Watch VO₂ Max relatív trendet mutat, nem laboratóriumi értéket. A cél most a 54-56-os szint megtartása/emelése; 4:00/km HM-hez hosszú távon ~60 kellene.
 
 ${thisWeekHeader}
 ${runLines}
@@ -473,7 +470,7 @@ ${bpLines || '  Nincs adat.'}
 
 FITTSÉG:
   CTL: ${ctl} · ATL: ${atl} · TSB: ${tsb} (${tsbCtx})
-  VO₂ Max (hét végi): ${currentW?.latestVo2 != null ? currentW.latestVo2 : '—'} (cél: ~52, csúcs: 56,8)
+  VO₂ Max (hét végi): ${currentW?.latestVo2 != null ? currentW.latestVo2 : '—'} (jelenlegi sáv: 54-56, csúcs: 56,8)
   ${riegelLine}
 
 Hangnem: személyes, közvetlen coach — nem riport, nem körülírás. Minden bekezdésben legalább egy konkrét számot idézz az adatokból.
@@ -484,13 +481,13 @@ Hangnem: személyes, közvetlen coach — nem riport, nem körülírás. Minden 
 
 2. TREND & FITTSÉG — Egy konkrét következtetés a CTL/TRIMP adatokból (nem metrika-magyarázat). Pl.: "A CTL egyelőre alacsony (14), az első hetekben ez normális — az építési ütem a 3–5. héttől gyorsul." Hasonlítsd az előző heti TRIMP/km adatokhoz ha van.
 
-3. HR-FEGYELEM & CÉLELEMZÉS — Először értékeld a HR-fegyelmet: nézd meg minden futás AvgHR-jét a fáziscél alapján (Alap: ≤ 150). Ha mindenki belefért, egy mondatban jelezd pozitívan számokkal. Ha valamelyik avg HR 150 felett volt, egyértelműen jelezd melyik futáson és mennyivel. Ezután: ha van VO₂ Max adat, számítsd ki a gap-et: (jelenlegi VO₂ Max) → (cél: ~52) = X egység hiány. Mondd meg ez a jelenlegi ütemben hány hét alatt reális (kontextus: 56,8 volt a csúcs, tehát visszaépítés, nem új terep). Ha Riegel-adat elérhető, idézd a becsült HM-tempót egy mondatban. Csak tempó- vagy intervalledzések tempóját hasonlítsd a 4:30 célhoz — alapfázisban ez nem releváns, jelezd egyértelműen.
+3. HR-FEGYELEM & CÉLELEMZÉS — Először értékeld a HR-fegyelmet: nézd meg minden futás AvgHR-jét (könnyű/hosszú: ≤ 150). Ha mindenki belefért, egy mondatban jelezd pozitívan számokkal. Ha valamelyik könnyű/hosszú futás avg HR-je 150 felett volt, egyértelműen jelezd melyik futáson és mennyivel. Ezután: ha volt keddi minőségi edzés, hasonlítsd a tempóját a tervezett iramhoz, és ha könnyen ment, javasolj konkrét 2-3 mp/km-es gyorsítást a következő azonos típusú edzésre. Ha van VO₂ Max adat, egy mondatban értékeld a 54-56-os sávhoz képest. Ha Riegel-adat elérhető, idézd a becsült HM-tempót a ~4:10-4:15/km-es célhoz viszonyítva.
 
 4. FÓKUSZ — A KÖVETKEZŐ HÉT konkrét terve: ${nextWeekCtx}. Ebből kiindulva: mi a legfontosabb egy mondatban (pl. km-volumen elérése, kulcsedzés minősége, regeneráció)? Ne a jelenlegi hét tervezett km-jét ismételd — a következő hétre fókuszálj.
 
 SZABÁLYOK:
 - TSB > -20: ne javasolj pihenést
-- Z1/alap tempók: ne hasonlítsd a 4:30 versenytemóhoz
+- Z1/könnyű tempók: ne hasonlítsd versenytempóhoz
 - Kerüld: bevezető frázisokat ("A heti km-terv teljesítése..."), körülírást, metrikai definíciókat
 - A summary a hét LEZÁRTA után generálódik (utolsó edzés szinkron után), tehát a heti teljesítés végleges`;
 }
