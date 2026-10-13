@@ -4,17 +4,19 @@ Generálj heti edzéselemzést Tamásnak az alábbi lépésekkel és formátumba
 
 ## 1. ADATOK BETÖLTÉSE
 
-A HealthFit 2026-09-13-án lezárta a "v5" exportpárt és egy új "v6" párra váltott — a teljes történethez mindkettő kell:
+A HealthFit időnként új exportpárra vált (v5 → v6: 2026-09-13, v6 → v7: 2026-10-09) — a teljes történethez mindegyik kell:
 - Futásnapló (v5, adatok 2026-09-13-ig): fileId = `192YsNtDn7y6VpjMWKDlWUaA_A6scMiqP3DIDLS3Pfeg`, "Running" fül
 - Egészségügyi adatok (v5, adatok 2026-09-12-ig): fileId = `1V8XlThjn4eSIjU06WDeuPVFQ24G30di4rNzHgHOGUB0`, "Daily Metrics" fül
 - Workouts_v6 (2026-09-14-től folytatólagosan): fileId = `1TIoJRz5d18-6zokzvevXAHak5mSOrJpdE4no9Tu5Lfk`, "Running" fül
-- Health Metrics_v6 (2026-09-13-tól folytatólagosan): fileId = `1Tw4oAhFdid2_FJ41kXrj-zPxydhLZWa2tNIxA6cr_js`, "Daily Metrics" fül
+- Health Metrics_v6 (2026-09-13 – 2026-10-08): fileId = `1Tw4oAhFdid2_FJ41kXrj-zPxydhLZWa2tNIxA6cr_js`, "Daily Metrics" fül
+- Workouts_v7 (2026-10-09-től folytatólagosan): fileId = `1eILzx-rLU7D-cXIY7JK1eEk7x0VnQvmolNkTxAOCryQ`, "Running" fül
+- Health Metrics_v7 (2026-10-09-től folytatólagosan): fileId = `1rtYERYeXCwk3czQWyjCnDflJwZYQEO5HuY_3ptL8454`, "Daily Metrics" fül
 
-Töltsd be mind a négyet a Google Drive MCP-vel.
+Töltsd be mind a hatot a Google Drive MCP-vel. Ha a Drive-on már van újabb (v8…) "Health Metrics_vN" / "Workouts_vN" pár, azt is vedd be, és jelezd, hogy ez a fájl frissítésre szorul.
 
 Ha a fájlok túl nagyok a közvetlen olvasáshoz (jellemzően igen), használj subagent-et a következő utasítással:
-- Futásnapló/Workouts_v6-ból: kinyerni az összes futást 2026-05-11-től (Date, Distance km, Total Time, Avg HR, Max HR, TRIMP, RPE) — a v5 és v6 "Running" fülének oszlopai eltérnek (v6-ban külön HR Zone Count oszlop van, és HRZ1-9 van HRZ0-5 helyett), de a fenti mezők mindkét fülön ugyanott/ugyanúgy elérhetők
-- Egészségügyi adatok/Health Metrics_v6-ból: kinyerni az összes VO₂ Max értéket 2026-05-11-től (Date, VO₂ max) — ugyanaz az oszlopsorrend mindkét fájlban
+- Futásnapló/Workouts_v6/Workouts_v7-ből: kinyerni az összes futást 2026-05-11-től (Date, Distance km, Total Time, Avg HR, Max HR, TRIMP, RPE) — a v5 és v6/v7 "Running" fülének oszlopai eltérnek (v6-tól külön HR Zone Count oszlop van, és HRZ1-9 van HRZ0-5 helyett), de a fenti mezők mindegyik fülön ugyanott/ugyanúgy elérhetők
+- Egészségügyi adatok/Health Metrics_v6/Health Metrics_v7-ből: kinyerni az összes VO₂ Max értéket 2026-05-11-től (Date, VO₂ max) — a v7-ben új "Recovery HRV" oszlop van a Steps előtt, ezért a VO₂ max oszlopot a fejléc neve alapján keresd, ne pozíció szerint
 
 ---
 
